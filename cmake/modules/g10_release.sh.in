@@ -1,0 +1,48 @@
+#!/bin/sh
+#
+# Copyright 2025 g10 Code GmbH
+# Software engineering by Ingo Klöcker <dev@ingo-kloecker.de>
+#
+# This file is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This file is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <https://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+(
+    set -e
+
+    if [ "@CMAKE_BINARY_DIR@" = "@CMAKE_SOURCE_DIR@" ]; then
+        echo "error: build directory must not be the source directory" >&2
+        exit 2
+    fi
+
+    echo "/* Build started at $(date -uIseconds) */"
+
+    cd @CMAKE_BINARY_DIR@
+    if [ -d "dist/@release_name@" ]; then
+        find "dist/@release_name@" -type d ! -perm -700 -exec chmod u+rwx {} ';'
+    fi
+    rm -rf dist
+    mkdir dist
+    cd dist
+    @CMAKE_COMMAND@ @CMAKE_SOURCE_DIR@/CMakeLists.txt
+
+    @CMAKE_COMMAND@ --build . --verbose -t distcheck
+    @CMAKE_COMMAND@ --build . -t gen-swdb
+
+    echo "/* Build finished at $(date -uIseconds) */"
+    echo "/*"
+    echo " * Please run the final step interactively:"
+    echo " *   make sign-release"
+    echo " */"
+) 2>&1 | tee "@release_name@.buildlog"

@@ -1,0 +1,34 @@
+Noteworthy changes in version 2.0.0 (2025-06-03)
+------------------------------------------------
+
+ * First separate release of QGpgME.
+
+ * cmake: The qgpgme folder containing the header files is no longer exported
+   as include directory. All headers have to be included with the prefix
+   qgpgme/ now. The camel-case headers are still included with the prefix
+   QGpgME/.
+
+ * Added function returning the ordered list of attributes of a DN.
+
+ * Interface changes relative to the 1.24 branch of gpgme:
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ DN::prettyAttributes                    NEW.
+ QuickJob::startCreate                   CHANGED: New overload; deprecate old
+                                                  and make it non-virtual.
+ QuickJob::startAddSubkey                CHANGED: New overload; deprecate old
+                                                  and make it non-virtual.
+
+
+Noteworthy changes in earlier versions can be found in the NEWS file of
+gpgme.
+
+
+ Copyright 2024 g10 Code GmbH
+
+ This file is free software; as a special exception the author gives
+ unlimited permission to copy and/or distribute it, with or without
+ modifications, as long as this notice is preserved.
+
+ This file is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+ implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

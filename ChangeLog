@@ -1,0 +1,4511 @@
+2025-06-03  Werner Koch  <wk@gnupg.org>
+
+	Release 2.0.0.
+	+ commit 2e002d8024b9625ca4bd2cb0f1777835e2e5fcd2
+
+
+	Fix for the sign-release make target.
+	+ commit 4eed625f2c92920f25704dabd50b85f10b9c8ed4
+	* cmake/modules/g10_sign-release.sh.in: Allow signing of xz files.
+
+	Add a missing include.
+	+ commit 6fd0726ad8ce270a9773f85212de24cf0a29829f
+	* src/job.h: Include <memory>
+
+2025-06-03  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	build: Add option CONFIGURE_FOR_DISTRIBUTION.
+	+ commit e598181d462a73f3e0d33fd16a5224880b56d3f6
+	* CMakeLists.txt: Add option CONFIGURE_FOR_DISTRIBUTION. Set
+	LibGpgError and Gpgme as required if option CONFIGURE_FOR_DISTRIBUTION
+	is not set. Add src (and tests) only if required dependencies were
+	found.
+
+	build: Fix logic for appending "-unknown" to version number.
+	+ commit e44510289a7e694ed8a911e3306fad10cca73e92
+	* cmake/modules/G10GetFullVersion.cmake (G10_GET_FULL_VERSION): Use
+	DEFINED to check if output variable is set.
+
+2025-05-27  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	On Windows, use gpgme_off_t and gpgme_ssize_t in the API.
+	+ commit d0aa23a7a3842cabccd03ba78ef233a56d1246f1
+	* src/dataprovider.cpp (QByteArrayDataProvider::read,
+	QByteArrayDataProvider::write, QByteArrayDataProvider::seek,
+	QIODeviceDataProvider::read, QIODeviceDataProvider::write,
+	QIODeviceDataProvider::seek): Use gpgme_off_t and gpgme_ssize_t
+	instead of off_t and ssize_t everywhere.
+	* src/dataprovider.h (QByteArrayDataProvider::read,
+	QByteArrayDataProvider::write, QByteArrayDataProvider::seek,
+	QIODeviceDataProvider::read, QIODeviceDataProvider::write,
+	QIODeviceDataProvider::seek): On Windows, use gpgme_off_t and
+	gpgme_ssize_t in the API.
+	(class QByteArrayDataProvider): On Windows, change data type of mOff to
+	gpgme_off_t.
+	* src/filelistdataprovider.cpp (FileListDataProvider::read,
+	FileListDataProvider::write, FileListDataProvider::seek): Use
+	gpgme_off_t and gpgme_ssize_t instead of off_t and ssize_t everywhere.
+	* src/filelistdataprovider.h (FileListDataProvider::read,
+	FileListDataProvider::write, FileListDataProvider::seek): On Windows,
+	use gpgme_off_t and gpgme_ssize_t in the API.
+
+2025-05-26  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Sort includes and macro invocations alphabetically.
+	+ commit 7e8932469e1d08f3919c66fde934cab0f083d1ee
+	* src/job.cpp: Sort includes of job classes, invocations of
+	make_job_subclass and includes of moc files alphabetically.
+
+	Add d-pointer to Job class.
+	+ commit 056567525fb9aa13c13788fec7ef20ec16cffc5f
+	* src/CMakeLists.txt (qgpgme_PRIVATE_HEADERS): Add abstractimportjob_p.
+	* src/job.h (class Job): Add constructor. Add member d_ptr. Add member
+	functions d_func.
+	* src/job.cpp (typedef JobPrivateHash, d_func, setJobPrivate,
+	getJobPrivate): Remove.
+	(Job::Job): Add new constructor. Use new constructor as delegated
+	constructor for existing constructor.
+	(Job::~Job): Use default.
+	(Job::startIt, Job::startNow): Use Q_D macro instead of getJobPrivate.
+	(make_job_subclass_ext): Remove.
+	(make_job_subclass): Adapt to removal of make_job_subclass_ext.
+	* src/job_p.h (class JobPrivate): Add member functions q_func. Add
+	default constructor. Use destructor destructor. Add member q_ptr.
+	(setJobPrivate, getJobPrivate, jobPrivate): Remove.
+	* src/threadedjobmixin.h (template class ThreadedJobMixin): Add
+	template parameter T_private. Add new parameter to typedef mixin_type.
+	Add alternative constructor.
+	* src/abstractimportjob.cpp, src/abstractimportjob.h
+	(class AbstractImportJob): Add constructor overload.
+	* src/abstractimportjob_p.h: New.
+	* src/changeexpiryjob.cpp, src/decryptverifyarchivejob.cpp,
+	src/decryptverifyjob.cpp, src/encryptarchivejob.cpp, src/encryptjob.cpp,
+	src/importjob.cpp, src/listallkeysjob.cpp, src/quickjob.cpp,
+	src/signarchivejob.cpp, src/signencryptarchivejob.cpp,
+	src/signencryptjob.cpp, src/signjob.cpp, src/verifydetachedjob.cpp,
+	src/verifyopaquejob.cpp, src/wkdrefreshjob.cpp: Add private pointer
+	argument to *Job constructor. Use Q_D macro instead of jobPrivate in
+	all setters and getters.
+	* src/changeexpiryjob.h, src/decryptverifyarchivejob.h,
+	src/decryptverifyjob.h, src/encryptarchivejob.h, src/encryptjob.h,
+	src/importjob.h, src/listallkeysjob.h, src/quickjob.h,
+	src/signarchivejob.h, src/signencryptarchivejob.h, src/signencryptjob.h,
+	src/signjob.h, src/verifydetachedjob.h, src/verifyopaquejob.h,
+	src/wkdrefreshjob.h: Forward-declare *JobPrivate class. Add private
+	pointer argument to *Job constructor. Use macro for defining d_func()
+	member functions.
+	* src/changeexpiryjob_p.h, src/decryptverifyarchivejob_p.h,
+	src/decryptverifyjob_p.h, src/encryptarchivejob_p.h, src/encryptjob_p.h,
+	src/listallkeysjob_p.h, src/quickjob_p.h, src/signarchivejob_p.h,
+	src/signencryptarchivejob_p.h, src/signencryptjob_p.h, src/signjob_p.h,
+	src/verifydetachedjob_p.h, src/verifyopaquejob_p.h: Change *JobPrivate
+	struct to class.
+	* src/importjob_p.h, src/wkdrefreshjob_p.h: Change *JobPrivate struct to
+	class and derive from AbstractImportJobPrivate.
+	* src/qgpgmechangeexpiryjob.cpp, src/qgpgmedecryptverifyarchivejob.cpp,
+	src/qgpgmedecryptverifyjob.cpp, src/qgpgmeencryptarchivejob.cpp,
+	src/qgpgmeencryptjob.cpp, src/qgpgmeimportjob.cpp,
+	src/qgpgmelistallkeysjob.cpp, src/qgpgmequickjob.cpp,
+	src/qgpgmesignarchivejob.cpp, src/qgpgmesignencryptarchivejob.cpp,
+	src/qgpgmesignencryptjob.cpp, src/qgpgmesignjob.cpp,
+	src/qgpgmeverifydetachedjob.cpp, src/qgpgmeverifyopaquejob.cpp,
+	src/qgpgmewkdrefreshjob.cpp: (class QGpgME*JobPrivate): Remove member q.
+	Use macro for defining q_func() member functions. Replace constructor
+	with default. Use Q_Q in functions that need q.
+	(class QGpgME*Job): Remove setJobPrivate calls from the constructors.
+	* src/qgpgmechangeexpiryjob.h, src/qgpgmedecryptverifyarchivejob.h,
+	src/qgpgmedecryptverifyjob.h, src/qgpgmeencryptarchivejob.h,
+	src/qgpgmeencryptjob.h, src/qgpgmeimportjob.h,
+	src/qgpgmelistallkeysjob.h, src/qgpgmequickjob.h,
+	src/qgpgmesignarchivejob.h, src/qgpgmesignencryptarchivejob.h,
+	src/qgpgmesignencryptjob.h, src/qgpgmesignjob.h,
+	src/qgpgmeverifydetachedjob.h, src/qgpgmeverifyopaquejob.h,
+	src/qgpgmewkdrefreshjob.h: Forward-declare QGpgME*JobPrivate class.
+	(class QGpgME*Job): Specify private class as private class template
+	argument of the base template class. Use macro for defining d_func()
+	member functions.
+	* src/qgpgmedecryptjob.h, src/qgpgmedownloadjob.h,
+	src/qgpgmeexportjob.h, src/qgpgmegpgcardjob.h,
+	src/qgpgmeimportfromkeyserverjob.h, src/qgpgmekeyformailboxjob.h,
+	src/qgpgmekeygenerationjob.h, src/qgpgmekeylistjob.h,
+	src/qgpgmereceivekeysjob.h, src/qgpgmetofupolicyjob.h,
+	src/qgpgmewkdlookupjob.h, src/qgpgmewkspublishjob.h (class QGpgME*Job):
+	Specify void as private class template argument of the base template
+	class.
+
+2025-05-22  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Explicitly define constructor and destructor of some Job classes.
+	+ commit 433e40765dfc29ee1cf500f90d6925dbbdd36213
+	* src/abstractimportjob.cpp: New.
+	* src/changeexpiryjob.cpp (ChangeExpiryJob::ChangeExpiryJob,
+	ChangeExpiryJob::~ChangeExpiryJob): New.
+	* src/importfromkeyserverjob.cpp: New.
+	* src/importjob.cpp (ImportJob::ImportJob, ImportJob::~ImportJob): New.
+	* src/listallkeysjob.cpp (ListAllKeysJob::ListAllKeysJob,
+	ListAllKeysJob::~ListAllKeysJob): New.
+	* src/receivekeysjob.cpp: New.
+	* src/job.cpp: Remove make_job_subclass(_ext) macros for above Job
+	classes.
+
+2025-05-14  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Remove long obsolete feature checks.
+	+ commit 1a063ce9332ee82aa7ef6aa99340e3d2473b8bac
+	* src/protocol_p.h (Protocol::changePasswdJob): Remove check for
+	PasswdFeature feature.
+	* src/qgpgmebackend.cpp (QGpgMEBackend::config): Remove check for
+	GpgConfEngineFeature feature.
+
+	Modernize interface of QuickJob::startCreate and ::startAddSubkey.
+	+ commit 3032aee35248517caa5030e3d55f5891c00a5d50
+	* src/quickjob.h (QuickJob::startCreate, QuickJob::startAddSubkey): Add
+	overload. Deprecate old overload and make it non-virtual.
+	* src/quickjob_p.h (class QuickJobPrivate): Add pure virtual methods
+	startCreate and startAddSubkey.
+	* src/quickjob.cpp (QuickJob::startCreate, QuickJob::startAddSubkey):
+	New.
+	* src/qgpgmequickjob.h, src/qgpgmequickjob.cpp
+	(QGpgMEQuickJob::startCreate, QGpgMEQuickJob::startAddSubkey): Remove.
+	* src/qgpgmequickjob.cpp (QGpgMEQuickJobPrivate::startCreate,
+	QGpgMEQuickJobPrivate::startAddSubkey): New.
+	(createWorker): Change type of algo argument and of flags argument.
+	Remove key argument. Call the new Context::createKey overload.
+	(addSubkeyWorker): Change type of algo argument and of flags argument.
+	Call the new Context::createSubkey overload.
+
+2025-05-12  Carl Schwan  <carl@carlschwan.eu>
+
+	encryptionjob: Propagate encryption flags.
+	+ commit 3354f537e45963881e2538bb59e5034de1514e39
+	* src/qgpgmeencryptjob.cpp,src/qgpgmesignencryptjob.cpp: propagate flag
+
+2025-05-06  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	build: Append the linker search paths to the RPATH for installed targets
+	+ commit ecce330a06e9becf5e98b914335b9e38236a3398
+	* cmake/modules/G10CMakeSettings.cmake: For Unix systems, enable
+	CMAKE_INSTALL_RPATH_USE_LINK_PATH.
+
+2025-04-02  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Modernize code.
+	+ commit 11f563824297c8db6f4d4a4a35c234bdb106abbe
+	* src/qgpgmenewcryptoconfig.cpp (QGpgMENewCryptoConfig::sync): Use
+	std::as_const instead of deprecated qAsConst.
+
+	Make t-dn also work for Qt 5.
+	+ commit 257ee42037c4ef6b6118f3ad64367e565da2f5fe
+	* src/CMakeLists.txt (qgpgme_PRIVATE_HEADERS): Add qt6compat_p.h for
+	Qt 5 builds.
+	* src/dn.h: Explicitly declare metatype for DN::Attribute.
+	* src/qt6compat_p.h: New. Copied from kleopatra (gpg4win/24.05).
+
+	* tests/CMakeLists.txt: Build t-dn test also for Qt 5.
+	* tests/t-dn.cpp (operator==): Put the operator in the QGpgME namespace
+	to fix Qt 5 build.
+
+	Code cleanup/beautification for the DN parser.
+	+ commit 903dd5588c7b47cc8940c5b939a97742de406304
+	* src/dn.cpp: Add missing includes. Use std::literals namespace.
+	(removeLeadingSpaces, removeTrailingSpaces): Use npos to check result of
+	find_first_not_of/find_last_not_of.
+	(parseHexString): Constify size variable. Replace const char * literal
+	with string_view literal. Use size instead of view.size() in end
+	condition of for-loop.
+	(attributeNameForOID): Replace string_view constructed from const char *
+	literals with string_view literals.
+	(parse_dn_part): Replace const char * literal with string_view literal.
+	Remove validation of hexstring which is already done by parseHexString.
+	Use string_view::remove_prefix instead of string_view::substr.
+	(parse_dn): Constify parsed variable.
+
+2025-04-02  Sune Vuorela  <sune@vuorela.dk>
+
+	Improve distinguished name parser.
+	+ commit 2473ad9fcafd957627f84cf59a830defdf9b17b6
+	* src/dn.cpp (struct NameAndOID): Remove.
+	(oidmap): Replace static vector with function returning the vector.
+	(attributeNameForOID): Support OIDs prefixed with "OID." or "oid.".
+	(struct DnPair, digitp, hexdigitp, xtoi_1, xtoi_2,
+	trim_trailing_spaces): Remove.
+	(removeLeadingSpaces, removeTrailingSpaces, xtoi, parseHexString): New.
+	(parse_dn_part): Rewrite. Add support for values in double quotes.
+	Improve error handling.
+	(parse_dn(const unsigned char*)): Rename to...
+	(parseString): ...this. Work on std::string_view instead of
+	const char *. Change return type.
+	(parse_dn(const QString &)): Work on std::string_view instead of
+	QString. Change return type.
+	(DN::DN(const QString &), DN::DN(const char *)): Pass std::string_view
+	to parse_dn.
+
+	* tests/CMakeLists.txt: Add new test.
+	* tests/t-dn.cpp: New.
+
+2025-03-17  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Add function returning the ordered list of attributes of a DN.
+	+ commit b1192dba859bde5ffba7ea21c4ecdbe7f8267277
+	* src/dn.cpp (listAttributes): New.
+	(serialise): Use listAttributes.
+	* src/dn.cpp, src/dn.h (class DN): Add member function prettyAttributes.
+
+2025-02-26  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Fix deprecation warning with Qt 6.
+	+ commit c1a944a4536efc1132fad515e46b363100a9c8dc
+	* src/qgpgmeaddexistingsubkeyjob.cpp (add_subkey): Use not deprecated
+	overload of QDateTime::fromSecsSinceEpoch for the Qt 6 build.
+
+	build: Require same major/minor version of gpgme as version of qgpgme.
+	+ commit e493794be669883c69fa3cc29de5330c1bfd40a3
+	* CMakeLists.txt: Set GPGME_REQUIRED_VERSION to
+	VERSION_MAJOR.VERSION_MINOR.0.
+
+2025-01-29  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	build: Fix usage of renamed options to build with Qt 5/6.
+	+ commit 4f2578a01da582987ce47a2df0ad3984122136bc
+	* CMakeLists.txt: Check for BUILD_WITH_QT[56].
+
+	build: Run chmod instead of using cmake's file CHMOD command.
+	+ commit c47d157f46525f7330bbccb41a425c7ffb31717c
+	* cmake/modules/G10AddDistTargets.cmake,
+	cmake/modules/G10AddReleaseTargets.cmake,
+	cmake/modules/G10GitHooks.cmake: Replace file(CHMOD ...) with
+	execute_process(COMMAND chmod +x ...).
+
+	doc: Update build instructions and some other documentation.
+	+ commit a5a43afa2cbea66ce024e8e7d672a4a633643044
+	* INSTALL: Remove.
+	* INSTALL.md: New.
+	* README: Update URL of KDE's coding style.
+	* README.GIT: Remove.
+	* doc/HACKING: Update URL of KDE's coding style.
+
+	build: Rename options to build for Qt 5/6.
+	+ commit 0af465867b8ff25ced5621197e4b12877451c81e
+	* CMakeLists.txt: Rename QGPGME_BUILD_QT[56] to BUILD_WITH_QT[56].
+
+2025-01-28  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	build: Install cmake Find modules for gpgme and libgpg-error.
+	+ commit 0df6b231606220f3b4dc3905daf4245ce812336a
+	* src/CMakeLists.txt: Install the necessary Find modules.
+	* src/QGpgmeConfig.cmake.in: Append path of Find modules to
+	CMAKE_MODULE_PATH.
+
+2025-01-22  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	build: Fix name of library.
+	+ commit a7196132d4453addd70ac513ce7ac35e1de4214b
+	* src/CMakeLists.txt: Use variable targetname instead of literal string.
+
+2025-01-20  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	build: Add the usual Git hooks.
+	+ commit 13b35cc1703860b4e55cd8129847b57f021e5787
+	* CMakeLists.txt: Include G10GitHooks. Call g10_configure_git_hooks.
+	* cmake/modules/G10GitHooks.cmake: New.
+
+2025-01-17  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	build: Add custom targets only on Unix-like systems.
+	+ commit 841dc2c6399ad96cef36b722447240b251769e9b
+	* CMakeLists.txt: Call g10_add_gen_changelog_target,
+	g10_add_dist_targets, and g10_add_release_targets only for UNIX.
+
+	build: Build the documentation.
+	+ commit 206bbebea5b6b34195686c54f61bef09638dfc0c
+	* CMakeLists.txt: Check for doxygen. Add subdirectory doc to the build
+	if doxygen is found.
+	* doc/CMakeLists.txt: New.
+	* doc/Doxyfile.in: Remove.
+
+	build: Add "gen-swdb", "release", and "sign-release" targets.
+	+ commit 67f8c3323e4c967aaa622f4b2b4dba9c217b9230
+	* CMakeLists.txt: Include G10AddReleaseTargets. Add the release targets.
+	* cmake/modules/G10AddReleaseTargets.cmake,
+	cmake/modules/g10_generate_swdb.sh.in,  cmake/modules/g10_release.sh.in,
+	cmake/modules/g10_sign-release.sh.in: New.
+
+	build: Generate ChangeLog and add it to the tarball.
+	+ commit bd0e110dfb10d08b1d812e42b7936d9b28784fda
+	* .gitattributes: New.
+	* CMakeLists.txt: Include G10AddGenChangeLogTarget. Add "gen-ChangeLog"
+	target. Make "dist" target depend on "gen-ChangeLog" target.
+	* cmake/modules/G10AddGenChangeLogTarget.cmake,
+	cmake/modules/g10_generate_ChangeLog.cmake.in: New.
+
+	build: Add "dist" and "distcheck" targets.
+	+ commit 47af826842804955187a8d01e72cceb1f140046a
+	* CMakeLists.txt: Include G10AddDistTargets. Set EXTRA_DIST. Add "dist"
+	and "distcheck" target.
+	* cmake/modules/G10AddDistTarget.cmake, cmake/modules/g10_dist.sh.in,
+	cmake/modules/g10_distcheck.sh.in: New.
+
+	build: Create VERSION file with full version and commit ID.
+	+ commit 3fb8a971e0cdc1ced848fe897adec14ece09f131
+	* CMakeLists.txt: Include G10GetFullVersion. Get full version and
+	commit ID. Write VERSION file.
+	* VERSION.in, cmake/modules/G10GetFullVersion.cmake: New.
+
+	build: Generate version file and cmake config files with cmake tools.
+	+ commit cf34169acee8bf57dacac47d6dec1cd4de13693d
+	* cmake/modules/ECMSetupVersion.cmake,
+	cmake/modules/ECMVersionHeader.h.in: New.
+	* cmake/modules/G10CMakeSettings.cmake: Enable versioned DLLs for MinGW
+	builds.
+	* src/CMakeLists.txt: Remove unused variables. Set include directory for
+	generated cmake config files. Use ecm_setup_version instead of
+	configure_file to generate qgpgme_version.h and the *ConfigVersion.cmake
+	files. Use configure_package_config_file instead of configure_file to
+	generate the *Config.cmake files. Generate the exported *Targets.cmake
+	files.
+	* src/QGpgmeConfig.cmake.in: New.
+	* src/QGpgmeConfig-msvc.cmake.in.in, src/QGpgmeConfig-w32.cmake.in.in,
+	src/QGpgmeConfig.cmake.in.in, src/QGpgmeConfigVersion.cmake.in,
+	src/QGpgmeQt6Config-msvc.cmake.in.in,
+	src/QGpgmeQt6Config-w32.cmake.in.in, src/QGpgmeQt6Config.cmake.in.in,
+	src/QGpgmeQt6ConfigVersion.cmake.in, src/qgpgme_version.h.in: Remove.
+
+	build: Add cmake files for building the tests.
+	+ commit 7fce93ec5805d2dbbd22975328318c8ad5e7496b
+	* CMakeLists.txt: Enable AUTORCC. Add subdirectory tests to the build.
+	* cmake/modules/ECMAddTests.cmake, cmake/modules/ECMMarkAsTest.cmake,
+	cmake/modules/ECMMarkNonGuiExecutable.cmake: New.
+	* cmake/modules/G10CMakeSettings.cmake: Add option BUILD_TESTING.
+	* tests/CMakeLists.txt, tests/fixture.qrc, tests/fixture/gpg-agent.conf,
+	tests/fixture/gpg.conf: New.
+	* tests/pubdemo.asc: Move to ...
+	* tests/fixture/pubdemo.asc: here. Remove trailing empty line.
+	* tests/secdemo.asc: Move to ...
+	* tests/fixture/secdemo.asc: here.
+	* tests/Makefile.am, tests/final.test, tests/initial.test,
+	tests/start-stop-agent: Remove.
+	* tests/t-support.cpp (QGpgMETest::initTestCase): Extract test data
+	from fixture to temporary folder. Set GNUPGHOME to this folder. Import
+	pubdemo.asc and secdemo.asc.
+	* tests/t-support.h (QGpgMETest): Add member variable
+	mGnupgHomeTemplate.
+
+	build: Generate the export header.
+	+ commit 2e574603f8cb5e66d4e213412c122e1449c613e1
+	* src/CMakeLists.txt: Remove compile definition BUILDING_QGPGME. Remove
+	qgpgme_export.h from qgpgme_PRIVATE_HEADERS. Use generate_export_header
+	to generate qgpgme_export.h. Install the generated header.
+	* src/qgpgme_export.h: Remove.
+
+	build: Add "uninstall" target.
+	+ commit e7fe0a67f68ca7bde509eb2a9f105c2015fdacf1
+	* CMakeLists.txt: Include ECMUninstallTarget.
+	* cmake/modules/ECMUninstallTarget.cmake,
+	cmake/modules/ecm_uninstall.cmake.in: New.
+
+	build: Generate camel-case headers with cmake module.
+	+ commit 8b9ecbb9b2006d11ad6a672d694260b9d3033e56
+	* CMakeLists.txt: Include ECMGenerateHeaders.
+	* cmake/modules/ECMGenerateHeaders.cmake: New.
+	* src/CMakeLists.txt: Use ecm_generate_headers instead of a manual loop
+	to generate the camel-case headers.
+
+	build: Use cmake's AUTOMOC to run moc.
+	+ commit a6e69542190decee5060cb1da6bcb3fa48ff5209
+	* CMakeLists.txt: Enable CMAKE_AUTOMOC.
+	* src/CMakeLists.txt: Remove code that runs moc manually.
+
+	build: Move common cmake and compiler settings to cmake modules.
+	+ commit fa3c839974aba2c0ea7906e2a4f733caf57e29f6
+	* CMakeLists.txt: Don't set a few variables. Include G10CMakeSettings
+	and G10CompilerSettings.
+	* cmake/modules/G10CMakeSettings.cmake,
+	cmake/modules/G10CompilerSettings.cmake: New.
+	* src/CMakeLists.txt: Don't set include directories for PRIVATE and
+	PUBLIC scope.
+
+	build: Add support for cmake and remove support for autotools.
+	+ commit ac7440f81af3226d7ae4f939101574a990e6fb46
+	* CMakeLists.txt, cmake/modules/FindGpgme.cmake,
+	cmake/modules/FindLibGpgError.cmake, src/CMakeLists.txt,
+	src/QGpgmeConfig-msvc.cmake.in.in, src/QGpgmeQt6Config-msvc.cmake.in.in:
+	New.
+	* Makefile.am, autogen.rc, autogen.sh, build-aux/compile,
+	build-aux/config.guess, build-aux/config.sub, build-aux/depcomp,
+	build-aux/install-sh, build-aux/libtool-patch.sed, build-aux/ltmain.sh,
+	build-aux/missing, build-aux/mkinstalldirs, configure.ac,
+	m4/ax_check_compile_flag.m4, m4/ax_cxx_compile_stdcxx.m4,
+	m4/ax_gcc_func_attribute.m4, m4/gpg-error.m4, m4/gpgme.m4,
+	m4/gpgmepp.m4, m4/libtool.m4, m4/ltoptions.m4, m4/ltsugar.m4,
+	m4/ltversion.m4, m4/lt~obsolete.m4, m4/pkg.m4, m4/qt5.m4, m4/qt6.m4,
+	doc/Makefile.am, src/Makefile.am: Remove.
+
+2024-12-17  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	build: Include moc files generated from headers with standard name.
+	+ commit 783f14961ce81e70e282923ef3cf3c1a6018ed6e
+	* src/Makefile.am, tests/Makefile.am: Use moc_*.cpp instead of *.moc as
+	name for the moc forward headers.
+	* src/cleaner.cpp, src/decryptverifyarchivejob.cpp,
+	src/decryptverifyjob.cpp, src/defaultkeygenerationjob.cpp,
+	src/encryptarchivejob.cpp, src/encryptjob.cpp, src/job.cpp,
+	src/multideletejob.cpp, src/qgpgmeaddexistingsubkeyjob.cpp,
+	src/qgpgmeadduseridjob.cpp, src/qgpgmechangeexpiryjob.cpp,
+	src/qgpgmechangeownertrustjob.cpp, src/qgpgmechangepasswdjob.cpp,
+	src/qgpgmedecryptjob.cpp, src/qgpgmedecryptverifyarchivejob.cpp,
+	src/qgpgmedecryptverifyjob.cpp, src/qgpgmedeletejob.cpp,
+	src/qgpgmedownloadjob.cpp, src/qgpgmeencryptarchivejob.cpp,
+	src/qgpgmeencryptjob.cpp, src/qgpgmeexportjob.cpp,
+	src/qgpgmegpgcardjob.cpp, src/qgpgmeimportfromkeyserverjob.cpp,
+	src/qgpgmeimportjob.cpp, src/qgpgmekeyformailboxjob.cpp,
+	src/qgpgmekeygenerationjob.cpp, src/qgpgmekeylistjob.cpp,
+	src/qgpgmelistallkeysjob.cpp, src/qgpgmequickjob.cpp,
+	src/qgpgmereceivekeysjob.cpp, src/qgpgmerefreshsmimekeysjob.cpp,
+	src/qgpgmerevokekeyjob.cpp, src/qgpgmesetprimaryuseridjob.cpp,
+	src/qgpgmesignarchivejob.cpp, src/qgpgmesignencryptarchivejob.cpp,
+	src/qgpgmesignencryptjob.cpp, src/qgpgmesignjob.cpp,
+	src/qgpgmesignkeyjob.cpp, src/qgpgmetofupolicyjob.cpp,
+	src/qgpgmeverifydetachedjob.cpp, src/qgpgmeverifyopaquejob.cpp,
+	src/qgpgmewkdlookupjob.cpp, src/qgpgmewkdrefreshjob.cpp,
+	src/qgpgmewkspublishjob.cpp, src/quickjob.cpp, src/signarchivejob.cpp,
+	src/signencryptarchivejob.cpp, src/signencryptjob.cpp, src/signjob.cpp,
+	src/verifydetachedjob.cpp, src/verifyopaquejob.cpp,
+	src/wkdrefreshjob.cpp, tests/t-support.cpp: Update name of included moc
+	files.
+
+	Remove unimplemented HierarchicalKeyListJob.
+	+ commit 7e2140366f2fc3b24347825794f1b034173c2ef3
+	* src/Makefile.am: Remove references to hierarchicalkeylistjob.h and
+	to files generated from it.
+	* src/hierarchicalkeylistjob.h: Remove.
+
+2024-12-12  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Store oidmap as vector and add lookup helper.
+	+ commit e52930d9fa842474235c9f2fe3fef3e217bf7d14
+	* src/dn.cpp (struct NameAndOID): New.
+	(oidmap): Change type from plain array to vector.
+	(numOidMaps): Remove.
+	(attributeNameForOID): New.
+	(parse_dn_part): Use attributeNameForOID.
+
+2024-12-10  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Avoid clashes of qgpgme headers with other headers.
+	+ commit e10eec5fbf5923cd4ea817f2ed1ca0d20c0cbe61
+	* src/QGpgmeConfig-w32.cmake.in.in, src/QGpgmeConfig.cmake.in.in,
+	src/QGpgmeQt6Config-w32.cmake.in.in,
+	src/QGpgmeQt6Config.cmake.in.in: Don't put qgpgme subfolder in
+	interface include paths.
+
+2024-12-05  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Add files for building the project with autotools.
+	+ commit 1c3d2756d5ac31252e3167fd0022597ec3881eac
+	* COPYING, INSTALL, README.GIT, autogen.sh, build-aux/compile,
+	build-aux/config.guess, build-aux/config.sub, build-aux/depcomp,
+	build-aux/install-sh, build-aux/libtool-patch.sed, build-aux/ltmain.sh,
+	build-aux/missing, build-aux/mkinstalldirs, m4/ax_check_compile_flag.m4,
+	m4/ax_cxx_compile_stdcxx.m4, m4/ax_gcc_func_attribute.m4,
+	m4/gpg-error.m4, m4/libtool.m4, m4/ltoptions.m4, m4/ltsugar.m4,
+	m4/ltversion.m4, m4/lt~obsolete.m4, m4/pkg.m4, m4/qt5.m4, m4/qt6.m4:
+	New (copied from gpgme).
+	* .gitignore, AUTHORS, ChangeLog, NEWS, autogen.rc, configure.ac: New.
+	* Makefile.am (EXTRA_DIST): Add autogen.sh, autogen.rc,
+	build-aux/libtool-patch.sed, VERSION.
+	(RELEASE_ARCHIVE_SUFFIX, ACLOCAL_AMFLAGS, dist-hook, distcheck-hook,
+	.PHONY, gen_start_date, gen-ChangeLog, RELEASE_NAME, release,
+	sign-release): New (copied with minor adjustments from gpgme's top-level
+	Makefile.am).
+	* build-aux/git-hooks/commit-msg: New.
+	* build-aux/git-log-footer: New (copied with some adjustments from
+	gpgme).
+	* doc/DCO, doc/HACKING: New (copied with some adjustments from gpgme).
+	* doc/Doxyfile.in (INPUT): Update path.
+	* doc/Makefile.am (EXTRA_DIST): New.
+	* m4/gpgme.m4: New (copied from gpgme/src/gpgme.m4).
+	* m4/gpgmepp.m4: New.
+	* src/Makefile.am (libqgpgme_la_CPPFLAGS, libqgpgmeqt6_la_CPPFLAGS):
+	Replace include paths of gpgmepp and gpgme relative to top_builddir
+	with @GPGMEPP_CFLAGS@ and @GPGME_CFLAGS@. Remove unneeded
+	@LIBASSUAN_CFLAGS@.
+	(libqgpgme_la_LIBADD, libqgpgmeqt6_la_LIBADD): Replace relative paths
+	of libgpgmepp.la and libgpgme.la with @GPGMEPP_LIBS@ and @GPGME_LIBS@.
+	Remove unneeded @LIBASSUAN_LIBS@.
+
+	* tests/Makefile.am (EXTRA_DIST): Add new files.
+	(ldadd_qt5, ldadd_qt6): Replace relative paths of libgpgmepp.la and
+	libgpgme.la with @GPGMEPP_LIBS@ and @GPGME_LIBS@.
+	(cppflags_qt5, cppflags_qt6): Adjust include paths of source files.
+	Replace relative include paths of gpgmepp and gpgme with
+	@GPGMEPP_CFLAGS@ and @GPGME_CFLAGS@. Remove duplicate
+	@GPG_ERROR_CFLAGS@. Remove unneeded @LIBASSUAN_CFLAGS@. Remove unneeded
+	define of TOP_SRCDIR.
+	(pubring-stamp): Adjust paths of pubdemo.asc and secdemo.asc.
+	* tests/pubdemo.asc, tests/secdemo.asc, tests/start-stop-agent: New
+	(copied from gpgme).
+
+2024-10-23  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Fix typo.
+	+ commit 542085af12dcf09efcc103fda7113d83a7ebc9dd
+	* lang/qt/src/Makefile.am (camelcase_headers): Fix typo in header name.
+
+	qt: Put attributes before declarations.
+	+ commit d2093d16b1a032e54b2fcc2b6756505176238ef2
+	* lang/qt/src/downloadjob.h (DownloadJob::start): Move QGPGME_DEPRECATED
+	before the whole function declaration.
+
+2024-08-26  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add support for new context flag "proc-all-sigs"
+	+ commit 82859d18a34c1fc30a6e863c7caa7144a0f6cbb0
+	* lang/qt/src/decryptverifyarchivejob.cpp,
+	lang/qt/src/decryptverifyarchivejob.h (DecryptVerifyArchiveJob): Add
+	member functions setProcessAllSignatures, processAllSignatures.
+	* lang/qt/src/decryptverifyarchivejob_p.h
+	(DecryptVerifyArchiveJobPrivate): Add member m_processAllSignatures.
+	* lang/qt/src/decryptverifyjob.cpp, lang/qt/src/decryptverifyjob.h
+	(DecryptVerifyJob): Add member functions setProcessAllSignatures,
+	processAllSignatures.
+	* lang/qt/src/decryptverifyjob_p.h (DecryptVerifyJobPrivate): Add member
+	m_processAllSignatures.
+	* lang/qt/src/qgpgmedecryptverifyarchivejob.cpp
+	(decrypt_verify_from_file_name): Add argument "processAllSignatures".
+	Set context flag "proc-all-sigs" if requested.
+	(QGpgMEDecryptVerifyArchiveJob::start): Set context flag "proc-all-sigs"
+	if requested.
+	(QGpgMEDecryptVerifyArchiveJobPrivate::startIt): Pass
+	m_processAllSignatures to decrypt_verify_from_file_name.
+	* lang/qt/src/qgpgmedecryptverifyjob.cpp
+	(decrypt_verify_from_filename): Add argument "processAllSignatures".
+	Set context flag "proc-all-sigs" if requested.
+	(QGpgMEDecryptVerifyJob::start, QGpgMEDecryptVerifyJob::exec): Set
+	context flag "proc-all-sigs" if requested.
+	(QGpgMEDecryptVerifyJobPrivate::startIt): Pass
+	m_processAllSignatures to decrypt_verify_from_filename.
+	* lang/qt/src/qgpgmeverifydetachedjob.cpp (verify_from_filename): Add
+	argument "processAllSignatures". Set context flag "proc-all-sigs" if
+	requested.
+	(QGpgMEVerifyDetachedJob::start, QGpgMEVerifyDetachedJob::exec): Set
+	context flag "proc-all-sigs" if requested.
+	(QGpgMEVerifyDetachedJobPrivate::startIt): Pass
+	m_processAllSignatures to decrypt_verify_from_filename.
+	* lang/qt/src/qgpgmeverifyopaquejob.cpp (verify_from_filename): Add
+	argument "processAllSignatures". Set context flag "proc-all-sigs" if
+	requested.
+	(QGpgMEVerifyOpaqueJob::start, QGpgMEVerifyOpaqueJob::exec): Set
+	context flag "proc-all-sigs" if requested.
+	(QGpgMEVerifyOpaqueJobPrivate::startIt): Pass
+	m_processAllSignatures to decrypt_verify_from_filename.
+	* lang/qt/src/verifydetachedjob.cpp, lang/qt/src/verifydetachedjob.h
+	(VerifyDetachedJob): Add member functions setProcessAllSignatures,
+	processAllSignatures.
+	* lang/qt/src/verifydetachedjob_p.h (VerifyDetachedJobPrivate): Add
+	member m_processAllSignatures.
+	* lang/qt/src/verifyopaquejob.cpp, lang/qt/src/verifyopaquejob.h
+	(VerifyOpaqueJob): Add member functions setProcessAllSignatures,
+	processAllSignatures.
+	* lang/qt/src/verifyopaquejob_p.h (VerifyOpaqueJobPrivate): Add
+	member m_processAllSignatures.
+
+	* lang/qt/tests/run-decryptverifyarchivejob.cpp,
+	lang/qt/tests/run-decryptverifyjob.cpp,
+	lang/qt/tests/run-verifydetachedjob.cpp,
+	lang/qt/tests/run-verifyopaquejob.cpp (struct CommandLineOptions): Add
+	member processAllSignatures.
+	(parseCommandLine): Add command line option --process-all-signatures.
+	(main): Pass new option to the job.
+
+2024-08-07  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt,tests: Add make target to clean the keyring.
+	+ commit de9d8592afec51ae4ce69167991e64a946f549b6
+	* lang/qt/tests/Makefile.am (clean-keyring): New target.
+
+	qt: Use --quick-set-ownertrust if available.
+	+ commit e1f1435b91ea59b155743a404bf8fe82759599cd
+	* lang/qt/src/qgpgmechangeownertrustjob.cpp (set_owner_trust): New.
+	(QGpgMEChangeOwnerTrustJob::start): Use set_owner_trust if gpg is new
+	enough.
+
+	* lang/qt/tests/t-ownertrust.cpp
+	(ChangeOwnerTrustTest::testChangeOwnerTrust): Log unexpected error.
+
+	qt: Support disabling and enabling of keys.
+	+ commit 753c2f2e9af8919dad58f02ca6aeb536563723ed
+	* lang/qt/src/Makefile.am: Add new files.
+	* lang/qt/src/job.cpp (QuickJob): Move definition of constructor and
+	destructor and inclusion of the moc file to quickjob.cpp.
+	* lang/qt/src/qgpgmequickjob.cpp (class QGpgMEQuickJobPrivate): New.
+	(QGpgMEQuickJob::QGpgMEQuickJob): Instantiate private job class.
+	(set_key_enabled): New.
+	* lang/qt/src/quickjob.cpp: New.
+	* lang/qt/src/quickjob.h (class QuickJob): Add member function
+	startSetKeyEnabled.
+	* lang/qt/src/quickjob_p.h: New.
+
+	* lang/qt/tests/Makefile.am: Add new test for Qt 5 and Qt 6.
+	* lang/qt/tests/t-disablekey.cpp: New.
+
+2024-07-22  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	build,qt: Fix include path in CMake files.
+	+ commit bcfd64996771e134fb6f4a9e721d27adc5b3163e
+	* lang/qt/src/Makefile.am (QGpgmeConfig.cmake, QGpgmeQt6Config.cmake):
+	Use new variables includeprefix{5,6} instead of replaced variable
+	includeprefix.
+
+2024-07-18  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	build,qt: Don't put generated camel-case headers in tarball.
+	+ commit 82391778211160135c0afdf05e70aad5c24323fb
+	* lang/qt/src/Makefile.am: Change camelcase5include_HEADERS to
+	nodist_camelcase5include_HEADERS. Change camelcase6include_HEADERS to
+	nodist_camelcase6include_HEADERS.
+
+	build,qt: Allow building Qt 5 bindings and Qt 6 bindings.
+	+ commit 1af1e6e8e68e0321af551a80d20effa49953d761
+	* configure.ac: Remove "qt" from default_languages. Add "qt5 qt6" to
+	default_languages. Remove "qt" from help for --enable-languages. Don't
+	fail anymore if "qt5" and "qt6" are enabled. Warn that "qt" is
+	deprecated if it was enabled.
+	* lang/qt/src/Makefile.am (libqgpgme_la, libqgpgmeqt6_la): New.
+	(lib_LTLIBRARIES): Set Qt 5 and/or Qt 6 variant of libqgpgme.
+	(AM_CPPFLAGS): Replace with libqgpgme_la_CPPFLAGS for Qt 5 and
+	libqgpgmeqt6_la_CPPFLAGS for Qt 6.
+
+	build,qt: Decouple generation of moc files.
+	+ commit 1031274f8b76a7247204e1a6e2cfec25394b04d8
+	* m4/qt5.m4: Export moc for Qt 5 in variable MOC5. Unset temporary MOC2.
+	* m4/qt6.m4: Export moc for Qt 6 in variable MOC6.
+	* lang/qt/src/Makefile.am: Generate .moc5 files from .h files. Generate
+	.moc forwarding headers in moc5 subfolder. Add moc5 subfolder to include
+	paths for Qt 5-based qgpgme library. Ditto for Qt 6. Clean up moc5 and
+	moc6 subfolders.
+	* lang/qt/tests/Makefile.am: List tests and test runners for Qt 5 and
+	Qt 6. Generate .moc5 files from .cpp files of tests. Generate .moc
+	forwarding headers in moc5 subfolder. Generate .hmoc file from
+	t-support.h directly in moc5 subfolder. Add moc5 subfolder to include
+	paths for all Qt 5-based tests and runners. Ditto for Qt 6. Specify
+	sources, LDADD and CPPFLAGS for all tests and test runners for Qt 5 and
+	Qt 6. Clean up moc5 and moc6 subfolders.
+
+	build,qt: Remove include directories on uninstall.
+	+ commit 0756e367ebebf5557ee9ed0ff0c1b45c6058aa85
+	* lang/qt/src/Makefile.am (uninstall-include-dirs-qt5,
+	uninstall-include-dirs-qt6): New targets.
+	(uninstall_include_dirs_qt5, uninstall_include_dirs_qt6): New variables.
+	(uninstall-local): Replace with...
+	(uninstall-hook): ...this. Add new uninstall_include_dirs_qt* variables.
+
+	build,qt: Decouple handling of include headers.
+	+ commit 05b2bcd99bb2b5d3abe8b4b362e505fe0375cf3d
+	* lang/qt/src/Makefile.am (includeprefix): Replace with...
+	(includeprefix5, includeprefix6): ...these.
+	(qgpgmeincludedir): Replace with...
+	(qgpgme5includedir, qgpgme6includedir): ...these.
+	(qgpgmeinclude_HEADERS): Replace with...
+	(qgpgme5include_HEADERS, qgpgme6include_HEADERS): ...these.
+	(nodist_qgpgmeinclude_HEADERS): Replace with...
+	(nodist_qgpgme5include_HEADERS, nodist_qgpgme6include_HEADERS): ..these.
+	(camelcaseincludedir): Replace with...
+	(camelcase5includedir, camelcase6includedir): ...these.
+	(camelcaseinclude_HEADERS): Replace with...
+	(camelcase5include_HEADERS, camelcase6include_HEADERS): ...these.
+
+	build,qt: Decouple (un)install of CMake files.
+	+ commit 20346dd4458f1fb74d9ea23e25a1a744fdbcbfbb
+	* lang/qt/src/Makefile.am (install-cmake-files): Rename target to
+	install-cmake-files-qt5 and install-cmake-files-qt6.
+	(uninstall-cmake-files): Rename target to uninstall-cmake-files-qt5 and
+	uninstall-cmake-files-qt6.
+	(install_cmake_files_qt5, uninstall_cmake_files_qt5,
+	install_cmake_files_qt6, uninstall_cmake_files_qt6): New variables.
+	(install-data-local): Depend on both install-cmake-files-qt* targets.
+	(uninstall-local): Depend on both uninstall-cmake-files-qt* targets.
+
+2024-07-05  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Replace usage of deprecated Error::asString.
+	+ commit 296487310d52dcbf01ff3d0907cc576e0816ac53
+	* lang/qt/src/debug.cpp (operator<<): Use Error::asStdString instead of
+	Error::asString.
+	* lang/qt/src/qgpgmedecryptverifyjob.cpp (decrypt_verify),
+	lang/qt/src/qgpgmenewcryptoconfig.cpp
+	(QGpgMENewCryptoConfigComponent::sync),
+	lang/qt/src/qgpgmewkdlookupjob.cpp (startDirmngr): Use QDebug operator
+	for Error instead of Error::asString.
+	* lang/qt/src/threadedjobmixin.cpp (_detail::audit_log_as_html): Use
+	errorAsString instead of Error::asString.
+	* lang/qt/src/util.h (errorAsString): New.
+
+	* lang/qt/tests/run-decryptverifyarchivejob.cpp (main),
+	lang/qt/tests/run-decryptverifyjob.cpp (main),
+	lang/qt/tests/run-encryptarchivejob.cpp (main),
+	lang/qt/tests/run-encryptjob.cpp (main),
+	lang/qt/tests/run-exportjob.cpp (main),
+	lang/qt/tests/run-importjob.cpp (main),
+	lang/qt/tests/run-receivekeysjob.cpp (main),
+	lang/qt/tests/run-refreshkeysjob.cpp (main),
+	lang/qt/tests/run-signarchivejob.cpp (main),
+	lang/qt/tests/run-signjob.cpp (main),
+	lang/qt/tests/run-verifydetachedjob.cpp (main),
+	lang/qt/tests/run-verifyopaquejob.cpp (main),
+	lang/qt/tests/run-wkdrefreshjob.cpp (main),
+	lang/qt/tests/t-ownertrust.cpp (testChangeOwnerTrust),
+	lang/qt/tests/t-remarks.cpp (testRemarkOwnKey),
+	lang/qt/tests/t-tofuinfo.cpp (testTofuPolicy): Use QDebug operator for
+	Error instead of Error::asString.
+	* lang/qt/tests/t-changeexpiryjob.cpp (all test functions),
+	lang/qt/tests/t-trustsignatures.cpp (all test functions),
+	lang/qt/tests/t-various.cpp (testSignKeyWithoutExpiration,
+	testSignKeyWithExpiration): Use errorAsString instead of
+	Error::asString.
+
+	qt: Always include C++ binding headers with gpgme++/ prefix.
+	+ commit 5fbefb2e9952f1991d09340b49df5b3ab038e193
+	* lang/qt/src/Makefile.am, lang/qt/tests/Makefile.am (AM_CPPFLAGS):
+	Add builddir instead of srcdir of C++ bindings as include path.
+	* lang/qt/src/changeexpiryjob.cpp, lang/qt/src/changeexpiryjob.h,
+	lang/qt/src/changeownertrustjob.h, lang/qt/src/dataprovider.cpp,
+	lang/qt/src/dataprovider.h, lang/qt/src/debug.cpp,
+	lang/qt/src/decryptverifyarchivejob.cpp,
+	lang/qt/src/decryptverifyarchivejob.h,
+	lang/qt/src/encryptarchivejob.cpp, lang/qt/src/encryptarchivejob.h,
+	lang/qt/src/encryptjob.h, lang/qt/src/encryptjob_p.h,
+	lang/qt/src/filelistdataprovider.cpp,
+	lang/qt/src/filelistdataprovider.h,
+	lang/qt/src/hierarchicalkeylistjob.h, lang/qt/src/importjob.cpp,
+	lang/qt/src/importjob.h, lang/qt/src/importjob_p.h, lang/qt/src/job.h,
+	lang/qt/src/keyformailboxjob.h, lang/qt/src/keylistjob.h,
+	lang/qt/src/listallkeysjob.h, lang/qt/src/multideletejob.cpp,
+	lang/qt/src/qgpgmeaddexistingsubkeyjob.cpp,
+	lang/qt/src/qgpgmeadduseridjob.cpp, lang/qt/src/qgpgmebackend.cpp,
+	lang/qt/src/qgpgmechangeexpiryjob.cpp,
+	lang/qt/src/qgpgmechangeownertrustjob.cpp,
+	lang/qt/src/qgpgmechangepasswdjob.cpp, lang/qt/src/qgpgmedecryptjob.cpp,
+	lang/qt/src/qgpgmedecryptjob.h,
+	lang/qt/src/qgpgmedecryptverifyarchivejob.cpp,
+	lang/qt/src/qgpgmedecryptverifyarchivejob.h,
+	lang/qt/src/qgpgmedecryptverifyjob.cpp,
+	lang/qt/src/qgpgmedecryptverifyjob.h, lang/qt/src/qgpgmedeletejob.cpp,
+	lang/qt/src/qgpgmedownloadjob.cpp,
+	lang/qt/src/qgpgmeencryptarchivejob.cpp,
+	lang/qt/src/qgpgmeencryptarchivejob.h, lang/qt/src/qgpgmeencryptjob.cpp,
+	lang/qt/src/qgpgmeencryptjob.h, lang/qt/src/qgpgmeexportjob.cpp,
+	lang/qt/src/qgpgmeimportfromkeyserverjob.cpp,
+	lang/qt/src/qgpgmeimportfromkeyserverjob.h,
+	lang/qt/src/qgpgmeimportjob.cpp, lang/qt/src/qgpgmeimportjob.h,
+	lang/qt/src/qgpgmekeyformailboxjob.h,
+	lang/qt/src/qgpgmekeygenerationjob.cpp,
+	lang/qt/src/qgpgmekeygenerationjob.h, lang/qt/src/qgpgmekeylistjob.cpp,
+	lang/qt/src/qgpgmekeylistjob.h, lang/qt/src/qgpgmelistallkeysjob.cpp,
+	lang/qt/src/qgpgmelistallkeysjob.h,
+	lang/qt/src/qgpgmenewcryptoconfig.cpp,
+	lang/qt/src/qgpgmenewcryptoconfig.h, lang/qt/src/qgpgmequickjob.cpp,
+	lang/qt/src/qgpgmereceivekeysjob.h,
+	lang/qt/src/qgpgmerefreshsmimekeysjob.cpp,
+	lang/qt/src/qgpgmerefreshsmimekeysjob.h,
+	lang/qt/src/qgpgmerevokekeyjob.cpp,
+	lang/qt/src/qgpgmesetprimaryuseridjob.cpp,
+	lang/qt/src/qgpgmesignarchivejob.cpp,
+	lang/qt/src/qgpgmesignarchivejob.h,
+	lang/qt/src/qgpgmesignencryptarchivejob.cpp,
+	lang/qt/src/qgpgmesignencryptarchivejob.h,
+	lang/qt/src/qgpgmesignencryptjob.cpp,
+	lang/qt/src/qgpgmesignencryptjob.h, lang/qt/src/qgpgmesignjob.cpp,
+	lang/qt/src/qgpgmesignjob.h, lang/qt/src/qgpgmesignkeyjob.cpp,
+	lang/qt/src/qgpgmetofupolicyjob.cpp,
+	lang/qt/src/qgpgmeverifydetachedjob.cpp,
+	lang/qt/src/qgpgmeverifydetachedjob.h,
+	lang/qt/src/qgpgmeverifyopaquejob.cpp,
+	lang/qt/src/qgpgmeverifyopaquejob.h, lang/qt/src/qgpgmewkdlookupjob.cpp,
+	lang/qt/src/qgpgmewkdrefreshjob.cpp, lang/qt/src/qgpgmewkdrefreshjob.h,
+	lang/qt/src/qgpgmewkspublishjob.cpp, lang/qt/src/quickjob.h,
+	lang/qt/src/signarchivejob.cpp, lang/qt/src/signarchivejob.h,
+	lang/qt/src/signencryptarchivejob.cpp,
+	lang/qt/src/signencryptarchivejob.h, lang/qt/src/signencryptjob.h,
+	lang/qt/src/signencryptjob_p.h, lang/qt/src/signjob.h,
+	lang/qt/src/signjob_p.h, lang/qt/src/threadedjobmixin.cpp,
+	lang/qt/src/threadedjobmixin.h, lang/qt/src/tofupolicyjob.h,
+	lang/qt/src/util.cpp, lang/qt/src/wkdlookupresult.cpp,
+	lang/qt/src/wkdlookupresult.h, lang/qt/src/wkdrefreshjob_p.h,
+	lang/qt/tests/run-decryptverifyarchivejob.cpp,
+	lang/qt/tests/run-decryptverifyjob.cpp,
+	lang/qt/tests/run-encryptarchivejob.cpp,
+	lang/qt/tests/run-encryptjob.cpp, lang/qt/tests/run-exportjob.cpp,
+	lang/qt/tests/run-importjob.cpp, lang/qt/tests/run-keyformailboxjob.cpp,
+	lang/qt/tests/run-receivekeysjob.cpp,
+	lang/qt/tests/run-refreshkeysjob.cpp,
+	lang/qt/tests/run-signarchivejob.cpp, lang/qt/tests/run-signjob.cpp,
+	lang/qt/tests/run-verifydetachedjob.cpp,
+	lang/qt/tests/run-verifyopaquejob.cpp,
+	lang/qt/tests/run-wkdrefreshjob.cpp,
+	lang/qt/tests/t-addexistingsubkey.cpp,
+	lang/qt/tests/t-changeexpiryjob.cpp, lang/qt/tests/t-config.cpp,
+	lang/qt/tests/t-decryptverify.cpp, lang/qt/tests/t-encrypt.cpp,
+	lang/qt/tests/t-import.cpp, lang/qt/tests/t-keylist.cpp,
+	lang/qt/tests/t-keylocate.cpp, lang/qt/tests/t-ownertrust.cpp,
+	lang/qt/tests/t-remarks.cpp, lang/qt/tests/t-revokekey.cpp,
+	lang/qt/tests/t-setprimaryuserid.cpp, lang/qt/tests/t-support.cpp,
+	lang/qt/tests/t-support.h, lang/qt/tests/t-tofuinfo.cpp,
+	lang/qt/tests/t-trustsignatures.cpp, lang/qt/tests/t-various.cpp,
+	lang/qt/tests/t-verify.cpp, lang/qt/tests/t-wkdlookup.cpp,
+	lang/qt/tests/t-wkspublish.cpp: Include GpgME++ headers with gpgme++/
+	prefix.
+
+2024-06-18  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Allow appending a detached signature to an existing file.
+	+ commit c71279f29386b05aed920768e8c52a8a02d30119
+	* lang/qt/src/qgpgmesignjob.cpp (sign_to_filename): Add argument
+	"appendSignature". Append new detached signature to an existing file if
+	requested.
+	* lang/qt/src/signjob.cpp, lang/qt/src/signjob.h (class SignJob): Add
+	member functions setAppendSignature, appendSignatureEnabled.
+	* lang/qt/src/signjob_p.h (struct SignJobPrivate): Add member
+	m_appendSignature.
+
+	* lang/qt/tests/run-signjob.cpp (struct CommandLineOptions): Add members
+	signingFlags, appendSignature. Initialize armor.
+	(parseCommandLine): Add command line options --detach-sign and --append.
+	(main): Do not exit if output file exists and append is enabled.
+	Pass new options to the job.
+
+2024-06-17  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt,build: Install headers for Qt 5 and Qt 6 in different locations.
+	+ commit b36abc23f7f96fb290a921028c3327840042f962
+	* lang/qt/src/Makefile.am (includeprefix): New.
+	(qgpgmeincludedir, camelcaseincludedir): Add $(includeprefix).
+	(QGpgmeConfig.cmake, QGpgmeQt6Config.cmake): Add $(includeprefix) to
+	replacement for @resolved_includedir@.
+
+2024-06-13  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt,tests: Fix deprecation warnings (in Qt 6 build)
+	+ commit 2700717779233de4949e14e1e07ea254ca844ded
+	* lang/qt/tests/t-tofuinfo.cpp (TofuInfoTest::signAndVerify,
+	TofuInfoTest::testTofuPolicy): Use range-based for loop instead of Qt's
+	deprecated foreach.
+
+	qt: Specify import options as list of strings instead of as string.
+	+ commit fcd5b5847e9e149fe127866395a69fdbdecbf562
+	* lang/qt/src/importjob.cpp, lang/qt/src/importjob.h (setImportOptions):
+	Change type of argument "options" to QStringList.
+	(importOptions): Change return type to QStringList.
+	* lang/qt/src/importjob_p.h (struct ImportJobPrivate): Change type of
+	member m_importOptions to QStringList.
+	* lang/qt/src/qgpgmeimportjob.cpp (import_qba): Change type of argument
+	"importOptions" to QStringList. Join list of import options with ','
+	when setting the "import-options" context flag.
+
+	* lang/qt/tests/t-import.cpp (ImportTest::testImportWithImportOptions):
+	Adapt to API change.
+
+2024-06-12  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Allow specifying import options when importing keys.
+	+ commit 0279566e1c4ea830ed72c355249496b148665cb1
+	* lang/qt/src/importjob.cpp, lang/qt/src/importjob.h (class ImportJob):
+	Add member functions setImportOptions and importOptions.
+	* lang/qt/src/importjob_p.h (struct ImportJobPrivate): Add member
+	m_importOptions.
+	* lang/qt/src/qgpgmeimportjob.cpp (import_qba): Add arg importOptions
+	and adjust the callers. Set import options context flag.
+
+	* lang/qt/tests/t-import.cpp (ImportTest): Add member function
+	testImportWithImportOptions.
+
+	qt,doc: Fix typos.
+	+ commit 7f7bc70c4577f6153af2d12869b3f5a4766345ea
+	* lang/qt/README: Fix typos.
+
+2024-06-10  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Align license of some Makefiles with license of other Makefiles.
+	+ commit dee36b6c278591decc5d71ac9b5f73a1dd9132fc
+	* lang/qt/doc/Makefile.am, lang/qt/tests/Makefile.am: Change license
+	from LGPL to GPL.
+
+	qt: Fix license headers of Makefiles.
+	+ commit 4f099eedec45a2c243f876b8444e9c541adb1daf
+	* lang/qt/Makefile.am, lang/qt/src/Makefile.am: Files are part of
+	QGpgme. Fix wrong package name (GPGME-CL -> QGpgME). Replace references
+	to LGPL with references to GPL.
+
+	qt: Fix license headers of CMake config files.
+	+ commit f5b801e44a956a24458b3310a66d2dfeaff2b909
+	* lang/qt/src/QGpgmeConfig-w32.cmake.in.in,
+	lang/qt/src/QGpgmeConfig.cmake.in.in,
+	lang/qt/src/QGpgmeConfigVersion.cmake.in: Files are part of QGpgME.
+	Fix copy&paste error (GPGME-CL -> QGpgME). Fix reference to license
+	to check for details.
+	* lang/qt/src/QGpgmeQt6Config-w32.cmake.in.in,
+	lang/qt/src/QGpgmeQt6Config.cmake.in.in,
+	lang/qt/src/QGpgmeQt6ConfigVersion.cmake.in: Files are part of QGpgME.
+	Fix reference to license to check for details.
+
+	qt: Fix license headers of dataprovider.*
+	+ commit c7ec566fd50d450e0410085538182b8239223d62
+	* lang/qt/src/dataprovider.cpp, lang/qt/src/dataprovider.h: Change
+	license header from LGPL to GPL.
+
+2024-05-22  Tobias Fella  <tobias.fella@gnupg.com>
+
+	qt,cpp: Implement adding ADSKs to existing keys.
+	+ commit 0f2ef50f379dce44ae1c5f142d712bcccfa0a4de
+	* lang/cpp/src/context.cpp: Add functions for adding ADSKs.
+	* lang/cpp/src/context.h: Ditto.
+	* lang/qt/src/qgpgmequickjob.cpp: Add implementation of ADSK job.
+	* lang/qt/src/qgpgmequickjob.h: Ditto.
+	* lang/qt/src/quickjob.h: Add job for adding ADSKs.
+
+2024-05-21  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Avoid bogus stringop-overread warning.
+	+ commit dba769b3be2f3d779fd331c3557373478cd48ec4
+	* lang/qt/src/threadedjobmixin.cpp (_detail::audit_log_as_html): Use
+	QByteArray overload of QString::fromUtf8.
+
+	qt: Fix warning about missing return.
+	+ commit 216c3de84fb1ce7241bb1c2f23a6168884e1947b
+	* lang/qt/src/qgpgmeexportjob.cpp (ExportJob::exec): Return a value and
+	remove unused argument names.
+
+2024-01-22  Tobias Fella  <tobias.fella@gnupg.com>
+
+	qt: Add function for synchronously executing ExportJob.
+	+ commit 635467c71407f27cf59228fa902e6f06dcc32b85
+	* lang/qt/src/exportjob: Add exec function.
+	* lang/qt/src/qgpgmeexportjob.cpp: Implement exec function.
+	* lang/qt/src/qgpgmeexportjob.h: Override exec function.
+
+2024-01-19  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Remove superfluous virtual overrides and member variables.
+	+ commit cfa5f164ae35a118ce34e9e83bd75683b6a298a6
+	* lang/qt/src/qgpgmeaddexistingsubkeyjob.cpp
+	(QGpgMEAddExistingSubkeyJob::exec): Remove call of resultHook.
+	* lang/qt/src/qgpgmedecryptjob.cpp (QGpgMEDecryptJob::exec): Remove
+	call of resultHook.
+	(QGpgMEDecryptJob::resultHook): Remove.
+	* lang/qt/src/qgpgmedecryptjob.h (QGpgMEDecryptJob): Remove resultHook
+	override. Remove member mResult.
+	* lang/qt/src/qgpgmedecryptverifyjob.cpp (QGpgMEDecryptVerifyJob::exec):
+	Remove call of resultHook.
+	(QGpgMEDecryptVerifyJob::resultHook): Remove.
+	* lang/qt/src/qgpgmedecryptverifyjob.h (QGpgMEDecryptVerifyJob): Remove
+	resultHook override. Remove member mResult.
+	* lang/qt/src/qgpgmeencryptjob.cpp (QGpgMEEncryptJob::exec): Remove
+	call of resultHook.
+	(QGpgMEEncryptJob::resultHook): Remove.
+	* lang/qt/src/qgpgmeencryptjob.h (QGpgMEEncryptJob): Remove resultHook
+	override. Remove member mResult.
+	* lang/qt/src/qgpgmegpgcardjob.cpp (QGpgMEGpgCardJob::exec): Remove
+	call of resultHook.
+	* lang/qt/src/qgpgmeimportfromkeyserverjob.cpp
+	(QGpgMEImportFromKeyserverJob::exec): Remove call of resultHook.
+	(QGpgMEImportFromKeyserverJob::resultHook): Remove.
+	* lang/qt/src/qgpgmeimportfromkeyserverjob.h
+	(QGpgMEImportFromKeyserverJob): Remove resultHook override. Remove
+	member mResult.
+	* lang/qt/src/qgpgmeimportjob.cpp (QGpgMEImportJob::exec): Remove call
+	of resultHook.
+	(QGpgMEImportJob::resultHook): Remove.
+	* lang/qt/src/qgpgmeimportjob.h (QGpgMEImportJob): Remove resultHook
+	override. Remove member mResult.
+	* lang/qt/src/qgpgmekeyformailboxjob.cpp (QGpgMEKeyForMailboxJob::exec):
+	Remove call of resultHook.
+	* lang/qt/src/qgpgmekeylistjob.cpp (QGpgMEKeyListJob::QGpgMEKeyListJob):
+	Remove initialization of mResult.
+	(QGpgMEKeyListJob::resultHook): Do not set (removed) mResult.
+	* lang/qt/src/qgpgmekeylistjob.h (QGpgMEKeyListJob): Remove member
+	mResult.
+	* lang/qt/src/qgpgmelistallkeysjob.cpp
+	(QGpgMEListAllKeysJob::QGpgMEListAllKeysJob): Remove initialization of
+	mResult.
+	(QGpgMEListAllKeysJob::exec): Remove call of resultHook.
+	(QGpgMEListAllKeysJob::resultHook): Remove.
+	* lang/qt/src/qgpgmelistallkeysjob.h (QGpgMEListAllKeysJob): Remove
+	resultHook override. Remove member mResult.
+	* lang/qt/src/qgpgmereceivekeysjob.cpp (QGpgMEReceiveKeysJob::exec):
+	Remove call of resultHook.
+	(QGpgMEReceiveKeysJob::resultHook): Remove.
+	* lang/qt/src/qgpgmereceivekeysjob.h (QGpgMEReceiveKeysJob): Remove
+	resultHook override. Remove member mResult.
+	* lang/qt/src/qgpgmerevokekeyjob.cpp (QGpgMERevokeKeyJob::exec): Remove
+	call of resultHook.
+	* lang/qt/src/qgpgmesignencryptjob.cpp (QGpgMESignEncryptJob::exec):
+	Remove call of resultHook.
+	(QGpgMESignEncryptJob::resultHook): Remove.
+	* lang/qt/src/qgpgmesignencryptjob.h (QGpgMESignEncryptJob): Remove
+	resultHook override. Remove member mResult.
+	* lang/qt/src/qgpgmesignjob.cpp (QGpgMESignJob::exec): Remove call of
+	resultHook.
+	(QGpgMESignJob::resultHook): Remove.
+	* lang/qt/src/qgpgmesignjob.h (QGpgMESignJob): Remove resultHook
+	override. Remove member mResult.
+	* lang/qt/src/qgpgmeverifydetachedjob.cpp
+	(QGpgMEVerifyDetachedJob::exec): Remove call of resultHook.
+	(QGpgMEVerifyDetachedJob::resultHook): Remove.
+	* lang/qt/src/qgpgmeverifydetachedjob.h (QGpgMEVerifyDetachedJob):
+	Remove resultHook override. Remove member mResult.
+	* lang/qt/src/qgpgmeverifyopaquejob.cpp (QGpgMEVerifyOpaqueJob::exec):
+	Remove call of resultHook.
+	(QGpgMEVerifyOpaqueJob::resultHook): Remove.
+	* lang/qt/src/qgpgmeverifyopaquejob.h (QGpgMEVerifyOpaqueJob): Remove
+	resultHook override. Remove member mResult.
+	* lang/qt/src/qgpgmewkdlookupjob.cpp (QGpgMEWKDLookupJob::exec):
+	Remove call of resultHook.
+
+	qt: Remove left-over mentions of showErrorDialog.
+	+ commit fe33443d6845159e22f012a7879f7ca377f8e3c4
+	* lang/qt/src/qgpgmedecryptjob.cpp,
+	lang/qt/src/qgpgmeimportfromkeyserverjob.cpp,
+	lang/qt/src/qgpgmeimportjob.cpp: Remove obsolete comment.
+	* lang/qt/src/qgpgmekeylistjob.cpp,
+	lang/qt/src/qgpgmelistallkeysjob.cpp: Remove long obsolete, #if 0'ed out
+	definitions of showErrorDialog.
+
+2024-01-09  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Pass home directory with forward slashes when launching dirmngr.
+	+ commit 6dfe15b210e210d0423bb7d717c48ae03117cb43
+	* lang/qt/src/qgpgmewkdlookupjob.cpp (startDirmngr): Replace backslashes
+	with forward slashes in homedir returned by GpgME::dirInfo.
+
+2024-01-08  Tobias Fella  <tobias.fella@gnupg.com>
+
+	qt: Fix validity for (sub)keys generated using QGpgMEQuickJob.
+	+ commit ac322db92c375e3da4675b38d273d334199dfcf9
+	* lang/qt/src/qgpgmequickjob.cpp: Fix expiration calculation
+
+2024-01-05  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Support verification of detached signatures directly from files.
+	+ commit 2c7562a94fc6532a063ab1dfaca692ff17a42415
+	* lang/qt/src/Makefile.am: Add new files.
+	* lang/qt/src/job.cpp (VerifyDetachedJob): Move definition of
+	constructor and destructor and inclusion of the moc file to the
+	corresponding .cpp file.
+	* lang/qt/src/verifydetachedjob.cpp: New.
+	* lang/qt/src/verifydetachedjob.h (VerifyDetachedJob): Add member
+	functions setSignatureFile, signatureFile, setSignedFile, signedFile.
+	* lang/qt/src/verifydetachedjob_p.h: New.
+	* lang/qt/src/qgpgmeverifydetachedjob.cpp (class
+	QGpgMEVerifyDetachedJobPrivate): New.
+	(QGpgMEVerifyDetachedJob::QGpgMEVerifyDetachedJob): Instantiate private
+	job class.
+	(verify_from_filename): New.
+
+	* lang/qt/tests/Makefile.am: Add new test program.
+	* lang/qt/tests/run-verifydetachedjob.cpp: New.
+
+2023-12-22  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Support verification of opaque signed data directly to/from files.
+	+ commit b8b3c4b6b132909ac06fc88a99122f29da4c5809
+	* lang/qt/src/Makefile.am: Add new files.
+	* lang/qt/src/job.cpp (VerifyOpaqueJob): Move definition of constructor
+	and destructor and inclusion of the moc file to the corresponding .cpp
+	file.
+	* lang/qt/src/verifyopaquejob.cpp: New.
+	* lang/qt/src/verifyopaquejob.h (VerifyOpaqueJob): Add member
+	functions setInputFile, inputFile, setOutputFile, outputFile.
+	* lang/qt/src/verifyopaquejob_p.h: New.
+	* lang/qt/src/qgpgmeverifyopaquejob.cpp (class
+	QGpgMEVerifyOpaqueJobPrivate): New.
+	(QGpgMEVerifyOpaqueJob::QGpgMEVerifyOpaqueJob): Instantiate private
+	job class.
+	(verify_from_filename): New.
+
+	* lang/qt/tests/Makefile.am: Add new test program.
+	* lang/qt/tests/run-verifyopaquejob.cpp: New.
+
+	qt: Support decryption (with verification) directly to/from files.
+	+ commit d54f3d88aff06864ab7d4f95cb1f38926bff8090
+	* lang/qt/src/Makefile.am: Add new files.
+	* lang/qt/src/job.cpp (DecryptVerifyJob): Move definition of constructor
+	and destructor and inclusion of the moc file to the corresponding .cpp
+	file.
+	* lang/qt/src/decryptverifyjob.cpp: New.
+	* lang/qt/src/decryptverifyjob.h (DecryptVerifyJob): Add member
+	functions setInputFile, inputFile, setOutputFile, outputFile.
+	* lang/qt/src/decryptverifyjob_p.h: New.
+	* lang/qt/src/qgpgmedecryptverifyjob.cpp (class
+	QGpgMEDecryptVerifyJobPrivate): New.
+	(QGpgMEDecryptVerifyJob::QGpgMEDecryptVerifyJob): Instantiate private
+	job class.
+	(decrypt_verify_from_filename): New.
+
+	* lang/qt/tests/Makefile.am: Add new test program.
+	* lang/qt/tests/run-decryptverifyjob.cpp: New.
+
+2023-12-21  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Support writing/reading signed/encrypted files directly to/from file
+	+ commit e6f9d33c0c2460deeda20717688936076dacf70d
+	* lang/qt/src/Makefile.am: Add new files.
+	* lang/qt/src/job.cpp (EncryptJob, SignJob, SignEncryptJob): Move
+	definition of constructor and destructor and inclusion of the moc file
+	to the corresponding .cpp files.
+	* lang/qt/src/encryptjob.cpp (EncryptJob): Define constructor. Define
+	destructor as default. Include moc file.
+	* lang/qt/src/encryptjob.cpp, lang/qt/src/encryptjob.h (EncryptJob):
+	Add member functions setRecipients, recipients, setInputFile, inputFile,
+	setOutputFile, outputFile, setEncryptionFlags, encryptionFlags.
+	* lang/qt/src/encryptjob_p.h (EncryptJobPrivate): Add members
+	m_recipients, m_inputFilePath, m_outputFilePath, m_encryptionFlags.
+	* lang/qt/src/qgpgmeencryptjob.cpp (encrypt_to_filename): New.
+	(QGpgMEEncryptJobPrivate::startIt): Start the job with the values
+	from the member variables.
+	* lang/qt/src/qgpgmesignencryptjob.cpp (sign_encrypt_to_filename): New.
+	(QGpgMESignEncryptJobPrivate::startIt): Start the job with the values
+	from the member variables.
+	* lang/qt/src/qgpgmesignjob.cpp (class QGpgMESignJobPrivate): New.
+	(QGpgMESignJob::QGpgMESignJob): Instantiate private job class.
+	(sign_to_filename): New.
+	* lang/qt/src/signencryptjob.cpp (SignEncryptJob): Define constructor.
+	Define destructor as default. Include moc file.
+	* lang/qt/src/signencryptjob.cpp, lang/qt/src/signencryptjob.h
+	(SignEncryptJob): Add member functions setSigners, signers,
+	setRecipients, recipients, setInputFile, inputFile, setOutputFile,
+	outputFile, setEncryptionFlags, encryptionFlags.
+	* lang/qt/src/signencryptjob_p.h (SignEncryptJobPrivate): Add members
+	m_signers, m_recipients, m_inputFilePath, m_outputFilePath,
+	m_encryptionFlags.
+	* lang/qt/src/signjob.cpp: New.
+	* lang/qt/src/signjob.h (SignJob): Add member functions setSigners,
+	signers, setInputFile, inputFile, setOutputFile, outputFile,
+	setSigningFlags, signingFlags.
+	* lang/qt/src/signjob_p.h: New.
+	* lang/qt/tests/Makefile.am: Add new test programs.
+	* lang/qt/tests/run-encryptjob.cpp: New.
+	* lang/qt/tests/run-signjob.cpp: New.
+
+	qt: Remove dead code.
+	+ commit 72d2d8392fbd21836d88b7e65532446d78479aff
+	* lang/qt/src/qgpgmeencryptjob.cpp,
+	lang/qt/src/qgpgmesignencryptjob.cpp, lang/qt/src/qgpgmesignjob.cpp:
+	Remove long commented out showErrorDialog member function definitions.
+
+2023-12-13  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Replace Q_FOREACH with range-for.
+	+ commit e9db29fbd9b180724fab8c5935d7f16b82aa4b22
+	* lang/qt/src/qgpgmekeyformailboxjob.cpp (do_work): Replace Q_FOREACH
+	with range-for.
+	* lang/qt/src/qgpgmekeylistjob.cpp (QGpgMEKeyListJob::resultHook):
+	Ditto.
+	* lang/qt/src/threadedjobmixin.cpp (_detail::audit_log_as_html): Ditto.
+	* lang/qt/tests/t-keylist.cpp (KeyListTest::testPubkeyAlgoAsString):
+	Ditto.
+	* lang/qt/tests/t-keylocate.cpp (KeyLocateTest::testDaneKeyLocate,
+	KeyLocateTest::testKeyLocateSingle): Ditto.
+	* lang/qt/src/qgpgmesignencryptjob.cpp (sign_encrypt): Replace Q_FOREACH
+	with range-for. Add braces around single statement blocks.
+	* lang/qt/src/qgpgmesignjob.cpp (sign): Ditto.
+	* lang/qt/src/qgpgmenewcryptoconfig.cpp
+	(QGpgMENewCryptoConfig::reloadConfiguration,
+	QGpgMENewCryptoConfig::sync,
+	QGpgMENewCryptoConfigComponent::setComponent,
+	QGpgMENewCryptoConfigEntry::urlValueList,
+	QGpgMENewCryptoConfigEntry::setURLValueList): Replace Q_FOREACH with
+	range-for. Fix indentation. Add braces around single statement blocks.
+
+	qt: Replace Q_NULLPTR with nullptr.
+	+ commit 4ea30a0c74954a512ad50e9132c621d6b7a5978f
+	* lang/qt/src/defaultkeygenerationjob.h, lang/qt/src/qgpgmebackend.h,
+	lang/qt/src/quickjob.h, lang/qt/src/threadedjobmixin.h: Replace all
+	occurrences of Q_NULLPTR with nullptr.
+
+2023-11-23  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Start dirmngr with gpgconf to avoid multiple instances.
+	+ commit 09fd462a2927b384d5350b406c6d9da6f2133352
+	* lang/qt/src/qgpgmewkdlookupjob.cpp (startDirmngr): Use "gpgconf
+	--launch dirmngr" to start dirmngr.
+
+2023-11-15  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: On Windows, use UTF-8 when logging the error text.
+	+ commit 76ab9c1e58360c473d6df35973dc3c632ea91aed
+	* lang/qt/src/debug.cpp (operator<<): On Windows, interpret the error
+	text as UTF-8 instead of local 8-bit encoding.
+
+	qt: Remove left-over partial files more persistently.
+	+ commit 6d21c9e8ee4265c45bb401c9651810e11fa17b28
+	* lang/qt/src/Makefile.am: Add new files.
+	* lang/qt/src/cleaner.cpp, lang/qt/src/cleaner.h: New.
+	* lang/qt/src/util.cpp (PartialFileGuard::~PartialFileGuard): Call
+	Cleaner::removeFile instead of removeFile.
+	* lang/qt/src/util.cpp, lang/qt/src/util.h (removeFile): Remove.
+
+2023-11-10  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Deprecate DefaultKeyGenerationJob.
+	+ commit 8be9f73de35b11f549fafb33020b99f56b577e20
+	* lang/qt/src/defaultkeygenerationjob.h (class DefaultKeyGenerationJob):
+	Deprecate.
+
+2023-10-27  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Use temporary .part file names when creating archives.
+	+ commit 9bd835661b2a6b0eb132a94900fc5f95ef2da1bd
+	* lang/qt/src/util.h, lang/qt/src/util.cpp (class PartialFileGuard):
+	New.
+	* lang/qt/src/util.cpp (getRandomCharacters, createPartFileName): New.
+	* lang/qt/src/qgpgmeencryptarchivejob.cpp (encrypt_to_filename): Use
+	PartialFileGuard.
+	* lang/qt/src/qgpgmesignarchivejob.cpp (sign_to_filename): Ditto.
+	* lang/qt/src/qgpgmesignencryptarchivejob.cpp
+	(sign_encrypt_to_filename): Ditto.
+
+	qt: Refactor removal of output file on cancel or error.
+	+ commit ddd158d7376a0dad5dae37419e772336164fc12c
+	* lang/qt/src/util.h, lang/qt/src/util.cpp (removeFile): New.
+	* lang/qt/src/qgpgmeencryptarchivejob.cpp (encrypt): Move removal of
+	output file from here
+	(encrypt_to_filename): ... to here and use new function.
+	* lang/qt/src/qgpgmesignarchivejob.cpp (sign): Move removal of output
+	file from here
+	(sign_to_filename): ... to here and use new function.
+	* lang/qt/src/qgpgmesignencryptarchivejob.cpp (sign_encrypt): Move
+	removal of output file from here
+	(sign_encrypt_to_filename): ... to here and use new function.
+
+2023-10-18  Andre Heinecke  <aheinecke@gnupg.org>
+
+	qt: Handle cancel in changeexpiryjob.
+	+ commit 22f455682f9d106bb20391eb854af3a2c0d80bf9
+	* lang/qt/src/qgpgmechangeexpiryjob.cpp (change_expiry): Return
+	cancel error.
+
+2023-09-22  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Use UTF-8 for file names on Windows.
+	+ commit 3577e9a40e572b04ab4872a7a00fa0e5c6e97b1e
+	* lang/qt/src/qgpgmedecryptverifyarchivejob.cpp
+	(decrypt_verify_from_file_name): On Windows, convert Unicode file name
+	to UTF-8.
+	* lang/qt/src/qgpgmeencryptarchivejob.cpp (encrypt,
+	encrypt_to_filename): On Windows, convert Unicode file name from/to
+	UTF-8.
+	* lang/qt/src/qgpgmesignarchivejob.cpp (sign, sign_to_filename): Ditto.
+	* lang/qt/src/qgpgmesignencryptarchivejob.cpp (sign_encrypt,
+	sign_encrypt_to_filename): Ditto.
+
+2023-08-23  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Allow specifying user IDs to use when refreshing keys via WKD.
+	+ commit 2265cbb060196d9d80a3256e3b59c00c62383fc7
+	* lang/qt/src/wkdrefreshjob.h, lang/qt/src/wkdrefreshjob.cpp
+	(WKDRefreshJob::start): New overload.
+	* lang/qt/src/wkdrefreshjob_p.h (WKDRefreshJobPrivate): Add field
+	m_userIds.
+	* lang/qt/src/qgpgmewkdrefreshjob.cpp (toEmailAddresses): New.
+	(locate_external_keys): Change return type and arguments.
+	(refresh_keys): Remove.
+	(QGpgMEWKDRefreshJobPrivate::startIt): Get emails from keys or user IDs.
+	Remove duplicates. Call locate_external_keys instead of refresh_keys.
+
+	* lang/qt/tests/run-wkdrefreshjob.cpp (CommandLineOptions,
+	parseCommandLine): New.
+	(main): Support new option --all-userids.
+
+2023-08-22  Christian Hesse  <mail@eworm.de>
+
+	qt,tests: Fix build in source directory, part 2.
+	+ commit e2269893491e362f990344c5f210d2e7c3f905ae
+	* lang/qt/tests/Makefile.am (AM_CPPFLAGS): Include Qt binding sources
+	before C++ binding sources and C sources.
+
+2023-08-21  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt,tests: Fix build in source directory.
+	+ commit 791865cb9716a6f8a9910b1c3d45c3ee9e861853
+	* lang/qt/tests/Makefile.am (AM_CPPFLAGS): Include Qt binding sources
+	before C++ binding sources and C sources.
+
+	qt: Add job for refreshing OpenPGP keys via WKD.
+	+ commit b23f053845e597e41f424e335ac0ea03fa57da38
+	* lang/qt/src/wkdrefreshjob.cpp, lang/qt/src/wkdrefreshjob.h,
+	lang/qt/src/wkdrefreshjob_p.h, lang/qt/src/qgpgmewkdrefreshjob.cpp,
+	lang/qt/src/qgpgmewkdrefreshjob.h: New.
+	* lang/qt/src/protocol.h (class Protocol): Add pure virtual member
+	function wkdRefreshJob
+	* lang/qt/src/protocol_p.h (Protocol::wkdRefreshJob): ... and
+	implement it.
+	* lang/qt/src/Makefile.am: Update accordingly.
+
+	* lang/qt/tests/run-wkdrefreshjob.cpp: New.
+	* lang/qt/tests/Makefile.am: Add new test runner.
+
+2023-08-16  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Clean up after failure or cancel of sign/encrypt archive operation.
+	+ commit db7b48fd4ad92a3b67c4affb22ad7981ad39f1ee
+	* lang/qt/src/qgpgmeencryptarchivejob.cpp (encrypt): Remove output file
+	if operation was canceled or failed.
+	* lang/qt/src/qgpgmesignarchivejob.cpp (sign): Ditto.
+	* lang/qt/src/qgpgmesignencryptarchivejob.cpp (sign_encrypt): Ditto.
+
+	* lang/qt/tests/run-encryptarchivejob.cpp (CommandLineOptions): Add
+	field cancelTimeout.
+	(parseCommandLine): Add option --cancel-after. Parse option value.
+	(main): Check for invalid cancel timeout. Start timer for canceling
+	the job.
+	* lang/qt/tests/run-signarchivejob.cpp (CommandLineOptions): Add
+	field cancelTimeout.
+	(parseCommandLine): Add option --cancel-after. Parse option value.
+	(main): Check for invalid cancel timeout. Start timer for canceling
+	the job.
+
+2023-08-15  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Make toLogString helper public.
+	+ commit 1d63d185e187d65a1a296c1e40e97720a2ab8317
+	* lang/qt/src/util.h: Move toLogString ...
+	* lang/qt/src/debug.h: ... here.
+	* lang/qt/tests/run-importjob.cpp (main): Use toLogString.
+
+2023-08-03  Carl Schwan  <carl.schwan@gnupg.com>
+
+	qt: Add setInputEncoding to QGpgMe::EncryptJob.
+	+ commit 9392f8103dd17ceb8fe74a0c8c212a3231ffe8a2
+	* lang/qt/src/encryptjob.cpp, lang/qt/src/encryptjob.h,
+	lang/qt/src/encryptjob_p.h: Add inputEncoding/setInputEncoding
+	to EncryptJob
+	* lang/qt/src/qgpgmeencryptjob.cpp: Use newly added inputEncoding
+	to set encoding hint of the encrypted content
+
+2023-07-08  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Ensure that we check the correct paths.
+	+ commit 698a464a3a7954cc55576e453f8dffcc83da7f9a
+	* lang/qt/src/QGpgmeConfig-w32.cmake.in.in,
+	lang/qt/src/QGpgmeQt6Config-w32.cmake.in.in: Get paths to check from
+	the target properties.
+
+2023-07-08  Ingo Klöcker  <dev@ingo-kloecker.de>
+	    Biswapriyo Nath  <nathbappai@gmail.com>
+
+	qt: Fix DLL version in cmake config files.
+	+ commit 5a76aa861aa7a7baf60bfb9292f6e8c406f41442
+	* lang/qt/src/QGpgmeConfig-w32.cmake.in.in,
+	lang/qt/src/QGpgmeQt6Config-w32.cmake.in.in: Fix name and path of DLL.
+
+2023-07-08  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Fix check for required files.
+	+ commit 573fd134124e5eb981f3c3bac8b247260a454127
+	* lang/qt/src/QGpgmeConfig-w32.cmake.in.in: Fix typos in variable names.
+
+2023-06-21  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Support reading signed/encrypted archives directly from a file.
+	+ commit e2e2ab48b9078a0ac3eb94ae5efc1c7a77178a1e
+	* lang/qt/src/decryptverifyarchivejob.cpp,
+	lang/qt/src/decryptverifyarchivejob.h (DecryptVerifyArchiveJob): Add
+	member functions setInputFile, inputFile.
+	* lang/qt/src/decryptverifyarchivejob_p.h
+	(DecryptVerifyArchiveJobPrivate): Add member m_inputFilePath.
+	* lang/qt/src/qgpgmedecryptverifyarchivejob.cpp (decrypt_verify): Move
+	creation of indata to decrypt_verify_from_io_device.
+	(decrypt_verify_from_io_device, decrypt_verify_from_file_name): New.
+	(QGpgMEDecryptVerifyArchiveJob::start): Use
+	decrypt_verify_from_io_device instead of decrypt_verify.
+	(QGpgMEDecryptVerifyArchiveJobPrivate::startIt): Start the job with the
+	values from member variables.
+
+	* lang/qt/tests/run-decryptverifyarchivejob.cpp (createInput): Remove.
+	(main): Remove creation of input. Make the job read the archive directly
+	from the given archive name.
+
+2023-06-19  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Support writing signed/encrypted archives directly to a file.
+	+ commit 46a909a77d8497745a0d5c20b6774802e1663a35
+	* lang/qt/src/encryptarchivejob.cpp, lang/qt/src/encryptarchivejob.h
+	(EncryptArchiveJob): Add member functions setRecipients, recipients,
+	setInputPaths, inputPaths, setOutputFile, outputFile,
+	setEncryptionFlags, encryptionFlags.
+	* lang/qt/src/encryptarchivejob_p.h (EncryptArchiveJobPrivate): Add
+	members m_recipients, m_inputPaths, m_outputFilePath, m_encryptionFlags.
+	* lang/qt/src/qgpgmeencryptarchivejob.cpp (encrypt): Move creation of
+	outdata to encrypt_to_io_device.
+	(encrypt_to_io_device, encrypt_to_filename): New.
+	(QGpgMEEncryptArchiveJob::start): Use encrypt_to_io_device instead of
+	encrypt.
+	(QGpgMEEncryptArchiveJobPrivate::startIt): Start the job with the
+	values from member variables.
+	* lang/qt/src/qgpgmesignarchivejob.cpp (sign): Move creation of
+	outdata to sign_to_io_device.
+	(sign_to_io_device, sign_to_filename): New.
+	(QGpgMESignArchiveJob::start): Use sign_to_io_device instead of sign.
+	(QGpgMESignArchiveJobPrivate::startIt): Start the job with the
+	values from member variables.
+	* lang/qt/src/qgpgmesignencryptarchivejob.cpp (sign_encrypt): Move
+	creation of outdata to sign_encrypt_to_io_device.
+	(sign_encrypt_to_io_device, sign_encrypt_to_filename): New.
+	(QGpgMESignEncryptArchiveJob::start): Use sign_encrypt_to_io_device
+	instead of sign_encrypt.
+	(QGpgMESignEncryptArchiveJobPrivate::startIt): Start the job with the
+	values from member variables.
+	* lang/qt/src/signarchivejob.cpp, lang/qt/src/signarchivejob.h
+	(SignArchiveJob): Add member functions setSigner, signers,
+	setInputPaths, inputPaths, setOutputFile, outputFile.
+	* lang/qt/src/signarchivejob_p.h (SignArchiveJobPrivate): Add
+	members m_signers, m_inputPaths, m_outputFilePath.
+	* lang/qt/src/signencryptarchivejob.cpp,
+	lang/qt/src/signencryptarchivejob.h (SignEncryptArchiveJob): Add
+	member functions setSigner, signers, setRecipients, recipients,
+	setInputPaths, inputPaths, setOutputFile, outputFile,
+	setEncryptionFlags, encryptionFlags.
+	* lang/qt/src/signencryptarchivejob_p.h (SignEncryptArchiveJobPrivate):
+	Add members m_signers, m_recipients, m_inputPaths, m_outputFilePath,
+	m_encryptionFlags.
+
+	* lang/qt/tests/run-encryptarchivejob.cpp (createOutput): Remove.
+	(checkOutputFilePath): New.
+	(main): Create file output writing to stdout if no archive name (or "-")
+	is given. Exit if file with given archive name already exists. Make
+	the jobs write the created archive directly to the given archive name.
+	* lang/qt/tests/run-signarchivejob.cpp (createOutput): Remove.
+	(checkOutputFilePath): New.
+	(main): Create file output writing to stdout if no archive name (or "-")
+	is given. Exit if file with given archive name already exists. Make
+	the jobs write the created archive directly to the given archive name.
+
+	qt: Add a generic hook to start a job.
+	+ commit 79f25dc0998b2a8d10e22b1e41b873ab82b7ea86
+	* lang/qt/src/job.cpp, lang/qt/src/job.h (Job::startIt): New method.
+	* lang/qt/src/job_p.h (JobPrivate::startIt): New pure virtual method.
+	* lang/qt/src/qgpgmechangeexpiryjob.cpp
+	(QGpgMEChangeExpiryJobPrivate::startIt): New.
+	* lang/qt/src/qgpgmedecryptverifyarchivejob.cpp
+	(QGpgMEDecryptVerifyArchiveJobPrivate::startIt): New.
+	* lang/qt/src/qgpgmeencryptarchivejob.cpp
+	(QGpgMEEncryptArchiveJobPrivate::startIt): New.
+	* lang/qt/src/qgpgmeencryptjob.cpp (QGpgMEEncryptJobPrivate::startIt):
+	New.
+	* lang/qt/src/qgpgmeimportjob.cpp (QGpgMEImportJobPrivate::startIt):
+	New.
+	* lang/qt/src/qgpgmelistallkeysjob.cpp
+	(QGpgMEListAllKeysJobPrivate::startIt): New.
+	* lang/qt/src/qgpgmesignarchivejob.cpp
+	(QGpgMESignArchiveJobPrivate::startIt): New.
+	* lang/qt/src/qgpgmesignencryptarchivejob.cpp
+	(QGpgMESignEncryptArchiveJobPrivate::startIt): New.
+	* lang/qt/src/qgpgmesignencryptjob.cpp
+	(QGpgMESignEncryptJobPrivate::startIt): New.
+
+	qt: Make the run methods of ThreadedJobMixin public.
+	+ commit 7725ab4c50b09e4bf1be7becbe3c3f7b2ff50949
+	* lang/qt/src/threadedjobmixin.h (ThreadedJobMixin::run): Make all
+	overloads public.
+
+	qt: Rename JobPrivate::start to JobPrivate::startNow.
+	+ commit d0dacca43c594b5f5ec61026559dd8f14ace1993
+	* lang/qt/src/job_p.h (JobPrivate::start): Rename to startNow.
+	* lang/qt/src/job.cpp (Job::startNow): Adapt function call.
+	* lang/qt/src/qgpgmechangeexpiryjob.cpp
+	(QGpgMEChangeExpiryJobPrivate::start): Rename to startNow.
+	* lang/qt/src/qgpgmedecryptverifyarchivejob.cpp
+	(QGpgMEDecryptVerifyArchiveJobPrivate::start): Rename to startNow.
+	* lang/qt/src/qgpgmeencryptarchivejob.cpp
+	(QGpgMEEncryptArchiveJobPrivate::start): Rename to startNow.
+	* lang/qt/src/qgpgmeencryptjob.cpp (QGpgMEEncryptJobPrivate::start):
+	Rename to startNow.
+	* lang/qt/src/qgpgmeimportjob.cpp (QGpgMEImportJobPrivate::start):
+	Rename to startNow.
+	* lang/qt/src/qgpgmelistallkeysjob.cpp
+	(QGpgMEListAllKeysJobPrivate::start): Rename to startNow.
+	* lang/qt/src/qgpgmesignarchivejob.cpp
+	(QGpgMESignArchiveJobPrivate::start): Rename to startNow.
+	* lang/qt/src/qgpgmesignencryptarchivejob.cpp
+	(QGpgMESignEncryptArchiveJobPrivate::start): Rename to startNow.
+	* lang/qt/src/qgpgmesignencryptjob.cpp
+	(QGpgMESignEncryptJobPrivate::start): Rename to startNow.
+
+	qt: Return const pointer to JobPrivate class for const pointer to Job.
+	+ commit 199a3b2d47f9152411a89043eebb7a97d60df513
+	* lang/qt/src/job.cpp, lang/qt/src/job_p.h (getJobPrivate): Replace with
+	two overloads for non-const pointer and const pointer to Job.
+	* lang/qt/src/job_p.h (jobPrivate): Replace with two template functions
+	for non-const pointer and const pointer to Job.
+
+2023-06-16  Andre Heinecke  <aheinecke@gnupg.org>
+
+	qt, cpp: Support larger size-hint on 32 bit builds.
+	+ commit 705a1be1734c36c2b92cce207c36bc2c13e3d671
+	* NEWS: Mention this.
+	* lang/cpp/src/data.h, lang/cpp/src/data.cpp (Data::setSizeHint): New.
+	* lang/qt/src/qgpgmedecryptjob.cpp,
+	 lang/qt/src/qgpgmedecryptverifyarchivejob.cpp,
+	 lang/qt/src/qgpgmedecryptverifyjob.cpp,
+	 lang/qt/src/qgpgmeencryptjob.cpp,
+	 lang/qt/src/qgpgmesignencryptjob.cpp,
+	 lang/qt/src/qgpgmesignjob.cpp,
+	 lang/qt/src/qgpgmeverifydetachedjob.cpp,
+	 lang/qt/src/qgpgmeverifyopaquejob.cpp: Set size for input IODevice.
+
+2023-02-14  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add signals for file-based and data-based progress.
+	+ commit efb2e3e48b3260dd492f2d3aa89f17688be61dd6
+	* lang/qt/src/decryptverifyarchivejob.h (DecryptVerifyArchiveJob): Add
+	signals fileProgress and dataProgress.
+	* lang/qt/src/encryptarchivejob.h (EncryptArchiveJob): Ditto.
+	* lang/qt/src/signarchivejob.h (SignArchiveJob): Ditto.
+	* lang/qt/src/signencryptarchivejob.h (SignEncryptArchiveJob): Ditto.
+	* lang/qt/src/job_p.h (emitArchiveProgressSignals): New.
+	* lang/qt/src/qgpgmedecryptverifyarchivejob.cpp
+	(QGpgMEDecryptVerifyArchiveJob::QGpgMEDecryptVerifyArchiveJob): Emit
+	appropriate signal when receiving Job::rawProgress signal.
+	* lang/qt/src/qgpgmeencryptarchivejob.cpp
+	(QGpgMEEncryptArchiveJob::QGpgMEEncryptArchiveJob): Ditto.
+	* lang/qt/src/qgpgmesignarchivejob.cpp
+	(QGpgMESignArchiveJob::QGpgMESignArchiveJob): Ditto.
+	* lang/qt/src/qgpgmesignencryptarchivejob.cpp
+	(QGpgMESignEncryptArchiveJob::QGpgMESignEncryptArchiveJob): Ditto.
+
+	qt: Add simple and extended progress signals replacing old signal.
+	+ commit 1e4f06d8626bec8d53917a05244c6e931f507f8d
+	* lang/qt/src/job.h (Job): Add signals jobProgress and rawProgress.
+	Deprecate signal progress.
+	* lang/qt/src/multideletejob.cpp (MultiDeleteJob::slotResult): Emit
+	new progress signals.
+	* lang/qt/src/qgpgmerefreshsmimekeysjob.cpp
+	(QGpgMERefreshSMIMEKeysJob::slotStatus): Ditto.
+	* lang/qt/src/threadedjobmixin.h (ThreadedJobMixin::showProgress): Use
+	modern overload of QMetaObject::invokeMethod to forward the progress
+	signal and add the value of what. Add forwarding of progress to the new
+	signals.
+
+	* lang/qt/tests/t-encrypt.cpp (EncryptionTest::testProgress): Test
+	the new signals instead of the deprecated one.
+
+2023-02-09  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	tests: Stop daemons after setting up test environment.
+	+ commit 7f1e42c6d83ea56a4dcb258b8f987ccb7c4b9214
+	* lang/python/tests/Makefile.am, lang/qt/tests/Makefile.am,
+	tests/gpg/Makefile.am, tests/json/Makefile.am (pubring-stamp): Call
+	`gpgconf --kill all` after importing test keys.
+
+2023-02-02  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt,tests: Add test for the previous commit.
+	+ commit eee24d37dda7aafde0614b458bb9f88299d79eef
+	* lang/qt/tests/t-decryptverify.cpp: New.
+	* lang/qt/tests/Makefile.am: Add new test.
+
+	qt: Add job for extracting encrypted and signed archives.
+	+ commit b2c50749b3a464826a520405963a10cfd38f112d
+	* lang/qt/src/decryptverifyarchivejob.cpp,
+	lang/qt/src/decryptverifyarchivejob.h,
+	lang/qt/src/decryptverifyarchivejob_p.h,
+	lang/qt/src/qgpgmedecryptverifyarchivejob.cpp,
+	lang/qt/src/qgpgmedecryptverifyarchivejob.h: New.
+	* lang/qt/src/protocol.h (class Protocol): Add pure virtual member
+	function decryptVerifyArchiveJob
+	* lang/qt/src/protocol_p.h (Protocol::decryptVerifyArchiveJob): ... and
+	implement it.
+	* lang/qt/src/Makefile.am: Update accordingly.
+
+	* lang/qt/tests/run-decryptverifyarchivejob.cpp: New.
+	* lang/qt/tests/Makefile.am: Add new test runner.
+
+	qt: Allow checking if the sign/encrypt archive jobs are supported.
+	+ commit 1b7b2148d7f76a462bfbe1f0e55636ad37087f29
+	* lang/qt/src/encryptarchivejob.cpp, lang/qt/src/encryptarchivejob.h
+	(isSupported): New.
+	* lang/qt/src/signarchivejob.cpp, lang/qt/src/signarchivejob.h
+	(isSupported): New.
+	* lang/qt/src/signencryptarchivejob.cpp,
+	lang/qt/src/signencryptarchivejob.h (isSupported): New.
+
+	* lang/qt/tests/run-encryptarchivejob.cpp (main),
+	lang/qt/tests/run-signarchivejob.cpp (main): Check if jobs are
+	supported.
+
+2023-01-31  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Fix build without installed gpgme++ headers.
+	+ commit 23b0b3b1d40059efe9a45a24ed99caebad0e9733
+	* lang/qt/src/filelistdataprovider.cpp: Include error.h without
+	folder prefix.
+
+	qt: Remove unused and commented-out code.
+	+ commit 92a895cc15e2b6fc417a6b8d2ff808272f31c2cf
+	* lang/qt/src/qgpgmeencryptarchivejob.cpp,
+	lang/qt/src/qgpgmeencryptarchivejob.h (QGpgMEEncryptArchiveJob):
+	Remove member function resultHook and member mResult.
+	* lang/qt/src/qgpgmesignarchivejob.cpp,
+	lang/qt/src/qgpgmesignarchivejob.h (QGpgMESignArchiveJob):
+	Remove member function resultHook and member mResult.
+
+	qt: Add job for creating encrypted signed archives.
+	+ commit dba112d1f603a4f63bd590f0c6772e64608013dd
+	* lang/qt/src/signencryptarchivejob.cpp,
+	lang/qt/src/signencryptarchivejob.h,
+	lang/qt/src/signencryptarchivejob_p.h,
+	lang/qt/src/qgpgmesignencryptarchivejob.cpp,
+	lang/qt/src/qgpgmesignencryptarchivejob.h: New.
+	* lang/qt/src/protocol.h (class Protocol): Add pure virtual member
+	function signEncryptArchiveJob
+	* lang/qt/src/protocol_p.h (Protocol::signEncryptArchiveJob): ... and
+	implement it.
+	* lang/qt/src/Makefile.am: Update accordingly.
+
+	* lang/qt/tests/run-encryptarchivejob.cpp (displayName): Remove.
+	(CommandLineOptions): Initialize member armor. Add member sign.
+	(parseCommandLine): Update application description. Add and parse option
+	-s/--sign.
+	(main): Use SignEncryptArchiveJob if sign option is set.
+
+	qt,tests: Avoid leaking Context.
+	+ commit f2c5391237e59fe75eec21e338ba00320383b069
+	* lang/qt/tests/t-import.cpp: Wrap Context*s in unique_ptr.
+
+2023-01-30  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add job for creating signed archives.
+	+ commit 5646e616da6b816f907a41b1f008e942446db90d
+	* lang/qt/src/signarchivejob.cpp, lang/qt/src/signarchivejob.h,
+	lang/qt/src/signarchivejob_p.h,
+	lang/qt/src/qgpgmesignarchivejob.cpp,
+	lang/qt/src/qgpgmesignarchivejob.h: New.
+	* lang/qt/src/protocol.h (class Protocol): Add pure virtual member
+	function signArchiveJob
+	* lang/qt/src/protocol_p.h (Protocol::signArchiveJob): ... and
+	implement it.
+	* lang/qt/src/Makefile.am: Update accordingly.
+
+	* lang/qt/tests/run-signarchivejob.cpp: New.
+	* lang/qt/tests/Makefile.am: Add new test runner.
+
+2023-01-27  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add job for creating encrypted archives.
+	+ commit aa5adc236843b4ce63039bf61d1e8eb4de9eaec9
+	* lang/qt/src/encryptarchivejob.cpp, lang/qt/src/encryptarchivejob.h,
+	lang/qt/src/encryptarchivejob_p.h,
+	lang/qt/src/qgpgmeencryptarchivejob.cpp,
+	lang/qt/src/qgpgmeencryptarchivejob.h: New.
+	* lang/qt/src/protocol.h (class Protocol): Add pure virtual member
+	function encryptArchiveJob
+	* lang/qt/src/protocol_p.h (Protocol::encryptArchiveJob): ... and
+	implement it.
+	* lang/qt/src/Makefile.am: Update accordingly.
+
+	* lang/qt/tests/run-encryptarchivejob.cpp: New.
+	* lang/qt/tests/Makefile.am: Add new test runner.
+
+	qt: Add data provider for list of file names.
+	+ commit efc0d5363bae38e42e2de7024d02d7a69e89a8d6
+	* lang/qt/src/Makefile.am: Add new files and corresponding camel-case
+	header.
+	* lang/qt/src/dataprovider.h: Include interface from gpgme++ when
+	not building.
+	* lang/qt/src/filelistdataprovider.cpp,
+	lang/qt/src/filelistdataprovider.h: New.
+
+2023-01-05  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Fix comparisons of integer expressions of different signedness.
+	+ commit ce4f1a276a8f62d8274ca51b3584038de7f24299
+	* lang/qt/tests/t-import.cpp (ImportTest::testImportWithImportFilter):
+	Make integer literal unsigned.
+
+	qt: Replace Q_DECL_OVERRIDE with override.
+	+ commit 4dd8544992a0bb8a5a4ad2b1407091552b3b01be
+	* lang/qt/src/defaultkeygenerationjob.h,
+	lang/qt/src/hierarchicalkeylistjob.h, lang/qt/src/multideletejob.h,
+	lang/qt/src/protocol_p.h, lang/qt/src/qgpgmeadduseridjob.h,
+	lang/qt/src/qgpgmechangeexpiryjob.h,
+	lang/qt/src/qgpgmechangeownertrustjob.h,
+	lang/qt/src/qgpgmechangepasswdjob.h, lang/qt/src/qgpgmedecryptjob.h,
+	lang/qt/src/qgpgmedecryptverifyjob.h, lang/qt/src/qgpgmedeletejob.h,
+	lang/qt/src/qgpgmedownloadjob.h, lang/qt/src/qgpgmeencryptjob.h,
+	lang/qt/src/qgpgmeexportjob.h, lang/qt/src/qgpgmegpgcardjob.h,
+	lang/qt/src/qgpgmeimportfromkeyserverjob.h,
+	lang/qt/src/qgpgmeimportjob.h, lang/qt/src/qgpgmekeyformailboxjob.h,
+	lang/qt/src/qgpgmekeygenerationjob.h, lang/qt/src/qgpgmekeylistjob.h,
+	lang/qt/src/qgpgmelistallkeysjob.h, lang/qt/src/qgpgmenewcryptoconfig.h,
+	lang/qt/src/qgpgmequickjob.h, lang/qt/src/qgpgmerefreshsmimekeysjob.h,
+	lang/qt/src/qgpgmesignencryptjob.h, lang/qt/src/qgpgmesignjob.h,
+	lang/qt/src/qgpgmesignkeyjob.h, lang/qt/src/qgpgmetofupolicyjob.h,
+	lang/qt/src/qgpgmeverifydetachedjob.h,
+	lang/qt/src/qgpgmeverifyopaquejob.h, lang/qt/src/qgpgmewkdlookupjob.h,
+	lang/qt/src/qgpgmewkspublishjob.h, lang/qt/src/threadedjobmixin.h,
+	lang/qt/tests/t-support.h: Replace Q_DECL_OVERRIDE with override
+
+	qt: Allow deferred start of import job.
+	+ commit 33c09ca7380dbd8c44ed1757a518db9c816ec84a
+	* lang/qt/src/importjob.h (ImportJob::startLater): New pure virtual
+	method.
+	* lang/qt/src/qgpgmeimportjob.cpp, lang/qt/src/qgpgmeimportjob.h
+	(QGpgMEImportJob::startLater): New method.
+
+	* lang/qt/tests/t-import.cpp (ImportTest::testDeferredStart): New.
+
+2023-01-04  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Support deferred start of jobs.
+	+ commit 8e1fa66dde24a9e22a8a8764b86df2a2d7206389
+	* lang/qt/src/job.cpp, lang/qt/src/job.h (Job::startNow): New method.
+	* lang/qt/src/job_p.h (JobPrivate::start): New pure virtual method.
+	* lang/qt/src/qgpgmechangeexpiryjob.cpp
+	(QGpgMEChangeExpiryJobPrivate::start): New.
+	* lang/qt/src/qgpgmeencryptjob.cpp (QGpgMEEncryptJobPrivate::start):
+	New.
+	* lang/qt/src/qgpgmeimportjob.cpp (QGpgMEImportJobPrivate::start): New.
+	* lang/qt/src/qgpgmelistallkeysjob.cpp
+	(QGpgMEListAllKeysJobPrivate::start): New.
+	* lang/qt/src/qgpgmesignencryptjob.cpp
+	(QGpgMESignEncryptJobPrivate::start): New.
+	* lang/qt/src/threadedjobmixin.h (Thread::hasFunction): New method.
+	(ThreadedJobMixin::run, ThreadedJobMixin::setWorkerFunction): New
+	methods.
+
+	qt: Explicitly instantiate private job classes.
+	+ commit 1fc957502d433aad189409da5b63fe57105092a0
+	* lang/qt/src/Makefile.am: Add new files.
+	* lang/qt/src/changeexpiryjob_p.h, lang/qt/src/encryptjob_p.h,
+	lang/qt/src/importjob_p.h, lang/qt/src/listallkeysjob_p.h,
+	lang/qt/src/signencryptjob_p.h: New.
+	* lang/qt/src/changeexpiryjob.cpp, lang/qt/src/encryptjob.cpp,
+	lang/qt/src/importjob.cpp, lang/qt/src/listallkeysjob.cpp,
+	lang/qt/src/signencryptjob.cpp: Move JobPrivate subclasses to the new
+	private header files.
+	* lang/qt/src/job_p.h (jobPrivate): Remove lazy instantiation of private
+	job classes.
+	* lang/qt/src/qgpgmechangeexpiryjob.cpp (class
+	QGpgMEChangeExpiryJobPrivate): New.
+	(QGpgMEChangeExpiryJob::QGpgMEChangeExpiryJob): Instantiate private job
+	class.
+	* lang/qt/src/qgpgmeencryptjob.cpp (class
+	QGpgMEEncryptJobPrivate): New.
+	(QGpgMEEncryptJob::QGpgMEEncryptJob): Instantiate private job
+	class.
+	* lang/qt/src/qgpgmeimportjob.cpp (class
+	QGpgMEImportJobPrivate): New.
+	(QGpgMEImportJob::QGpgMEImportJob): Instantiate private job
+	class.
+	* lang/qt/src/qgpgmelistallkeysjob.cpp (class
+	QGpgMEListAllKeysJobPrivate): New.
+	(QGpgMEListAllKeysJob::QGpgMEListAllKeysJob): Instantiate private job
+	class.
+	* lang/qt/src/qgpgmesignencryptjob.cpp (class
+	QGpgMESignEncryptJobPrivate): New.
+	(QGpgMESignEncryptJob::QGpgMESignEncryptJob): Instantiate private job
+	class.
+
+2022-12-06  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Write path values with Unix directory separators.
+	+ commit 3874fbb92f42520a489cb9175dd9869a560870d0
+	* lang/qt/src/qgpgmenewcryptoconfig.cpp
+	(QGpgMENewCryptoConfigEntry::setURLValue): Remove conversion to native
+	directory separators.
+
+2022-11-04  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Allow disabling automatic trust database check on key listing.
+	+ commit b5415ef2f3a27eebe76307dc5c3c0dd7333a5750
+	* lang/qt/src/Makefile.am (qgpgme_sources): Add listallkeysjob.cpp.
+	* lang/qt/src/listallkeysjob.cpp: New.
+	* lang/qt/src/listallkeysjob.h (enum ListAllKeysJob::Option,
+	typedef ListAllKeysJob::Options, ListAllKeysJob::setOptions,
+	ListAllKeysJob::options): New.
+	* lang/qt/src/qgpgmelistallkeysjob.cpp (list_keys): Set context flag
+	"no-auto-check-trustdb" if requested.
+	(QGpgMEListAllKeysJob::start, QGpgMEListAllKeysJob::exec): Add options
+	to call of list_keys.
+
+2022-10-11  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	build,qt: Clean up all generated files.
+	+ commit 2518370da84fb422616334445dbd626b81b7aa8d
+	* lang/qt/src/Makefile.am (CLEANFILES): Add QGpgmeConfig-w32.cmake.in
+	and QGpgmeQt6Config-w32.cmake.in.
+
+	qt,tests: Port test to QRegularExpression.
+	+ commit 0b18054a43361df57f92014247f8d7a61d4f3fc0
+	* lang/qt/tests/t-trustsignatures.cpp: Use QRegularExpression instead of
+	QRegExp.
+
+	qt: Remove obsolete code.
+	+ commit 9bd48771a2d1890588b799148d726704ab2da6f5
+	* lang/qt/src/qgpgmenewcryptoconfig.cpp (struct Select1St): Remove.
+
+	build,qt: Allow building QGpgME for Qt 6.
+	+ commit 1570426ca934108464f2f3c0b012f438430f8179
+	* configure.ac: Look for Qt 5 and/or Qt 6. Require C++17 if Qt 6 binding
+	is built. Build cmake files QGpgmeConfig* for Qt 5 and QGpgmeQt6Config*
+	for Qt 6.
+	(available_languages): Add "qt5" and "qt6".
+	(WANT_QT5, WANT_QT6): New conditionals.
+	* lang/qt/src/Makefile.am: Keep building libqgpgme for Qt 5. Build
+	libqgpgmeqt6 for Qt 6.
+	* lang/qt/tests/Makefile.am: Build tests for Qt 5 or Qt 6.
+	* lang/qt/src/QGpgmeQt6Config-w32.cmake.in.in,
+	lang/qt/src/QGpgmeQt6Config.cmake.in.in,
+	lang/qt/src/QGpgmeQt6ConfigVersion.cmake.in, m4/qt6.m4: New.
+
+2022-10-10  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	build,qt: Explicitly namespace a few Qt variables for Qt5.
+	+ commit 99f6b644dc6771e9e62a9d774751618eaa84ae8c
+	m4/qt.m4: Rename to
+	m4/qt5.m4: this.
+	(FIND_QT): Rename to FIND_QT5.
+	(GPGME_QT): Change variable prefix to GPGME_QT5.
+	(GPGME_QTTEST: Change variable prefix to GPGME_QT5TEST.
+	configure.ac, lang/qt/src/Makefile.am, lang/qt/tests/Makefile.am:
+	Adjust accordingly.
+
+2022-08-22  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Fix building with C++11.
+	+ commit 85859289f89a38c247d3643304a18be710a0444e
+	* lang/qt/src/qgpgmerefreshsmimekeysjob.cpp
+	(QGpgMERefreshSMIMEKeysJob::start): Replace 'auto' in lambda with the
+	actual type.
+	* lang/qt/src/qgpgmesignkeyjob.cpp (class TrustSignatureProperties): Add
+	default c'tor and c'tor initializing all members.
+	* lang/qt/src/util.cpp (toFingerprints): Replace 'auto' in lambda with
+	the actual type.
+	* lang/qt/tests/run-exportjob.cpp (createExportJob): Replace 'auto'
+	return type with actual type.
+
+	qt: Fix building with Qt6.
+	+ commit adc61c44b91c3fbacd95c929782e1de51c5175fb
+	* lang/qt/src/util.cpp, lang/qt/src/util.h: Replace forward declaration
+	with include.
+
+2022-08-18  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt,tests: Make test pass on 32-bit systems.
+	+ commit 0906e38e64f40c8ec2892b2794a94229ac349e70
+	* lang/qt/tests/t-addexistingsubkey.cpp
+	(AddExistingSubkeyJobTest::testAddExistingSubkeyWithExpiration): Handle
+	negative expiration date.
+
+2022-08-17  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt,tests: Make sure expiration time is interpreted as unsigned number.
+	+ commit 7f61d9ad65463a5dcd4e3ec601132a255dbb8d06
+	* lang/qt/tests/t-addexistingsubkey.cpp,
+	lang/qt/tests/t-changeexpiryjob.cpp: Convert expiration time to
+	uint_least32_t.
+
+	qt,tests: Log the actual error code if the assertion fails.
+	+ commit 2b7e222fcf66caaf83e56a70f25ae3b9e8d931e4
+	* lang/qt/tests/t-addexistingsubkey.cpp (
+	AddExistingSubkeyJobTest::testAddExistingSubkeyAsync,
+	AddExistingSubkeyJobTest::testAddExistingSubkeySync,
+	AddExistingSubkeyJobTest::testAddExistingSubkeyWithExpiration): Use
+	QCOMPARE instead of QVERIFY for asserting equality.
+
+	qt: Make sure expiration time is interpreted as unsigned number.
+	+ commit ececd095fd8238727f21da8685e16b7d5c965178
+	* lang/qt/src/qgpgmeaddexistingsubkeyjob.cpp (add_subkey): Convert
+	expiration time to uint_least32_t.
+
+2022-08-11  Andre Heinecke  <aheinecke@gnupg.org>
+
+	Qt: Fix working with no gpgconf in CryptoConfig.
+	+ commit 4497f7bea50a6f71ec5463c9b47425564e9eb3e2
+	* lang/qt/src/cryptoconfig.cpp (CryptoConfig::entry): Add nullptr
+	  checks.
+
+2022-08-10  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add missing include.
+	+ commit 24a84af8a908f1d267ce0b94068255cc1be7d65b
+	* lang/qt/tests/t-revokekey.cpp: Include QDebug.
+
+2022-08-09  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add job to set the primary user ID of OpenPGP keys.
+	+ commit 4d7e1873c49ede086390b0d7e46d91da8daab07d
+	* lang/qt/src/qgpgmesetprimaryuseridjob.cpp,
+	lang/qt/src/qgpgmesetprimaryuseridjob.h,
+	lang/qt/src/setprimaryuseridjob.h: New.
+	* lang/qt/src/protocol.h (class Protocol): Add pure virtual member
+	function setPrimaryUserIDJob.
+	* lang/qt/src/protocol_p.h (Protocol::setPrimaryUserIDJob): New.
+	* lang/qt/src/job.cpp, lang/qt/src/Makefile.am: Update accordingly.
+
+	* lang/qt/tests/t-setprimaryuserid.cpp: New.
+	* lang/qt/tests/Makefile.am: Add new test.
+
+2022-08-04  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Remove job for refreshing OpenPGP keys.
+	+ commit d34f619e23f875724ecbf5326fd2a1e38ae0824e
+	* lang/qt/src/qgpgmerefreshopenpgpkeysjob.cpp,
+	lang/qt/src/qgpgmerefreshopenpgpkeysjob.h,
+	lang/qt/src/refreshopenpgpkeysjob.h: Remove.
+	* lang/qt/src/Makefile.am, lang/qt/src/job.cpp: Update accordingly.
+	* lang/qt/src/protocol.h (class Protocol): Remove pure virtual member
+	function refreshOpenPGPKeysJob.
+	* lang/qt/src/protocol_p.h (Protocol::refreshOpenPGPKeysJob): Remove.
+
+	* lang/qt/tests/run-refreshkeysjob.cpp (main): Use ReceiveKeysJob for
+	OpenPGP keys.
+
+2022-07-05  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Allow setting the file name of signed and encrypted data.
+	+ commit 9e2b4164e4ff106ddac3975f477decd7537f5451
+	* lang/qt/src/Makefile.am (qgpgme_sources): Add signencryptjob.cpp.
+	* lang/qt/src/signencryptjob.cpp: New.
+	* lang/qt/src/signencryptjob.h (class SignEncryptJob): Add member
+	functions setFileName, fileName.
+	* lang/qt/src/qgpgmesignencryptjob.cpp (sign_encrypt): Set file name of
+	input.
+	(sign_encrypt_qba, QGpgMESignEncryptJob::exec,
+	QGpgMESignEncryptJob::start): Pass file name to sign_encrypt resp.
+	sign_encrypt_qba.
+
+	qt: Allow setting the file name of encrypted data.
+	+ commit 6d307e9383a4937e7e155514a58ffdcf8d2badd6
+	* lang/qt/src/Makefile.am (qgpgme_sources): Add encryptjob.cpp.
+	* lang/qt/src/encryptjob.cpp: New.
+	* lang/qt/src/encryptjob.h (class EncryptJob): Add member functions
+	setFileName, fileName.
+	* lang/qt/src/qgpgmeencryptjob.cpp (encrypt): Set file name of input.
+	(encrypt_qba, QGpgMEEncryptJob::exec, QGpgMEEncryptJob::start): Pass
+	file name to encrypt resp. encrypt_qba.
+
+2022-07-04  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Fix filename of cmake config files for w32.
+	+ commit 7104941151a98ef95ae0a4085e54272705d706f0
+	* lang/qt/src/Makefile.am (EXTRA_DIST): Add
+	QGpgmeConfig-w32.cmake.in.in.
+
+2022-07-04  Laurent Montel  <montel@kde.org>
+
+	qt: Add #include <QStringList> needed for building against qt6.
+	+ commit 74fe74e11d65a456609183beabd08885b151fe67
+	* lang/qt/src/downloadjob.h, lang/qt/src/exportjob.h,
+	lang/qt/src/keylistjob.h lang/qt/src/refreshkeysjob.h: in qt6 we need
+	to use #include <QStringList>
+
+2022-06-10  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt,tests: Allow 1-day-offset for expiration date.
+	+ commit 051885935e2c7aa9ee5a2d91b450d4a122986c5e
+	* lang/qt/tests/t-various.cpp (TestVarious::testSignKeyWithExpiration):
+	Assert that the expiration date is either 2106-02-05 or 2106-02-04.
+
+	qt: Prevent u32 overflow when calculating expiration date.
+	+ commit d9a25d74a707427b92f52e16bcea559791760d4b
+	* lang/qt/src/qgpgmesignkeyjob.cpp (sign_key): Change maxAllowedDate to
+	2106-02-05. Change log-level from warning to debug.
+	* lang/qt/tests/t-various.cpp (TestVarious::testSignKeyWithExpiration):
+	Remove check for warning. Adapt assertion.
+
+2022-06-09  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Revert "tests: Avoid problems with local time across a day boundary."
+	+ commit 318e13ad9496613945a1a622432a3fe652fd5c91
+	This reverts commit e8cef314b3f7946a350624a839795fa2a63e5bbf.
+
+2022-05-05  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Revert change of result signal of RefreshKeysJob.
+	+ commit d657e90d101201c9b6c4c6fcb74923a249f510b2
+	* lang/qt/src/refreshkeysjob.h (RefreshKeysJob::result): Remove optional
+	parameters auditLogAsHtml and auditLogError.
+	* lang/qt/tests/run-refreshkeysjob.cpp (main): Update accordingly.
+
+	qt: Use lambda instead of std::bind.
+	+ commit dec282e9423bc3ad6103405e83af6bc63f79dadb
+	* lang/qt/src/qgpgmerefreshopenpgpkeysjob.cpp
+	(QGpgMERefreshOpenPGPKeysJob::start): Replace std::bind call with a
+	lambda.
+
+2022-05-04  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Emit import result when refreshing OpenPGP keys.
+	+ commit bf399027b2544ca006f89dcaa59f2ab2c2692f8c
+	* lang/qt/src/refreshopenpgpkeysjob.h: New.
+	* lang/qt/src/Makefile.am, lang/qt/src/job.cpp: Update accordingly.
+	* lang/qt/src/qgpgmerefreshopenpgpkeysjob.h (class
+	QGpgMERefreshOpenPGPKeysJob): Derive from RefreshOpenPGPKeysJob with
+	result ImportResult. Remove unused start overload.
+	* lang/qt/src/qgpgmerefreshopenpgpkeysjob.cpp (locate_external_keys):
+	Ignore result of KeyListJob. Return import result.
+	(receive_keys): Return import result.
+	(refresh_keys): Merge the two import results and return the result.
+	* lang/qt/src/protocol.h (class Protocol): Add pure virtual member
+	function refreshOpenPGPKeysJob.
+	* lang/qt/src/protocol_p.h (Protocol::refreshKeysJob): Return nullptr
+	for OpenPGP protocol.
+	(Protocol::refreshOpenPGPKeysJob): New.
+
+	* lang/qt/tests/run-refreshkeysjob.cpp (main): Use appropriate job
+	for the protocol of the key to refresh.
+
+2022-05-02  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Apply compiler hint.
+	+ commit 7fb7e410af5416172ac8034c2f5288c7339b786d
+	* lang/qt/tests/t-verify.cpp (VerifyTest::testSignatureKey): Use
+	reference type to prevent copying.
+
+	qt: Use GpgME::Locate alias.
+	+ commit 51f1c43fc29a72c25112a708435f283617a3d51c
+	* lang/qt/src/protocol_p.h (Protocol::locateKeysJob): Use Locate alias
+	instead of Extern|Local.
+	* lang/qt/src/qgpgmekeyformailboxjob.cpp (do_work): Ditto.
+
+	qt: Add job for refreshing OpenPGP keys.
+	+ commit f821221e7f50bba4c1dceb72f8c62e36fbf4c1c5
+	* lang/qt/src/qgpgmerefreshopenpgpkeysjob.h,
+	lang/qt/src/qgpgmerefreshopenpgpkeysjob.cpp: New.
+	* lang/qt/src/Makefile.am: Add new files.
+	* lang/qt/src/protocol_p.h (Protocol::refreshKeysJob): Add support for
+	OpenPGP protocol.
+
+	qt: Add debug helper for Result classes with output stream operator.
+	+ commit d13630a78c8ea1a8d4460137eebc386b84c39f26
+	* lang/qt/src/util.h (toLogString): New.
+
+	qt: Factor out helper for getting the fingerprints of some keys.
+	+ commit 6906ad2eaf4454426220c95e97dd67ac088df859
+	* lang/qt/src/util.h, lang/qt/src/util.cpp (toFingerprints): New.
+	* lang/qt/src/qgpgmerefreshsmimekeysjob.cpp: Use the helper.
+
+2022-04-29  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Fix connection to readyReadStandardOutput signal.
+	+ commit f65fbf9fe82796da9ec2c1d7335190d9d0f6be94
+	* lang/qt/src/qgpgmerefreshsmimekeysjob.h,
+	lang/qt/src/qgpgmerefreshsmimekeysjob.cpp
+	(QGpgMERefreshSMIMEKeysJob::slotStderr): Remove.
+	* lang/qt/src/qgpgmerefreshsmimekeysjob.cpp
+	(QGpgMERefreshSMIMEKeysJob::startAProcess): Handle
+	readyReadStandardOutput and readyReadStandardError signals with lambdas.
+
+	qt: Add test runner for refresh job.
+	+ commit 9173c4a665d5e77c3fbfa3373caa8a142390318a
+	* lang/qt/tests/run-refreshkeysjob.cpp: New.
+	* lang/qt/tests/Makefile.am (run_refreshkeysjob_SOURCES): New.
+	(noinst_PROGRAMS): Add new build artifact.
+
+	qt: Make RefreshKeysJob result compatible with standard job result.
+	+ commit 8bfea66809aaf4c5826104f82a50c3b12b78ac52
+	* lang/qt/src/refreshkeysjob.h (RefreshKeysJob::result): Add optional
+	parameters auditLogAsHtml and auditLogError.
+
+	qt: Allow refreshing a list of keys.
+	+ commit e29df3096c4dd13e5f512e93cf8e5bd8f0ef8226
+	* lang/qt/src/refreshkeysjob.h (class RefreshKeysJob): Add pure virtual
+	member function start taking a list of keys.
+	* lang/qt/src/qgpgmerefreshsmimekeysjob.h,
+	lang/qt/src/qgpgmerefreshsmimekeysjob.cpp (class
+	QGpgMERefreshSMIMEKeysJob): Implement new member function.
+
+	qt: Minor refactoring.
+	+ commit f9bab909366eacf87a6ba2a5e4e74f29434750c7
+	* lang/qt/src/qgpgmerefreshsmimekeysjob.cpp: Use namespace QGpgME.
+
+	qt: Rename QGpgMERefreshKeysJob to QGpgMERefreshSMIMEKeysJob.
+	+ commit c2519fd4b37e574fe3600e8b316f1b29e2235232
+	* lang/qt/src/qgpgmerefreshkeysjob.h,
+	lang/qt/src/qgpgmerefreshkeysjob.cpp: Change name to
+	* lang/qt/src/qgpgmerefreshsmimekeysjob.h,
+	lang/qt/src/qgpgmerefreshsmimekeysjob.cpp: ... this, and adapt the
+	include guard.
+	(class QGpgMERefreshKeysJob): Rename to QGpgMERefreshSMIMEKeysJob.
+	* lang/qt/src/Makefile.am: Adapt mentioned file names accordingly.
+	* lang/qt/src/protocol_p.h (Protocol::refreshKeysJob): Use renamed
+	class.
+
+2022-04-25  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Rely on the bad passphrase error reported by gpg.
+	+ commit a31c1c961983725b19207d7fb68b4a4db2c40098
+	* lang/qt/src/qgpgmedecryptverifyjob.cpp (patch_decryption_result):
+	Removed.
+	(decrypt_verify): Remove usage of patch_decryption_result.
+
+2022-04-22  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Report better error if decryption failed because of bad passphrase.
+	+ commit 91e2e15ef9ea03c10484dc7e7fb5d2dd7edb0f76
+	* lang/qt/src/qgpgmedecryptverifyjob.cpp (patch_decryption_result): New.
+	(decrypt_verify): Call patch_decryption_result.
+
+2022-03-31  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Check arguments passed to the revoke key job.
+	+ commit 4968e191295df5c7f24989e10a14b69142bd190e
+	* lang/qt/src/qgpgmerevokekeyjob.cpp (check_arguments): New.
+	(QGpgMERevokeKeyJob::start, QGpgMERevokeKeyJob::exec): Call
+	check_arguments.
+	* lang/qt/tests/t-revokekey.cpp (RevokeKeyJobTest): Add member functions
+	testErrorHandling_nullKey, testErrorHandling_invalidReason,
+	testErrorHandling_invalidDescription.
+
+2022-03-30  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt,tests: Verify reason code and description of revocation.
+	+ commit cb880050d5f3e1a0fb274af5a1d1ee2cba7aaf90
+	* lang/qt/tests/t-revokekey.cpp (RevokeKeyJobTest::testRevokeKeyAsync,
+	RevokeKeyJobTest::testRevokeKeySync_noReasonDescription,
+	RevokeKeyJobTest::testRevokeKeySync_oneLineReasonDescription,
+	RevokeKeyJobTest::testRevokeKeySync_twoLinesReasonDescription): Call
+	verifyReason.
+	(class RevokeKeyJobTest): Add private member function verifyReason.
+
+	qt: Add job to revoke own OpenPGP keys.
+	+ commit 2383316f1dcd03edc1e1277485671a8e99613518
+	* lang/qt/src/revokekeyjob.h, lang/qt/src/qgpgmerevokekeyjob.h,
+	lang/qt/src/qgpgmerevokekeyjob.cpp: New.
+	* lang/qt/src/protocol.h (class Protocol): Add pure virtual member
+	function revokeKeyJob.
+	* lang/qt/src/protocol_p.h (Protocol::revokeKeyJob): New.
+	* lang/qt/src/job.cpp, lang/qt/src/Makefile.am: Update accordingly.
+
+	* lang/qt/tests/Makefile.am (the_tests, moc_files, noinst_PROGRAMS):
+	Add new test.
+	(t_revokekey_SOURCES): New.
+	* lang/qt/tests/t-revokekey.cpp: New.
+
+2022-03-07  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add missing include of config.h.
+	+ commit 7ae7892b609c3d22d554185c200d26f067b77c80
+	* lang/qt/src/util.cpp: Include config.h.
+
+2022-02-17  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Fix ABI compatibility with 1.16.0.
+	+ commit 97c1bd2f1c9fa34eecb266be5a97d3bd6b7c3547
+	* lang/qt/src/protocol.h (class Protocol): Move new virtual methods to
+	the end of the class.
+
+2022-02-07  Werner Koch  <wk@gnupg.org>
+
+	qt: Fix build for older Qt versions.
+	+ commit 39fe12cafebd9573a4bf3621e340c32924f535c0
+	* lang/qt/src/util.cpp: Include <functional>.
+
+2022-02-03  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add job to import keys given by key ids.
+	+ commit e80e4b2f719a7fdfe8afff26067e4a3f94f261ce
+	* lang/qt/src/receivekeysjob.h, lang/qt/src/qgpgmereceivekeysjob.h,
+	lang/qt/src/qgpgmereceivekeysjob.cpp: New.
+	* lang/qt/src/protocol.h (class Protocol): Add pure virtual member
+	function receiveKeysJob.
+	* lang/qt/src/protocol_p.h (Protocol::receiveKeysJob): Implement it.
+	* lang/qt/src/job.cpp, lang/qt/src/Makefile.am: Update accordingly.
+
+	* lang/qt/tests/run-receivekeysjob.cpp: New.
+	* lang/qt/tests/Makefile.am: Add new test runner.
+
+	qt: Add helper for converting QStringList to vector of strings.
+	+ commit 000e0d7bdd3628d67f19fbd3a2ffe5f0f65f6f89
+	* lang/qt/src/util.h, lang/qt/src/util.cpp: New.
+	* lang/qt/src/Makefile.am (qgpgme_sources, private_qgpgme_headers):
+	Add new files.
+
+2022-01-17  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Remove superfluous include.
+	+ commit 02f8577495c91842997dc445a006157ea9c07e63
+	* lang/qt/src/importjob.h: Remove include of QByteArray.
+
+	qt: Fix build without installed GpgME++ headers.
+	+ commit e036f39efa1c3494cb17a12a7b08e639efa6c0ec
+	* lang/qt/src/importjob.h, lang/qt/src/wkdlookupresult.h: Include
+	headers of GpgME++ without "gpgme++/" prefix when building QGpgme.
+	* lang/qt/src/qgpgmeimportjob.cpp, lang/qt/src/qgpgmewkdlookupjob.cpp,
+	lang/qt/src/wkdlookupresult.cpp, lang/qt/tests/t-import.cpp: Include
+	headers of GpgME++ without "gpgme++/" prefix.
+
+2022-01-13  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add job to add existing subkeys to other keys.
+	+ commit 216969d1d192515d17f6feb89495ec30c1cd3541
+	* lang/qt/src/addexistingsubkeyjob.h,
+	lang/qt/src/qgpgmeaddexistingsubkeyjob.cpp,
+	lang/qt/src/qgpgmeaddexistingsubkeyjob.h: New.
+	* lang/qt/src/protocol.h (class Protocol): Add pure virtual member
+	function addExistingSubkeyJob.
+	* lang/qt/src/protocol_p.h (Protocol::addExistingSubkeyJob): Implement.
+	* lang/qt/src/job.cpp, lang/qt/src/Makefile.am: Update accordingly.
+
+	* lang/qt/tests/Makefile.am (the_tests, moc_files, noinst_PROGRAMS):
+	Add new test.
+	(t_addexistingsubkey_SOURCES): New.
+	* lang/qt/tests/t-addexistingsubkey.cpp: New.
+	* lang/qt/tests/t-support.h (VERIFY_OR_RETURN_VALUE,
+	COMPARE_OR_RETURN_VALUE, VERIFY_OR_OBJECT, COMPARE_OR_OBJECT,
+	VERIFY_OR_FALSE, COMPARE_OR_FALSE): New.
+	* lang/qt/tests/t-support.h, lang/qt/tests/t-support.cpp
+	(class QQGpgMETest): New member function importSecretKeys.
+
+	qt,tests: Add helper to hook up the test passphrase provider.
+	+ commit 919fc851f416bd5566ee16d58a8e7c1ce0be2a0c
+	* lang/qt/tests/t-support.h, lang/qt/tests/t-support.cpp
+	(class QGpgMETest): Add member function hookUpPassphraseProvider.
+	Add member mPassphraseProvider.
+	* lang/qt/tests/t-changeexpiryjob.cpp,
+	lang/qt/tests/t-encrypt.cpp,
+	lang/qt/tests/t-remarks.cpp,
+	lang/qt/tests/t-tofuinfo.cpp,
+	lang/qt/tests/t-trustsignatures.cpp,
+	lang/qt/tests/t-various.cpp: Use new helper.
+
+	qt,tests: Add asyncDone signal to base class of all tests.
+	+ commit edefadb27ecc9f49d1e14c8c4922fb8791a8aa9d
+	* lang/qt/tests/t-support.h (class QGpgMETest): Add signal asyncDone.
+	* lang/qt/tests/t-changeexpiryjob.cpp,
+	lang/qt/tests/t-encrypt.cpp,
+	lang/qt/tests/t-import.cpp,
+	lang/qt/tests/t-keylist.cpp,
+	lang/qt/tests/t-keylocate.cpp,
+	lang/qt/tests/t-ownertrust.cpp,
+	lang/qt/tests/t-remarks.cpp,
+	lang/qt/tests/t-tofuinfo.cpp,
+	lang/qt/tests/t-trustsignatures.cpp,
+	lang/qt/tests/t-various.cpp,
+	lang/qt/tests/t-wkdlookup.cpp,
+	lang/qt/tests/t-wkspublish.cpp: Remove signal asyncDone from the test
+	classes.
+
+2022-01-04  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add factory function for secret subkey export job.
+	+ commit b4a202598088589341a87e979e8b319d4c3701bf
+	* lang/qt/src/protocol.h (class Protocol): Add member function
+	secretSubkeyExportJob.
+	* lang/qt/src/protocol_p.h (Protocol::secretSubkeyExportJob): Implement.
+
+	* lang/qt/tests/run-exportjob.cpp (showUsageAndExitWithCode): Print
+	new option.
+	(createExportJob): Create secret subkey export job if requested.
+	(main): New option --secret-subkey.
+
+	qt: Remove obsolete QGpgMESecretKeyExportJob.
+	+ commit 2d44a8ec0916dd167c5855475e3d659f46453a5a
+	* lang/qt/src/Makefile.am: Remove all occurrences of
+	qgpgmesecretkeyexportjob.*.
+	* lang/qt/src/qgpgmesecretkeyexportjob.cpp,
+	lang/qt/src/qgpgmesecretkeyexportjob.h: Remove.
+
+	qt: Use QGpgMEExportJob also for export of secret keys.
+	+ commit 431af2104ea8475b69e3bbf807f6fee659692539
+	* lang/qt/src/protocol.h (Protocol::secretKeyExportJob): Document
+	charset argument as ignored.
+	* lang/qt/src/protocol_p.h (Protocol::secretKeyExportJob): Use
+	QGpgMEExportJob instead of QGpgMESecretKeyExportJob.
+	* lang/qt/src/qgpgmeexportjob.h (class QGpgMEExportJob): Add c'tor
+	taking an export mode. Add member m_exportMode. Rename member m_flags to
+	m_additionalExportModeFlags.
+	(QGpgMEExportJob::~QGpgMEExportJob): Mark as override.
+	* lang/qt/src/qgpgmeexportjob.cpp (QGpgMEExportJob::QGpgMEExportJob):
+	Delegate to new c'tor. Implement new c'tor.
+	(QGpgMEExportJob::~QGpgMEExportJob): Use default.
+	(export_qba): Rename argument flags to mode.
+	(QGpgMEExportJob::start): Pass combination of export mode and additional
+	mode flags to export_qba.
+	(QGpgMEExportJob::setExportFlags): Adapt to renaming of member.
+
+	* lang/qt/tests/run-exportjob.cpp: New.
+
+2021-12-22  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Detect an import error caused by a wrong password.
+	+ commit 54f20c44a4a7cf68dd74ffe10239825398c7fbfc
+	* lang/qt/src/qgpgmeimportjob.cpp (import_qba): Check import statuses of
+	import result for bad passphrase errors.
+
+	qt,tests: Add test runner for testing the import job.
+	+ commit ab87d928bc3a2796b4750c696cd2888dbd7c0031
+	* lang/qt/tests/Makefile.am (run_importjob_SOURCES): New.
+	(noinst_PROGRAMS): Add run-importjob.
+	* lang/qt/tests/run-importjob.cpp: New.
+
+2021-12-15  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Allow specifying an import filter when importing keys.
+	+ commit 62cdf0d06bc5e0d5f9f9d2bb2f963ae9ffe1136b
+	* lang/qt/src/importjob.cpp (struct ImportJobPrivate): Add member
+	m_importFilter.
+	* lang/qt/src/importjob.cpp, lang/qt/src/importjob.h (class ImportJob):
+	Add member functions setImportFilter and importFilter.
+	* lang/qt/src/qgpgmeimportjob.cpp (import_qba): Add arg importFilter
+	and adjust the callers. Set import filter context flag.
+
+	* lang/qt/tests/t-import.cpp (ImportTest): Add member function
+	testImportWithImportFilter.
+
+	qt: Avoid test failure when test is run multiple times.
+	+ commit 090206f3346961d4ac4fc89cfe62b7db3e891749
+	* lang/qt/tests/t-import.cpp (ImportTest): Add member tempGpgHome and
+	member function initTestCase.
+	(keyFpr, keyData): Move to ImportTest::testImportWithKeyOrigin.
+
+	qt: Fix erroneous reuse of JobPrivate objects.
+	+ commit 5b4adcfc33f4035d553d8a78816df9811cac4ea1
+	* lang/qt/src/job.cpp (Job::~Job): Destroy JobPrivate object belonging
+	to destroyed job.
+
+2021-12-14  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add pattern used for WKD lookup to result.
+	+ commit 4d692fc43536f8da22010affaed8e57a3532594b
+	* lang/qt/src/qgpgmewkdlookupjob.cpp (run_wkd_get): Change type of
+	arg email.
+	(lookup_keys): Add pattern to result.
+	* lang/qt/src/wkdlookupresult.h (class WKDLookupResult): Add arg
+	pattern to c'tors. Add member function pattern.
+	* lang/qt/src/wkdlookupresult.cpp (class WKDLookupResult::Private):
+	Add field pattern.
+	(WKDLookupResult::WKDLookupResult): Pass pattern to pimpl.
+	(WKDLookupResult::pattern): New.
+
+	* lang/qt/tests/t-wkdlookup.cpp (testWKDLookupAsync, testWKDLookupSync,
+	testLookupWithNoResultAsync): Check pattern.
+
+	qt: Allow setting key origin when importing keys.
+	+ commit cb61e72d52823a9b44fe895002e2d684c884c931
+	* lang/qt/src/Makefile.am (qgpgme_sources): Add importjob.cpp.
+	* lang/qt/src/importjob.cpp: New.
+	* lang/qt/src/importjob.h (class ImportJob): Add member functions
+	setKeyOrigin, keyOrigin, keyOriginUrl.
+	* lang/qt/src/qgpgmeimportjob.cpp (originToString): New.
+	(import_qba): Set key origin context flag.
+	(QGpgMEImportJob::start, QGpgMEImportJob::exec): Add options to call
+	of import_qba.
+
+	* lang/qt/tests/Makefile.am (the_tests, moc_files, noinst_PROGRAMS):
+	Add new test.
+	(t_import_SOURCES): New.
+	* lang/qt/tests/t-import.cpp: New.
+
+	qt,tests: Skip WKD lookup tests by default.
+	+ commit 26774cde93130b27c022f0be6fc0fe2f8b69eecc
+	* lang/qt/tests/t-support.cpp, lang/qt/tests/t-support.h
+	(class QGpgMETest): Add member function doOnlineTests.
+	* lang/qt/tests/t-wkdlookup.cpp (testWKDLookupAsync, testWKDLookupSync,
+	testLookupWithNoResultAsync): Skip tests if online tests are not
+	enabled.
+
+2021-12-13  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Support WKD lookup without implicit import.
+	+ commit a7d6b3dc19c5e5e1d9bf6357ce51fe8cb906979a
+	* lang/qt/src/Makefile.am (qgpgme_sources): Add qgpgmewkdlookupjob.cpp,
+	wkdlookupresult.cpp.
+	(qgpgme_headers): Add wkdlookupjob.h, wkdlookupresult.h.
+	(camelcase_headers): Add WKDLookupJob, WKDLookupResult.
+	(private_qgpgme_headers): Add qgpgmewkdlookupjob.h.
+	(qgpgme_moc_sources): Add qgpgmewkdlookupjob.moc, wkdlookupjob.moc.
+	* lang/qt/src/job.cpp: Define c'tor and d'tor of WKDLookupJob.
+	* lang/qt/src/protocol.h (Protocol::wkdLookupJob): New.
+	* lang/qt/src/protocol_p.h (Protocol::wkdLookupJob): New.
+	* lang/qt/src/qgpgmewkdlookupjob.cpp, lang/qt/src/qgpgmewkdlookupjob.h,
+	lang/qt/src/wkdlookupjob.h, lang/qt/src/wkdlookupresult.cpp,
+	lang/qt/src/wkdlookupresult.h: New.
+
+	* lang/qt/tests/Makefile.am (EXTRA_DIST): Add final.test.
+	(the_tests): New.
+	(TESTS): Remove all t-*. Add $(the_tests) and final.test.
+	(moc_files): Add t-wkdlookup.moc.
+	(t_wkdlookup_SOURCES): New.
+	(noinst_PROGRAMS): Add t-wkdlookup.
+	* lang/qt/tests/final.test: New.
+	* lang/qt/tests/t-support.h (QTest::toString): New template
+	specialization for std::string.
+	* lang/qt/tests/t-wkdlookup.cpp: New.
+
+	qt: Fix example for using the asynchronous job API.
+	+ commit 7922842beb1ce6e273a47f7df622ff7d8279fda7
+	* lang/qt/src/protocol.h (class Protocol): Fix API documentation.
+
+2021-09-13  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Fix build against Qt 5.9.
+	+ commit dab682df2eeba9e97e871e92d99d934ee698d738
+	* lang/qt/tests/t-keylist.cpp (KeyListTest::testListAllKeysSync):
+	Ensure same type for both arguments of QCOMPARE.
+	* lang/qt/tests/t-various.cpp (TestVarious::testSetExpire):
+	Ensure same type for both arguments of QCOMPARE.
+
+2021-08-27  Andre Heinecke  <aheinecke@gnupg.org>
+
+	qt: Expect UTF-8 on stderr on Windows.
+	+ commit 8a3bd01567033cf524a2ca8922dae610602ac463
+	* lang/qt/src/threadedjobmixin.cpp (stringFromGpgOutput): Expect
+	UTF-8.
+
+	Add missing files for distribution.
+	+ commit ff195d2790da4d13d4b4fbb7032e773eb0117a75
+	* lang/qt/src/Makefile.am (private_qgpgme_headers): Add job_p.h
+	* tests/gpg/Makefile.am (EXTRA_DIST): Add gpg.conf.in
+
+2021-07-08  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Make sure expiration time is interpreted as unsigned number.
+	+ commit d318b4ab849afbfd94f937eb60ab95f4aa06242f
+	* lang/qt/tests/t-various.cpp (testSignKeyWithExpiration): Convert
+	expiration time to uint_least32_t.
+
+2021-06-29  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Allow retrieving the default value of a config entry.
+	+ commit ffa0b14bfab3b8978cc41bc45ada8f528523f0c8
+	* lang/qt/src/cryptoconfig.cpp, lang/qt/src/cryptoconfig.h
+	(CryptoConfigEntry::defaultValue): New.
+	* lang/qt/src/qgpgmenewcryptoconfig.cpp,
+	lang/qt/src/qgpgmenewcryptoconfig.h
+	(QGpgMENewCryptoConfigEntry::defaultValue): New.
+	* lang/qt/tests/t-config.cpp (CryptoConfigTest::testDefault()):
+	Add test of CryptoConfigEntry::defaultValue(). Port away from deprecated
+	CryptoConfig::entry overload.
+
+2021-06-28  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Fix filenames in copyright headers.
+	+ commit d6b0e4649c1f6058c9739cc08bf634116a6fea79
+	* lang/qt/src/qgpgmechangeownertrustjob.h,
+	lang/qt/tests/t-trustsignatures.cpp: Use correct filenames.
+
+	qt: Add test for ChangeExpiryJob.
+	+ commit 76f61997048b01d690ab07eb9911179dffb7fdc6
+	* lang/qt/tests/Makefile.am (TESTS, moc_files, noinst_PROGRAMS): Add
+	new test.
+	(t_changeexpiryjob_SOURCES): New.
+	* lang/qt/tests/t-changeexpiryjob.cpp: New.
+
+	qt: Allow changing expiration date of primary key and all subkeys.
+	+ commit 142c92b626f4328a2964c059054e06bbbc0d4b4b
+	* lang/qt/src/Makefile.am (qgpgme_sources): Add changeexpiryjob.cpp.
+	* lang/qt/src/changeexpiryjob.cpp: New.
+	* lang/qt/src/changeexpiryjob.h (enum ChangeExpiryJob::Option,
+	typedef ChangeExpiryJob::Options, ChangeExpiryJob::setOptions,
+	ChangeExpiryJob::options): New.
+	* lang/qt/src/qgpgmechangeexpiryjob.cpp (change_expiry): Update the
+	expiration date of primary key and/or some/all subkeys.
+	(QGpgMEChangeExpiryJob::start): Add options to call of change_expiry.
+	(ChangeExpiryJob::start): Moved implementation to changeexpiryjob.cpp.
+
+	qt: Add mechanism for missing d-pointer in Job.
+	+ commit 2580b2e4a37fc77bd22987b24e35fe94ea8c2e3c
+	* lang/qt/src/job_p.h: New.
+	* lang/qt/src/job.cpp (typedef JobPrivateHash, d_func, setJobPrivate,
+	getJobPrivate): New.
+
+2021-06-26  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Remove superfluous trailing ';'
+	+ commit d72c4b78cbe991ada9954db0c43bcfc1aa06d65f
+	lang/qt/src/signkeyjob.h (class SignKeyJob): Remove trailing ';' from
+	inline implemented member functions
+
+2021-06-22  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Extend SignKeyJob to create signatures with expiration date.
+	+ commit 8442df997db698c2207555f8df178f96db037bc1
+	* lang/qt/src/signkeyjob.h (SignKeyJob::setExpirationDate): New.
+	* lang/qt/src/qgpgmesignkeyjob.h, lang/qt/src/qgpgmesignkeyjob.cpp
+	(QGpgMESignKeyJob::setExpirationDate): New.
+	* lang/qt/src/qgpgmesignkeyjob.cpp (QGpgMESignKeyJob::Private): Add
+	member m_expiration.
+	(sign_key): Handle expiration date.
+	(QGpgMESignKeyJob::start): Pass expiration date to sign_key.
+
+	* lang/qt/tests/t-various.cpp
+	(TestVarious::testSignKeyWithoutExpiration,
+	TestVarious::testSignKeyWithExpiration): New.
+	(TestVarious::initTestCase): Add "allow-weak-key-signatures" to
+	gpg.conf.
+
+2021-06-18  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add missing }
+	+ commit 1199c6a60e87334c2cee006dc011d4dcb15ba472
+	* lang/qt/src/qgpgmenewcryptoconfig.cpp (parseURL): Add missing }.
+
+2021-06-17  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add some error logging.
+	+ commit 2394c2ef75118f6ca1108e563e436ee43ae42938
+	* lang/qt/src/qgpgmenewcryptoconfig.cpp (setURLValueList): Log error
+	if setting config value failed.
+
+	qt: Do not set empty base DN as query of keyserver URL.
+	+ commit 3baed8bdb850c4dd4c0677ea60ff03d1e1c4a22c
+	* lang/qt/src/qgpgmenewcryptoconfig.cpp (parseURL): Only set non-empty
+	base DN as URL query.
+
+	qt: Fix API documentation.
+	+ commit 46d2f088a04e4115e2254188b361c0b0b1c1505b
+	* lang/qt/src/signkeyjob.h (SignKeyJob::start,
+	SignKeyJob::setUserIDsToSign, SignKeyJob::setCheckLevel): Fix
+	documentation of parameters.
+
+2021-06-10  Andre Heinecke  <aheinecke@gnupg.org>
+
+	qt: Flush output after write for QProcess output.
+	+ commit a436c814e85314f21384dca6aff13b56a935eed8
+	* lang/qt/src/dataprovider.cpp (QIODeviceDataProvider::write): Call
+	waitForBytesWritten.
+
+2021-06-09  Andre Heinecke  <aheinecke@gnupg.org>
+
+	qt: Explicitly link libgpg-error.
+	+ commit 43a147c7ee8a0ec63f7694bf36a19e83bd30cb27
+	* lang/qt/src/Makefile.am (libqgpgme_la_LIBADD): Explicitly link
+	gpg-error.
+
+2021-06-02  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add separate logging category for result of config loading.
+	+ commit 635e4f1b3a8786f869c0c1d2f12d8d16fe73f298
+	* lang/qt/src/qgpgme_debug.h: Make include guard match file name.
+	* lang/qt/src/qgpgme_debug.h, lang/qt/src/qgpgme_debug.cpp
+	(QGPGME_CONFIG_LOADING_LOG): New.
+	* lang/qt/src/qgpgmenewcryptoconfig.cpp
+	(QGpgMENewCryptoConfig::reloadConfiguration): Use new logging category.
+
+2021-06-01  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add support for flags in LDAP server options.
+	+ commit 5c3c621bc5e7a42bd1dda64e89d6a1bb3f4ba2e6
+	* lang/qt/src/qgpgmenewcryptoconfig.cpp (parseURL): Handle extended
+	LDAP server option syntax.
+	(portToString): New.
+	(splitURL): Append flags to LDAP server option.
+
+2021-05-05  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Extend SignKeyJob to create trust signatures.
+	+ commit cf2a7d6f176991576c20b66daf54b1cd65de31bf
+	* lang/qt/src/signkeyjob.h (SignKeyJob::setTrustSignature): New.
+	* lang/qt/src/qgpgmesignkeyjob.h, lang/qt/src/qgpgmesignkeyjob.cpp
+	(QGpgMESignKeyJob::setTrustSignature): New.
+	* lang/qt/src/qgpgmesignkeyjob.cpp (sign_key): Handle trust signatures.
+	(QGpgMESignKeyJob::start): Pass trust signature attributes to sign_key.
+	(QGpgMESignKeyJob::setTrustSignature): New.
+
+	qt: Pimpl QGpgMESignKeyJob.
+	+ commit e27906b4da2cbba1002bcda28d02ae3581552aa2
+	* lang/qt/src/qgpgmesignkeyjob.h: Remove unneeded includes. Include
+	<memory>.
+	(QGpgMESignKeyJob): Remove all member variables. Add pimpl pointer.
+	* lang/qt/src/qgpgmesignkeyjob.cpp: Include <QString>. Don't include
+	<memory>.
+	(QGpgMESignKeyJob::Private): New.
+	(QGpgMESignKeyJob::QGpgMESignKeyJob): Remove initialization of removed
+	members. Initialize d.
+	(QGpgMESignKeyJob::start, QGpgMESignKeyJob::setUserIDsToSign,
+	QGpgMESignKeyJob::setCheckLevel, QGpgMESignKeyJob::setExportable,
+	QGpgMESignKeyJob::setSigningKey, QGpgMESignKeyJob::setNonRevocable,
+	QGpgMESignKeyJob::setRemark, QGpgMESignKeyJob::setDupeOk): Adapt to move
+	of member variables to pimpl.
+
+2021-03-05  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add method for getting config entries for components by entry name.
+	+ commit b224b3c1b3e03cbba89ca20a355baefe35d97cde
+	* lang/qt/src/cryptoconfig.h, lang/qt/src/cryptoconfig.cpp
+	(CryptoConfig::entry): Move implementation to cpp. Add overload not
+	requiring a group name.
+
+2021-01-04  Andre Heinecke  <aheinecke@gnupg.org>
+
+	Qt: Undeprecate QByteArray based start functs.
+	+ commit b86a9f92a837625e68d5f7b6f9d9b93328c688cb
+	* lang/qt/src/encryptjob.h, lang/qt/src/signjob.h (start):
+	Undeprecate QByteArray based functions.
+
+2020-11-20  Andre Heinecke  <aheinecke@gnupg.org>
+
+	Revert "cpp: Use portable off_t size_t"
+	+ commit 58d96ec7b49ecdfb669db600485972de8e6049f1
+	This reverts commit 36872421588831fbeb02e5d7cb47b279be701efa.
+
+2020-11-18  Andre Heinecke  <aheinecke@gnupg.org>
+
+	cpp: Use portable off_t size_t.
+	+ commit 36872421588831fbeb02e5d7cb47b279be701efa
+	* configure.ac: Configure cpp data.h.in
+	* lang/cpp/src/Makefile.am: Generate data.h
+	* lang/cpp/src/data.cpp, lang/cpp/src/data.h: Use portable
+	types.
+	* lang/qt/src/Makefile.am: Include build dir.
+	* lang/qt/tests/makefile.am: Include build dir.
+
+2020-11-18  Ingo Klöcker  <dev@ingo-kloecker.de>
+	    Daniel Kahn Gillmor
+
+	qt: Avoid empty "rem@gnupg.org" signature notations.
+	+ commit 6dea0bb4b666249d63b23e57c6226bb35c5c87da
+	* lang/qt/src/qgpgmesignkeyjob.cpp (sign_key): Check remark for being
+	an empty string instead of a null QString.
+
+2020-11-12  Andre Heinecke  <aheinecke@gnupg.org>
+
+	qt: Fix export of qDebug GpgME::Error overload.
+	+ commit e47e7aaf249b0cfde4860255432985e74211d191
+	* lang/qt/src/debug.cpp: Include debug.h to get the export decl.
+
+2020-11-11  Andre Heinecke  <aheinecke@gnupg.org>
+
+	qt: Add export macro for QDebug operator.
+	+ commit 66d6870ab1ea9cb4263ede886764e68cc31b7c85
+	* lang/qt/src/debug.h: Add export macro.
+
+2020-11-11  NIIBE Yutaka  <gniibe@fsij.org>
+
+	qt: Allow build with older GnuPG (< 2.2.18).
+	+ commit 030dd76f6d15aba6832108cb46cf5ebf57d8e5cc
+	* lang/qt/tests/t-remarks.cpp (initTestCase): Check gpg for
+	allow-weak-key-signatures option.
+
+2020-11-03  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Make audit parameters of result signal optional.
+	+ commit 762cac1f60a62864071ab9b4e1c7ee9356062faf
+	lang/qt/src/quickjob.h (QuickJob::result): Make parameters
+	auditLogAsHtml and audigLogError optional.
+
+2020-10-29  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add support for revoke signature quick command.
+	+ commit ea5635ae355918cb0bfd7b0dc3e5c7b7966e0678
+	* lang/qt/src/quickjob.h (QuickJob::startRevokeSignature): New.
+	* lang/qt/src/qgpgmequickjob.h, lang/qt/src/qgpgmequickjob.cpp
+	(QGpgMEQuickJob::startRevokeSignature): New.
+	* lang/qt/src/qgpgmequickjob.cpp (revokeSignatureWorker): New.
+
+	qt: Some minor cleanups.
+	+ commit 924b46b43fc77f4ed3525742afcf0c052a755642
+	* lang/qt/src/qgpgmequickjob.h: (GpgME::Key, QDateTime, QString):
+	Remove superfluous forward declarations.
+	(QGpgMEQuickJob): Remove superfluous second template argument. It is
+	identical to the default.
+	(QGpgMEQuickJob::result): Remove. It is already defined in the base
+	class.
+
+2020-10-23  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add QDebug stream operator for GpgME::Error.
+	+ commit fd60311f7b6d193eb751527a0a79cb56726a6fa4
+	* lang/qt/src/Makefile.am: Add new files.
+	* lang/qt/src/debug.h, lang/qt/src/debug.cpp: New.
+	* NEWS: Mention it.
+
+	cpp, qt: Add missing comparison operators for version info comparison.
+	+ commit bb5b632382da332f4b4e3417dbaf7143c500e0d5
+	* lang/cpp/src/engineinfo.h (EngineInfo::Version::operator<=,
+	EngineInfo::Version::operator>=, EngineInfo::Version::operator!=):
+	New.
+	* lang/qt/tests/t-various.cpp (TestVarious::testVersion): Add tests for
+	new comparison operators.
+	* NEWS: Mention added API
+
+	cpp, qt: Fix version info comparison.
+	+ commit 685197e2b2317b6941a3d4deb5a0eea1497643f4
+	* lang/cpp/src/engineinfo.h
+	(EngineInfo::Version::operator>(const Version &)): Fix logic.
+	(EngineInfo::Version::operator>(const char *)): Use Version-overload of
+	operator>.
+
+	* lang/qt/tests/t-various.cpp: Add test.
+
+2020-09-08  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Update the documentation of ListAllKeysJob.
+	+ commit c59e77160ceae888e7984d5f0a29d54f75f5034f
+	* lang/qt/src/listallkeysjob.h (ListAllKeysJob::start): Document that
+	the mergeKeys argument is ignored with gpg >= 2.1.
+
+2020-09-07  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: List keys once with --with-secret instead of twice.
+	+ commit 6de0d90e74e7b19113decf4e0ba8a9f3adf9e6fc
+	* lang/qt/src/qgpgmelistallkeysjob.cpp
+	(do_list_keys): Rename to do_list_keys_legacy and put into unnamed
+	namespace.
+	(merge_keys): Put into unnamed namespace.
+	(list_keys): Rename to list_keys_legacy and put into unnamed namespace.
+	(do_list_keys, list_keys): New.
+	* lang/qt/tests/t-keylist.cpp (testListAllKeysSync): New.
+
+2020-08-28  Werner Koch  <wk@gnupg.org>
+
+	qt: Fix an rfc2253 parser flaw.
+	+ commit 45029a4196b1c4dee4801a092a3098b618f86b41
+	* lang/qt/src/dn.cpp (parse_dn_part): Fix parser.
+
+2020-08-14  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	core: Add error handling to setexpire.
+	+ commit c9be50776ad56387ffea67fd75a60edfb29a7fc7
+	* src/genkey.c (setexpire, gpgme_op_setexpire_start,
+	gpgme_op_setexpire): Move to ...
+	* src/setexpire.c: New.
+	* src/Makefile.am (main_sources): Add that file.
+	* src/context.h (ctx_op_data_id_t): Add OPDATA_SETEXPIRE.
+
+	* lang/qt/tests/t-various.cpp (testSetExpire): Test error handling.
+
+2020-08-11  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Support changing expiry of subkeys.
+	+ commit 3a53ea54e3c01d84307a69a582ab237790d2076b
+	* lang/qt/src/changeexpiryjob.h (ChangeExpiryJob::start): New overload
+	that accepts subkeys (with empty implementation).
+	* lang/qt/src/qgpgmechangeexpiryjob.h,
+	lang/qt/src/qgpgmechangeexpiryjob.cpp (QGpgMEChangeExpiryJob::start):
+	New overload that accepts subkeys.
+
+2020-08-05  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Port to new setExpire()
+	+ commit 1eae2d152b60615133d4985eec177372f242fa77
+	* lang/qt/src/qgpgmechangeexpiryjob.cpp (change_expiry): Use new
+	setExpire() instead of edit() with GpgSetExpiryTimeEditInteractor
+
+2020-08-04  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	qt: Add test for setExpire.
+	+ commit 3402bfc5a06e2aeabffa2f8f438765c21363daa9
+	* lang/qt/tests/t-various.cpp (TestVarious::testSetExpire): New.
+
+2020-07-16  Andre Heinecke  <aheinecke@gnupg.org>
+
+	qt, cpp: Support export modes.
+	+ commit 317eba50dc04f32d7768ff5044135b4435ff67f9
+	* lang/cpp/context.cpp, lang/cpp/context.h
+	(Context::startPublicKeyExport, Context::exportPublicKeys): Extend
+	with flags paramenter.
+	(Context::ExportMode): New.
+	* lang/qt/src/exportjob.h (ExportJob::setExportMode): New.
+	* lang/qt/src/qgpgmeexportjob.cpp, lang/qt/src/qgpgmeexportjob.h:
+	Update accordingly.
+
+2020-05-11  NIIBE Yutaka  <gniibe@fsij.org>
+
+	tests: Remove/change tests for GnuPG 2.3 with no gpg.keyserver.
+	+ commit 1df2c8e06481e1867058760d83d1dc7b2c58d2b9
+	* lang/qt/tests/t-config.cpp (testKeyserver): Remove.
+	* tests/gpg/t-gpgconf.c (main): Test with dirmngr.keyserver.
+
+2020-02-19  Andre Heinecke  <aheinecke@gnupg.org>
+
+	qt: Change logging category.
+	+ commit 623f355156c41135d4da64705a4bad1c790b27f2
+	* lang/qt/src/*: Change logging category to macro to QGPGME_LOG.
+
+	qt: Log execution args of gpg-card.
+	+ commit c61afcf44090bca425606fb569d7f713d0f936c8
+	* lang/qt/src/qgpgmegpgcardjob.cpp (do_work): Log call.
+
+2020-02-12  Andre Heinecke  <aheinecke@gnupg.org>
+
+	qt: Add dummy context to make mixin happy.
+	+ commit c98e8d508ae35f391bc5f571d6c802dea8d51aee
+	* lang/qt/qgpgmegpgcardjob.cpp (QGpgMEGpgCardJob): Add context.
+
+	qt: Add GpgCardJob following the job pattern.
+	+ commit 02359dff35bd32e2797d4532320f459c6b4e59cc
+	* lang/qt/src/Makefile.am: Add new files.
+	* lang/qt/src/job.cpp (GpgCardJob): Add impl stuff.
+	* lang/qt/src/protocol.h (gpgCardJob): Get one.
+	* lang/qt/src/qgpgmebackend.cpp,
+	lang/qt/src/qgpgmebackend.h: Add helpers to get the job.
+	* lang/qt/src/qgpgmegpgcardjob.cpp,
+	lang/qt/src/gpgcardjob.h,
+	lang/qt/src/qgpgmegpgcardjob.h: New.
+
+2019-12-13  Andre Heinecke  <aheinecke@gnupg.org>
+
+	cpp, qt: Use uidhash to select uids for signing.
+	+ commit ba624db7f356ce952bb89b1392786a33b42ded01
+	* lang/cpp/src/gpgsignkeyeditinteractor.cpp (action):
+	Use uidhash instead of number.
+	(GpgSignKeyEditInteractor::setKey): New.
+	* lang/cpp/src/gpgsignkeyeditinteractor.h: Update accordingly.
+	* lang/cpp/src/key.h, lang/cpp/src/key.cpp: Wrap uidhash.
+	* lang/qt/src/qgpgmesignkeyjob.cpp: Set the key.
+
+2019-11-08  NIIBE Yutaka  <gniibe@fsij.org>
+
+	qt,tests: Take care for old DSA key using deprecated digest algo.
+	+ commit dd3586d046613a95fb8a806bbc977ff900e204e2
+	* lang/qt/tests/t-remarks.cpp (initTestCase): Supply
+	allow-weak-key-signatures flag for GnuPG 2.3, which
+	normally rejects use of SHA1 digest.
+
+2019-11-06  Andre Heinecke  <aheinecke@gnupg.org>
+
+	qt, tests: Add check for supported versions.
+	+ commit 36c800d04ac23ea8c5a0512921c7b63c4a7543e7
+	* lang/qt/tests/t-encrypt.cpp (decryptSupported): Moved to
+	t-support as loopbackSupported.
+	* lang/qt/tests/t-remarks.cpp: Check for loopbackSupported.
+	* lang/qt/tests/t-support.cpp, lang/qt/tests/t-support.h
+	(loopbackSupported): New.
+
+	qt, tests: Replace accidentally commited assert.
+	+ commit a907ccc14b080f5ffefe7723da0e2cef3c510d80
+	* lang/qt/test/t-remarks.cpp (testRemarkReplaceSingleUIDExportable):
+	Use QVERIFY instead of assert.
+
+	qt,tests: Add test to add an exportable certify.
+	+ commit 0234aafad43f9fa6eb0ac169a1f1b66c72538694
+	* lang/qt/test/t-remarks.cpp (testRemarkReplaceSingleUIDExportable):
+	New.
+
+2019-11-04  Andre Heinecke  <aheinecke@gnupg.org>
+
+	qt, tests: Add testcase for multiple remarsk.
+	+ commit cf4f4cc0fa939aa6c48c81a43c86cbf32210a731
+	* lang/qt/tests/t-remarks.cpp (testMultipleRemarks): New.
+
+	qt,tests: Move remarks test out and extend it.
+	+ commit b413bcc35d913e62fec0b6eb5b83e9c38e571ba5
+	* lang/qt/tests/t-various.cpp (testRemarks): Move out.
+	* lang/qt/tests/t-remarks.cpp: New.
+	* lang/qt/tests/Makefile.am: Update accordingly.
+
+2019-11-01  Andre Heinecke  <aheinecke@gnupg.org>
+
+	qt: Allow adding empty remarks.
+	+ commit ce57816608eb77a04c1e8252fe1eba34dc00916a
+	* lang/qt/src/qgpgmesignkeyjob.cpp (sign_key): Allow empty
+	remarks.
+
+2019-10-29  Andre Heinecke  <aheinecke@gnupg.org>
+
+	qt,tests: Add test for remarks.
+	+ commit 1e672703bf21ecbefd70ee97c1bcc1a5ad416a19
+	* lang/qt/tests/t-various.cpp (testRemark): New.
+
+	qt: Extend signkeyjob to handle remarks and dups.
+	+ commit 4eced7e0a831ab09a3195110d5c26c0edee924ef
+	* lang/qt/src/qgpgmesignkeyjob.cpp: Handle remarks and
+	dupeOK.
+	* lang/qt/src/signkeyjob.h (SignKeyJob::setDupeOk),
+	(SignKeyJob::setRemark): New.
+
+2019-03-20  Andre Heinecke  <aheinecke@gnupg.org>
+
+	qt: Handle diagnostic audit log for CMS.
+	+ commit 785731fcfcda9fa520bb329c53d9e37b8e4b9114
+	* lang/qt/src/threadedjobmixin.cpp(_detail::audit_log_as_html):
+	Handle CMS audit log.
+
+2019-01-16  NIIBE Yutaka  <gniibe@fsij.org>
+
+	build: With LD_LIBRARY_PATH defined, use --disable-new-dtags.
+	+ commit 64015f69b3d97b619e924ef76f2a93aaee1e21c8
+	* configure.ac (LDADD_FOR_TESTS_KLUDGE): New for --disable-new-dtags.
+	* tests/Makefile.am (LDADD): Use LDADD_FOR_TESTS_KLUDGE.
+	* lang/cpp/tests/Makefile.am, lang/qt/tests/Makefile.am: Likewise.
+	* tests/gpg/Makefile.am, tests/gpgsm/Makefile.am: Likewise.
+	* tests/json/Makefile.am, tests/opassuan/Makefile.am: Likewise.
+
+2019-01-09  Andre Heinecke  <aheinecke@gnupg.org>
+
+	qt: Use tofu conflict test keys without expiry.
+	+ commit 357932dcf669515723f64f5fecae37463ff88eab
+	* lang/qt/tests/t-tofuinfo.cpp: Use new test keys without
+	expiry.
+
+2018-12-03  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt,cpp: Consistently use nullptr and override.
+	+ commit fd670f9943140538bb7bd9abe5e28b9264dce08f
+	* lang/cpp/src/Makefile.am, lang/qt/src/Makefile.am (AM_CPPFLAGS):
+	Add suggest-override and zero-as-null-pointer-constant warnings.
+
+	* lang/cpp/src/*, lang/qt/src/*: Consistenly use nullptr and override.
+
+2018-11-08  Daniel Kahn Gillmor  <dkg@fifthhorseman.net>
+
+	spelling: fix misspellings.
+	+ commit 4989bb84835cb58728b8b04162d29fece6b39508
+
+
+2018-10-09  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt, tests: Add test for single get key.
+	+ commit 63cca04772653318dc643a7026e121b83210b06c
+	* lang/qt/tests/t-keylist.cpp (testGetKey): New.
+
+2018-10-08  Werner Koch  <wk@gnupg.org>
+
+	Release 1.12.0.
+	+ commit c9a0e7b0648f88b56f10bcf8127ea3cc92084f90
+	* configure.ac: Bump core LT version to C32/A21/R0.  Bump C++ LT
+	version to C14/A8/R0.
+
+	* lang/qt/tests/Makefile.am (CLEANFILES): Add reader status files.
+	* Makefile.am (EXTRA_DIST): Add conf/whatisthis.
+
+2018-08-06  Andre Heinecke  <aheinecke@intevation.de>
+
+	Make GNUPGHOME for tests overridable.
+	+ commit 9f0c78363d3ac4d1bef43871f71fd466cbb3045a
+	* lang/python/tests/Makefile.am,
+	lang/qt/tests/Makefile.am,
+	tests/Makefile.am,
+	tests/gpg/Makefile.am,
+	tests/gpgsm/Makefile.am,
+	tests/opassuan/Makefile.am (GNUPGHOME): Make variable explict.
+
+2018-07-18  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Handle encoding for diagnostics.
+	+ commit 9cef6450f0ec1192989bddbf0b0672f96bb041f8
+	* lang/qt/src/threadedjobmixin.cpp (fromEncoding)
+	(stringFromGpgOutput): New helpers.
+	(markupDiagnostics): Use it.
+
+2018-07-05  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Handle OpenPGP Diagnostic log.
+	+ commit 853731e2182b865a5cdcbe18ac547119a205ab26
+	* lang/qt/src/threadedjobmixin.cpp (_detail::audit_log_as_html):
+	Handle OpenPGP audit log differently.
+
+2018-05-29  Andre Heinecke  <aheinecke@intevation.de>
+
+	cpp: Add gpgme_data_rewind to cpp API.
+	+ commit 871d5a33f82bdacdfcd19fea23dbb3a99ca557f0
+	* lang/cpp/src/data.h, lang/cpp/src/data.cpp (Data::rewind): New.
+	* lang/qt/tests/t-various.cpp (testDataRewind): Test it.
+
+2018-05-04  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Respect --disable-gpg-test for tests.
+	+ commit 5e3be4dd8d9e95622f29db0310188ab7cebf446f
+	* lang/qt/Makefile.am: Respect --disable-gpg-test
+
+2018-04-26  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Fix filename handling in cryptoconfig.
+	+ commit 4877bae8db5d6c39b775979183a31280554d12a2
+	* src/qgpgmenewcryptoconfig.cpp (QGpgMENewCryptoConfigEntry::urlValue):
+	Build url from local file.
+	(QGpgMENewCryptoConfigEntry::setURLValue): Set native seperated
+	path.
+
+2018-04-04  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Add test for resetting config value.
+	+ commit 2021d8c7da3f1bb460aab243eb218fcd1324726f
+	* lang/qt/tests/t-config.cpp (CryptoConfigTest::testDefault): New.
+
+2018-02-15  NIIBE Yutaka  <gniibe@fsij.org>
+
+	tests: Makefile portability.
+	+ commit 3ecdc7b5e96bf8844f3de60b3ecc290ff0d1f762
+	* tests/gpg/Makefile.am: Don't use "export" directive.
+	* tests/gpgsm/Makefile.am: Ditto.
+	* lang/qt/tests/Makefile.am: Ditto.
+	* lang/python/tests/Makefile.am: Ditto.
+
+2017-12-11  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Don't use QDateTime::toSecsSinceEpoch.
+	+ commit 728fc43980baea1ec66f5a0d45ffd35655686b37
+	* lang/qt/src/qgpgmequickjob.cpp (addSubkeyWorker)
+	(createWorker): Use toMSecsSinceEpoch instead toSecsSinceEpoch.
+
+2017-12-01  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Add job for quick commands.
+	+ commit 3c5c2035de33bbacdbed65511e6f89d8c51a65b2
+	* lang/qt/src/qgpgmequickjob.cpp,
+	lang/qt/src/qgpgmequickjob.h,
+	lang/qt/src/quickjob.h: New.
+	* lang/qt/src/Makefile.am,
+	lang/qt/src/protocol.h,
+	lang/qt/src/protocol_p.h,
+	lang/qt/src/job.cpp: Update accordingly.
+
+2017-11-14  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Fix IODeviceDataProvider with Process.
+	+ commit b393ad9e38842ecc118ad7ee178085cd51acadb9
+	* lang/qt/src/dataprovider.cpp (blocking_read): Keep
+	reading if process is not atEnd.
+
+2017-09-04  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Add test for version info.
+	+ commit 20ddf0ab0ca421e879f3f7ff588f52eb3689411a
+	* lang/qt/tests/t-various.cpp (TestVarious::testVersion): New.
+
+2017-05-10  Justus Winter  <justus@g10code.com>
+
+	tests: Make sure to kill all previously running daemons.
+	+ commit d261d624f9422665677b4fb4ef44c12acd57bb7c
+	* lang/python/tests/Makefile.am: Kill all previously running daemons
+	before creating the private key store.
+	* lang/qt/tests/Makefile.am: Likewise.
+	* tests/gpg/Makefile.am: Likewise.
+	* tests/gpgsm/Makefile.am: Likewise.
+
+	qt: Stop agent on clean.
+	+ commit a32b45a6c665dacb3e30b6fba11980f8bf8ed8f9
+	* lang/qt/tests/Makefile.am (clean-local): Stop agent.
+
+2017-05-10  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Add a missing include <functional>
+	+ commit 9a0561f5ccd65783348569ce4356ebe6b89881f9
+	* lang/qt/src/qgpgmenewcryptoconfig.cpp: Include functional.
+
+	qt: Undeprecate API that I find useful.
+	+ commit 79d843858862b92190c57608ccd698fed0dcaef3
+	* lang/qt/src/decryptjob.h,
+	lang/qt/src/decryptverifyjob.h,
+	lang/qt/src/signencryptjob.h,
+	lang/qt/src/verifydetachedjob.h,
+	lang/qt/src/verifyopaquejob.h: Undeprecate ByteArray based API.
+
+	qt, tests: Don't use internal API.
+	+ commit 103a500bf78754d99a91b4cecf42da9c50f984e2
+	* lang/qt/tests/t-encrypt.cpp, lang/qt/tests/t-tofuinfo.cpp:
+	Only use exported API.
+
+2017-04-25  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt, cpp: Add additional copyright BSI notes.
+	+ commit b237e40947acffb42ebe95d7398273c1417fb0f3
+	* lang/cpp/Makefile.am,
+	lang/cpp/src/Makefile.am,
+	lang/cpp/src/callbacks.cpp,
+	lang/cpp/src/callbacks.h,
+	lang/cpp/src/configuration.cpp,
+	lang/cpp/src/configuration.h,
+	lang/cpp/src/context_glib.cpp,
+	lang/cpp/src/context_p.h,
+	lang/cpp/src/context_qt.cpp,
+	lang/cpp/src/context_vanilla.cpp,
+	lang/cpp/src/data_p.h,
+	lang/cpp/src/decryptionresult.cpp,
+	lang/cpp/src/decryptionresult.h,
+	lang/cpp/src/defaultassuantransaction.cpp,
+	lang/cpp/src/defaultassuantransaction.h,
+	lang/cpp/src/editinteractor.cpp,
+	lang/cpp/src/editinteractor.h,
+	lang/cpp/src/encryptionresult.cpp,
+	lang/cpp/src/encryptionresult.h,
+	lang/cpp/src/engineinfo.cpp,
+	lang/cpp/src/engineinfo.h,
+	lang/cpp/src/error.h,
+	lang/cpp/src/eventloopinteractor.cpp,
+	lang/cpp/src/eventloopinteractor.h,
+	lang/cpp/src/exception.cpp,
+	lang/cpp/src/exception.h,
+	lang/cpp/src/global.h,
+	lang/cpp/src/gpgadduserideditinteractor.cpp,
+	lang/cpp/src/gpgadduserideditinteractor.h,
+	lang/cpp/src/gpgagentgetinfoassuantransaction.cpp,
+	lang/cpp/src/gpgagentgetinfoassuantransaction.h,
+	lang/cpp/src/gpgmefw.h,
+	lang/cpp/src/gpgsetexpirytimeeditinteractor.cpp,
+	lang/cpp/src/gpgsetexpirytimeeditinteractor.h,
+	lang/cpp/src/gpgsetownertrusteditinteractor.cpp,
+	lang/cpp/src/gpgsetownertrusteditinteractor.h,
+	lang/cpp/src/gpgsignkeyeditinteractor.cpp,
+	lang/cpp/src/gpgsignkeyeditinteractor.h,
+	lang/cpp/src/importresult.cpp,
+	lang/cpp/src/importresult.h,
+	lang/cpp/src/interfaces/assuantransaction.h,
+	lang/cpp/src/interfaces/dataprovider.h,
+	lang/cpp/src/interfaces/passphraseprovider.h,
+	lang/cpp/src/interfaces/progressprovider.h,
+	lang/cpp/src/keygenerationresult.cpp,
+	lang/cpp/src/keygenerationresult.h,
+	lang/cpp/src/keylistresult.cpp,
+	lang/cpp/src/keylistresult.h,
+	lang/cpp/src/notation.h,
+	lang/cpp/src/result.h,
+	lang/cpp/src/result_p.h,
+	lang/cpp/src/scdgetinfoassuantransaction.cpp,
+	lang/cpp/src/scdgetinfoassuantransaction.h,
+	lang/cpp/src/signingresult.cpp,
+	lang/cpp/src/signingresult.h,
+	lang/cpp/src/trustitem.cpp,
+	lang/cpp/src/trustitem.h,
+	lang/cpp/src/util.h,
+	lang/cpp/src/verificationresult.cpp,
+	lang/cpp/src/verificationresult.h,
+	lang/cpp/src/vfsmountresult.cpp,
+	lang/qt/Makefile.am,
+	lang/qt/doc/Makefile.am,
+	lang/qt/src/Makefile.am,
+	lang/qt/src/defaultkeygenerationjob.h,
+	lang/qt/tests/Makefile.am: Add missing copyright.
+
+	Change copyright from Intevation to BSI.
+	+ commit 8276dce9c1a81f2d297c315e0a485edb8b4bc9d9
+	* lang/cpp/src/gpggencardkeyinteractor.cpp,
+	lang/cpp/src/gpggencardkeyinteractor.h,
+	lang/cpp/src/gpgmepp_export.h,
+	lang/cpp/src/swdbresult.cpp,
+	lang/cpp/src/swdbresult.h,
+	lang/cpp/src/tofuinfo.cpp,
+	lang/cpp/src/tofuinfo.h,
+	lang/qt/src/abstractimportjob.h,
+	lang/qt/src/adduseridjob.h,
+	lang/qt/src/changeexpiryjob.h,
+	lang/qt/src/changeownertrustjob.h,
+	lang/qt/src/changepasswdjob.h,
+	lang/qt/src/cryptoconfig.cpp,
+	lang/qt/src/cryptoconfig.h,
+	lang/qt/src/dataprovider.cpp,
+	lang/qt/src/dataprovider.h,
+	lang/qt/src/decryptjob.h,
+	lang/qt/src/decryptverifyjob.h,
+	lang/qt/src/deletejob.h,
+	lang/qt/src/dn.cpp,
+	lang/qt/src/dn.h,
+	lang/qt/src/downloadjob.h,
+	lang/qt/src/encryptjob.h,
+	lang/qt/src/exportjob.h,
+	lang/qt/src/hierarchicalkeylistjob.h,
+	lang/qt/src/importfromkeyserverjob.h,
+	lang/qt/src/importjob.h,
+	lang/qt/src/job.cpp,
+	lang/qt/src/job.h,
+	lang/qt/src/keyformailboxjob.h,
+	lang/qt/src/keygenerationjob.h,
+	lang/qt/src/keylistjob.h,
+	lang/qt/src/listallkeysjob.h,
+	lang/qt/src/multideletejob.h,
+	lang/qt/src/protocol.h,
+	lang/qt/src/protocol_p.h,
+	lang/qt/src/qgpgme_export.h,
+	lang/qt/src/qgpgmeadduseridjob.cpp,
+	lang/qt/src/qgpgmeadduseridjob.h,
+	lang/qt/src/qgpgmebackend.cpp,
+	lang/qt/src/qgpgmebackend.h,
+	lang/qt/src/qgpgmechangeexpiryjob.cpp,
+	lang/qt/src/qgpgmechangeexpiryjob.h,
+	lang/qt/src/qgpgmechangeownertrustjob.cpp,
+	lang/qt/src/qgpgmechangeownertrustjob.h,
+	lang/qt/src/qgpgmechangepasswdjob.cpp,
+	lang/qt/src/qgpgmechangepasswdjob.h,
+	lang/qt/src/qgpgmedecryptjob.cpp,
+	lang/qt/src/qgpgmedecryptjob.h,
+	lang/qt/src/qgpgmedecryptverifyjob.cpp,
+	lang/qt/src/qgpgmedecryptverifyjob.h,
+	lang/qt/src/qgpgmedeletejob.cpp,
+	lang/qt/src/qgpgmedeletejob.h,
+	lang/qt/src/qgpgmedownloadjob.cpp,
+	lang/qt/src/qgpgmedownloadjob.h,
+	lang/qt/src/qgpgmeencryptjob.cpp,
+	lang/qt/src/qgpgmeencryptjob.h,
+	lang/qt/src/qgpgmeexportjob.cpp,
+	lang/qt/src/qgpgmeexportjob.h,
+	lang/qt/src/qgpgmeimportfromkeyserverjob.cpp,
+	lang/qt/src/qgpgmeimportfromkeyserverjob.h,
+	lang/qt/src/qgpgmeimportjob.cpp,
+	lang/qt/src/qgpgmeimportjob.h,
+	lang/qt/src/qgpgmekeyformailboxjob.cpp,
+	lang/qt/src/qgpgmekeyformailboxjob.h,
+	lang/qt/src/qgpgmekeygenerationjob.cpp,
+	lang/qt/src/qgpgmekeygenerationjob.h,
+	lang/qt/src/qgpgmekeylistjob.cpp,
+	lang/qt/src/qgpgmekeylistjob.h,
+	lang/qt/src/qgpgmelistallkeysjob.cpp,
+	lang/qt/src/qgpgmelistallkeysjob.h,
+	lang/qt/src/qgpgmenewcryptoconfig.cpp,
+	lang/qt/src/qgpgmenewcryptoconfig.h,
+	lang/qt/src/qgpgmerefreshkeysjob.cpp,
+	lang/qt/src/qgpgmerefreshkeysjob.h,
+	lang/qt/src/qgpgmesecretkeyexportjob.cpp,
+	lang/qt/src/qgpgmesecretkeyexportjob.h,
+	lang/qt/src/qgpgmesignencryptjob.cpp,
+	lang/qt/src/qgpgmesignencryptjob.h,
+	lang/qt/src/qgpgmesignjob.cpp,
+	lang/qt/src/qgpgmesignjob.h,
+	lang/qt/src/qgpgmesignkeyjob.cpp,
+	lang/qt/src/qgpgmesignkeyjob.h,
+	lang/qt/src/qgpgmetofupolicyjob.cpp,
+	lang/qt/src/qgpgmetofupolicyjob.h,
+	lang/qt/src/qgpgmeverifydetachedjob.cpp,
+	lang/qt/src/qgpgmeverifydetachedjob.h,
+	lang/qt/src/qgpgmeverifyopaquejob.cpp,
+	lang/qt/src/qgpgmeverifyopaquejob.h,
+	lang/qt/src/qgpgmewkspublishjob.cpp,
+	lang/qt/src/qgpgmewkspublishjob.h,
+	lang/qt/src/refreshkeysjob.h,
+	lang/qt/src/signencryptjob.h,
+	lang/qt/src/signjob.h,
+	lang/qt/src/signkeyjob.h,
+	lang/qt/src/specialjob.h,
+	lang/qt/src/threadedjobmixin.cpp,
+	lang/qt/src/threadedjobmixin.h,
+	lang/qt/src/tofupolicyjob.h,
+	lang/qt/src/verifydetachedjob.h,
+	lang/qt/src/verifyopaquejob.h,
+	lang/qt/src/wkspublishjob.h,
+	lang/qt/tests/run-keyformailboxjob.cpp,
+	lang/qt/tests/t-config.cpp,
+	lang/qt/tests/t-encrypt.cpp,
+	lang/qt/tests/t-keylist.cpp,
+	lang/qt/tests/t-keylocate.cpp,
+	lang/qt/tests/t-ownertrust.cpp,
+	lang/qt/tests/t-support.cpp,
+	lang/qt/tests/t-support.h,
+	lang/qt/tests/t-tofuinfo.cpp,
+	lang/qt/tests/t-various.cpp,
+	lang/qt/tests/t-verify.cpp,
+	lang/qt/tests/t-wkspublish.cpp,
+	tests/gpg/t-encrypt-mixed.c,
+	tests/gpg/t-thread-keylist-verify.c,
+	tests/gpg/t-thread-keylist.c,
+	tests/run-decrypt.c: Change Intevation GmbH copyright to BSI.
+
+2017-04-10  Alon Bar-Lev  <alon.barlev@gmail.com>
+
+	tests: Do not use check-local magic as dependency.
+	+ commit f8b2d51788c512d05f1acbc7d794e570bb770750
+	* tests/gpg/Makefile.am: Use BUILT_SOURCES instead of check-local
+	and initial.test.
+	* lang/qt/tests/Makefile.am: Ditto.
+
+2017-04-03  Igor Gnatenko  <ignatenkobrain@fedoraproject.org>
+
+	qt: pass fmt to gpgrt_asprintf()
+	+ commit 4eb54830bd84fd17800ed49e8f681e36f0eb738f
+	* lang/qt/src/dn.cpp (parse_dn_part): Add fmt argument instead of
+	using name directly.
+
+	GnuPG-Bug-Id: 3023
+
+2017-03-30  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Handle if gpg does not support tofu in test.
+	+ commit b5fdcdf005d97f601e036ea4b14e9197760b2e18
+	* lang/qt/src/t-tofuinfo.cpp (TestTofuInfo::testSupported): Treat
+	it as unsupported if secret keylisting already fails.
+
+2017-03-28  Andre Heinecke  <aheinecke@intevation.de>
+
+	Revert "qt: Disable testEncryptDecryptNowrap"
+	+ commit fe678b39b46969099ae281458aff9e63554fb79a
+	This reverts commit 91bb74b642b6d8e1dc428a75a83e7eb02ab24d14.
+
+2017-03-27  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Disable testEncryptDecryptNowrap.
+	+ commit 91bb74b642b6d8e1dc428a75a83e7eb02ab24d14
+	* lang/qt/tests/t-encrypt.cpp (EncryptTest::testEncryptDecryptNowrap):
+	Disable test.
+
+2017-03-24  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Add unittest for decrypt unwrap.
+	+ commit 4dcb2924a8c743c42f890e1bc9caef655a755464
+	* lang/qt/tests/t-encrypt.cpp
+	(EncryptTest::testEncryptDecryptNowrap): New.
+
+2017-03-22  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Add test for Data::toKeys.
+	+ commit 6bdc7db3ea54d528b6988c935e78a9e306563259
+	* lang/qt/tests/t-various.cpp (TestVarious::testKeyFromFile): New.
+
+	qt: Initialize library first in tests.
+	+ commit 48933dd79d1acbf3f71fb59170df0c92e8b38563
+	* lang/qt/tests/t-support.cpp (QGpgMETest::initTestCase): Initialize
+	library.
+
+2017-03-13  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Add test for DN parser.
+	+ commit 5e5154d2ae3900b29b39923e428101f32db35c53
+	* qt/tests/t-various.cpp (testDN): New.
+
+	qt: Use gpgrt_asprintf instead of qstrdup.
+	+ commit 9a4e958b059b738f6448811ad4b16fea2994b023
+	* lang/qt/src/dn.cpp (parse_dn_part): Use gpgrt_asprintf instead
+	of qstrdup.
+
+2017-03-01  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Allow creation of default keys without name.
+	+ commit a2e4c49a624141831243e5ef13bf7becd55c5c70
+	* lang/qt/src/defaultkeygenerationjob.cpp
+	(DefaultKeyGenerationJob::start): Handle empty name and email.
+
+2017-02-14  Justus Winter  <justus@g10code.com>
+
+	qt: Make sure to remove the tofu.db on clean.
+	+ commit c00a4e90f4b50a914241bc9156f291e9968bb043
+	* lang/qt/tests/Makefile.am (CLEANFILES): Add 'tofu.db'.
+
+2017-02-13  Igor Gnatenko  <ignatenkobrain@fedoraproject.org>
+
+	qt: Add missing #include <functional>
+	+ commit 0556ccbb62987764b9fb980b6e5f6cb2ec7ea2a6
+	* lang/qt/src/qgpgmenewcryptoconfig.cpp,
+	lang/qt/src/threadedjobmixin.h: Include functional.
+
+2017-02-07  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Don't rely on implicit include in t-verify.
+	+ commit bb476073c3f8101c37d976084f046053c6e9a231
+	* lang/qt/tests/t-various.cpp: Include QTemporaryDir
+
+2017-02-02  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Add test for tofu conflict.
+	+ commit 393c38b5042b0993484369fd0d8ce35cfb3ac6b9
+	* lang/qt/tests/t-tofuinfo.cpp (TofuInfoTest::testTofuConflict): New.
+
+2017-01-31  Justus Winter  <justus@g10code.com>
+
+	qt: Increase timeout when waiting for signals.
+	+ commit 9fedb2c74cdc1bb6d7c9b74b9d1459d7d11226c5
+	* lang/qt/tests/t-support.h (QSIGNALSPY_TIMEOUT): New macro.
+	* lang/qt/tests/t-encrypt.cpp: Use the new macro as timeout when
+	waiting for signals.
+	* lang/qt/tests/t-keylist.cpp: Likewise.
+	* lang/qt/tests/t-keylocate.cpp: Likewise.
+	* lang/qt/tests/t-ownertrust.cpp: Likewise.
+	* lang/qt/tests/t-wkspublish.cpp: Likewise.
+
+2017-01-16  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Use QVERIFY instead of Q_ASSERT in conf test.
+	+ commit dfb161ccb1d92ba0ad28dd4d2e927e5d93838a5c
+	* lang/qt/tests/t-config.cpp: Use QVERIFY instead of Q_ASSERT.
+
+	qt: Add test for CryptoConfig.
+	+ commit f5aa73a4d3f0325a43da3c1a5e8efd2eae91ffc1
+	* lang/qt/tests/t-config.cpp: New.
+	* lang/qt/tests/Makefile.am: Update accordingly.
+
+2017-01-12  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Add support for stringValueList in CryptoConf.
+	+ commit 14c0579f9ac91fee488894a1d51431be24b8c5cf
+	* lang/qt/src/Makefile.am (qgpgme_sources): Add cryptoconfig.cpp
+	* lang/qt/src/cryptoconfig.cpp: New.
+	* lang/qt/src/cryptoconfig.h (CryptoConfigEntry::stringValueList):
+	New.
+	* lang/qt/src/qgpgmenewcryptoconfig.cpp
+	(QGpgMENewCryptoConfigEntry::stringValueList): New.
+	* lang/qt/src/qgpgmenewcryptoconfig.h: Update accordingly.
+
+	qt: Don't use qstrdup in test passphrase cb.
+	+ commit 17dd9354ed435faa80e0a38b7fe72e129bb9ec13
+	* lang/qt/tests/t-support.h (TestPassphraseProvider::getPassphrase):
+	Use gpgrt_asprintf instead of strdup.
+
+2017-01-11  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Clean up test dirs on failure.
+	+ commit 87772b6bc99fc0181281b33dc06a2b1c03c91367
+	* t-encrypt.cpp,
+	t-keylist.cpp,
+	t-keylocate.cpp,
+	t-ownertrust.cpp,
+	t-tofuinfo.cpp,
+	t-various.cpp,
+	t-verify.cpp,
+	t-wkspublish.cpp: Use QVERIFY instead of Q_ASSERT
+
+	qt: Add test for uid functions.
+	+ commit 75fa25e26174537a3d0fe041e4c08d55884ccdab
+	* lang/qt/tests/t-various.cpp: New.
+	* lang/qt/tests/Makefile.am: Update accordingly.
+
+	Fix Qgpgme build for macos.
+	+ commit c5b58e23947c5b21f9d3688a6afa0c1aca6e721b
+	* lang/qt/src/dn.cpp: Include string.h
+	(parse_dn_part): Use qstrdup.
+	* lang/qt/tests/t-support.h (getPassphrase): Use qstrdup.
+
+	Fix cmake configuration files for MacOS.
+	+ commit 1d25e8006202cf9bf40b8849d7387e68dc9df466
+	* configure.ac: Set HAVE_MACOS_SYSTEM conditional.
+	* lang/qt/src/Makefile.am,
+	lang/cpp/src/Makefile.am,
+	lang/qt/src/QGpgmeConfig.cmake.in.in,
+	lang/cpp/src/GpgmeConfig.cmake.in.in: Use libsuffix again to
+	distinguish between macos .dylib
+
+2017-01-02  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Update config sync doc / comment.
+	+ commit 6effca3c7a62f6e3a2eae43668a56f69e4d7f8cc
+	* lang/qt/src/cryptoconfig.h (CryptoConfig::sync): Document
+	that runtime option is always set.
+	* lang/qt/Src/qgpgmenewcryptoconfig.cpp
+	(QGpgMENewCryptoConfigComponent::sync): Remove outdated comment
+	and warn on error.
+
+2016-11-15  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt, cpp: Add cmake config files for w32.
+	+ commit 7ec7e9e77892ea9f060052d91d821ba1cdc6a361
+	* lang/cpp/src/GpgmeppConfig-w32.cmake.in.in
+	lang/qt/src/QGpgmeConfig-w32.cmake.in.in: New.
+	* lang/cpp/src/GpgmeppConfig.cmake.in.in,
+	lang/qt/src/QGpgmeConfig.cmake.in.in: Remove libsuffix handling.
+	* lang/cpp/src/Makefile.am,
+	lang/qt/src/Makefile.am: Create / install w32 config files.
+	* configure.ac: Configure them.
+
+	qt: Use new style connect in th..mixin.
+	+ commit aa74c1867ee6deb6c21c4e820118cf88fb1ea5f2
+	* lang/qt/src/threadedjobmixin.h
+	(ThreadedJobMixin::lateInitialization): Use new style connect.
+
+2016-11-14  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Add API to get the context for a Job.
+	+ commit af39a46b999cfc0b7bb278b7e71c74acd59cc5c4
+	* lang/qt/src/job.cpp,
+	lang/qt/src/job.h (Job::context): New.
+	* lang/qt/src/threadedjobmixin.cpp
+	(ThreadedJobMixin::~ThreadedJobMixin): New. Unregister context.
+	(ThreadedJobMixin::lateInitialization): Register context.
+	* NEWS: Update for cpp and qt.
+
+	qt, cpp: Enable dll build for windows.
+	+ commit 199faa50631eeb0f0163df339801153c57da6dec
+	* lang/cpp/src/Makefile.am,
+	lang/qt/src/Makefile.am: Add -no-undefined to LDFLAGS.
+
+2016-11-03  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Change license of export / version header.
+	+ commit ddcf5a6b351c27d5bd15de5c2d4872a7d574977b
+	* lang/qt/src/qgpgme_export.h,
+	lang/qt/src/qgpgme_version.h: Change license to GPLv2+
+
+2016-11-02  Andras Mantia  <andras@kdab.com>
+
+	qt: Fix build with g++ 4.8.x.
+	+ commit aef1f5adb61c36dce02d320245524e059d13125f
+	* lang/qt/src/defaultkeygenerationjob.cpp
+	(DefaultKeyGenerationJob::start): Explicitly connect pointer
+	in the QPointer.
+
+2016-11-02  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt, cpp: Fix versioning in cmake config and header.
+	+ commit 0ee18ed356a82d041fd02dd674c3d8f05750d19c
+	* configure.ac (VERSION_MAJOR, VERSION_MINOR, VERSION_MICRO): New
+	subst variables for the version header.
+	* lang/cpp/src/GpgmeppConfigVersion.cmake.in,
+	lang/cpp/src/gpgmepp_version.h.in,
+	lang/qt/src/QGpgmeConfigVersion.cmake.in,
+	lang/qt/src/qgpgme_version.h.in: Use new variables.
+
+	qt: Install cmake config into qgpgme subdir.
+	+ commit dd534ade1eac06a5fc3662d752b6c2fac2f739c0
+	* lang/qt/src/Makefile.am: Install cmake config file in qgpgme subdir.
+
+	qt: Require gpgmepp from cmake config script.
+	+ commit a154745a20a8d182a2991cd17299aaa11402be7b
+	* lang/qt/src/QGpgmeConfig.cmake.in.in: Require cpp.
+
+	qt, cpp: Add all generated files to cleanfiles.
+	+ commit 69d2b7849b3549b892a167afde187eb21c20ba11
+	* cpp/src/Makefile.am (CLEANFILES),
+	qt/src/Makefile.am (CLEANFILES): Add all generated files
+	to cleanfiles.
+
+2016-11-01  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Add Distinguished Name parser from libkleo.
+	+ commit 6821c6362325a48d1ffacf3250b102e2ab03399e
+	* lang/qt/src/dn.cpp (DN, DN::Attribute): New public API.
+	* lang/qt/src/dn.h: New.
+	* lang/qt/src/Makefile.am: Update accordingly.
+
+	qt, cpp: Install version headers in subdirs.
+	+ commit edbb8d3cf6978caa49d184baa839233e1e0552ee
+	* lang/cpp/src/Makefile.am,
+	lang/qt/src/Makefile.am: Install version headers in include
+	subdirs.
+
+2016-10-19  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Improve WKSPublishJob apidoc.
+	+ commit 0f2868adaba71b37d7dfb225451608b6500ded30
+	* lang/qt/src/wkspublishjob.h: Improve doc.
+
+2016-10-13  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt, cpp: Fix permissions of Config files.
+	+ commit 814ede8f7157f887d776d66390df02279c81f798
+	* lang/cpp/src/Makefile.am,
+	lang/qt/src/Makefile.am: Do not install config files as executable.
+
+	qt: Install SpecialJob.
+	+ commit fc2c9326e8078a9673543a2b6c79dd56d2f73df7
+	* lang/qt/src/Makefile.am: Install SpecialJob
+	* NEWS: mention it.
+
+	qt, cpp: Fix expected targets in Config files.
+	+ commit 8d4cef1af8058bab98b6fe1db8c7dd7a625c73d7
+	* lang/cpp/src/GpgmeppConfig.cmake.in.in,
+	lang/qt/src/QGpgmeConfig.cmake.in.in: Remove KF5 variants.
+
+2016-10-11  Daniel Vrátil  <dvratil@kde.org>
+
+	qt: Add missing implementation of MultiDeleteJob.
+	+ commit f2fb10862221810ef3ba9baf51169ce30deb6f8b
+	* lang/qt/src/multideletejob.h: Fix include, cryptobackend.h is now
+	called protocol.h
+	* lang/qt/src/multideletejob.cpp: New file.
+	* lang/qt/src/Makefile.am: Add multideletejob.cpp.
+
+	qt: Install abstractimportjob.h.
+	+ commit 7194bd484b4c7b67732aa669f9d815f019887976
+	* lang/cpp/src/Makefile.am: Install abstractimportjob.h since it's
+	included from importjob.h
+
+2016-10-10  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Add simple verify test.
+	+ commit a02702326bf418691a0ec1c9d98d3f10673cfbc2
+	* lang/qt/tests/t-verify.cpp: New. Small test if a signature
+	returns a key with fingerprint.
+	* lang/qt/tests/Makefile.am: Add new test.
+
+2016-10-05  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Fix spelling error in WKSPublishJob.
+	+ commit 6c1c0dae44ca53decd25851d01989605194a290f
+	* src/qgpgmewkspublishjob.cpp,
+	src/qgpgmewkspublishjob.h,
+	src/wkspublishjob.h,
+	tests/t-wkspublish.cpp: Fix spelling of received.
+	* src/configure.ac (LIBQGPGME_LT_CURRENT): Bump
+	accordingly.
+
+	qt: Disable tests that require a password for 2.0.
+	+ commit 3a3533c44211de0f21b75ebffe379c7ae89e3f12
+	* lang/qt/tests/t-encrypt.cpp: Disable tests that require
+	a password for 2.0.
+
+	qt: Fix unused variable warnings.
+	+ commit c0b2f4a9352234dabd7278c56b0824003ccd6432
+	* qt/src/qgpgmenewcryptoconfig.cpp,
+	qt/src/threadedjobmixin.h,
+	qt/tests/t-encrypt.cpp,
+	qt/tests/t-support.h,
+	qt/tests/t-wkspublish.cpp: Mark additional variables as unused.
+
+	qt: Disable t-wkspublish test.
+	+ commit 092abeac46627148067a75785eddc8fb1b15b9db
+	* lang/qt/tests/Makefile.am (TESTS): Remove t-wkspublish.
+
+2016-09-29  Andre Heinecke  <aheinecke@intevation.de>
+
+	cpp, qt: Handle modified includedir installation.
+	+ commit 8bc76e7dba0be9ef6041ad9912a7af5b0a529404
+	* lang/cpp/src/Makefile.am,
+	lang/qt/src/Makefile.am: Replace resolved_includedir.
+	* lang/cpp/src/GpgmeppConfig.cmake.in.in,
+	lang/qt/src/QGpgmeConfig.cmake.in.in: Use resolved_includedir
+	instead of relying on a common installation prefix.
+
+2016-09-23  Daniel Kahn Gillmor  <dkg@fifthhorseman.net>
+
+	Fix spelling.
+	+ commit ddd95fc41ef3dc22f1d2b8a67d2f506b72167589
+	 * lang/cpp/src/context.h, lang/qt/src/protocol.h,
+	   lang/qt/src/wkspublishjob.h, src/data-identify.c, src/engine-gpg.c:
+	   minor spelling cleanup.
+
+	move some file encodings to UTF-8.
+	+ commit 22bc55d41c757f9ea604d447979c0356271df584
+	* THANKS, doc/ChangeLog-2011, tests/ChangeLog-2011,
+	  tests/gpg/geheim.txt: convert from iso 8859-1 to utf-8.
+	* lang/qt/src/dataprovider.cpp, lang/qt/src/qgpgmerefreshkeysjob.cpp,
+	  lang/qt/src/qgpgmesecretkeyexportjob.cpp: replace U+FFFD REPLACEMENT
+	  CHARACTER with proper U+00E4 LATIN SMALL LETTER A WITH DIAERESIS.
+
+2016-09-23  Andre Heinecke  <aheinecke@intevation.de>
+
+	cpp, qt: Include config.h.
+	+ commit 6d31687a8063a6bb6fad3784f22a787e5c4290fa
+	lang/cpp/src/callbacks.cpp,
+	lang/cpp/src/configuration.cpp,
+	lang/cpp/src/context.cpp,
+	lang/cpp/src/context_glib.cpp,
+	lang/cpp/src/context_qt.cpp,
+	lang/cpp/src/context_vanilla.cpp,
+	lang/cpp/src/data.cpp,
+	lang/cpp/src/decryptionresult.cpp,
+	lang/cpp/src/defaultassuantransaction.cpp,
+	lang/cpp/src/editinteractor.cpp,
+	lang/cpp/src/encryptionresult.cpp,
+	lang/cpp/src/engineinfo.cpp,
+	lang/cpp/src/eventloopinteractor.cpp,
+	lang/cpp/src/exception.cpp,
+	lang/cpp/src/gpgadduserideditinteractor.cpp,
+	lang/cpp/src/gpgagentgetinfoassuantransaction.cpp,
+	lang/cpp/src/gpgsetexpirytimeeditinteractor.cpp,
+	lang/cpp/src/gpgsetownertrusteditinteractor.cpp,
+	lang/cpp/src/gpgsignkeyeditinteractor.cpp,
+	lang/cpp/src/importresult.cpp,
+	lang/cpp/src/key.cpp,
+	lang/cpp/src/keygenerationresult.cpp,
+	lang/cpp/src/keylistresult.cpp,
+	lang/cpp/src/scdgetinfoassuantransaction.cpp,
+	lang/cpp/src/signingresult.cpp,
+	lang/cpp/src/tofuinfo.cpp,
+	lang/cpp/src/trustitem.cpp,
+	lang/cpp/src/verificationresult.cpp,
+	lang/cpp/src/vfsmountresult.cpp,
+	lang/qt/src/dataprovider.cpp,
+	lang/qt/src/defaultkeygenerationjob.cpp,
+	lang/qt/src/gpgme_backend_debug.cpp,
+	lang/qt/src/job.cpp,
+	lang/qt/src/qgpgmeadduseridjob.cpp,
+	lang/qt/src/qgpgmebackend.cpp,
+	lang/qt/src/qgpgmechangeexpiryjob.cpp,
+	lang/qt/src/qgpgmechangeownertrustjob.cpp,
+	lang/qt/src/qgpgmechangepasswdjob.cpp,
+	lang/qt/src/qgpgmedecryptjob.cpp,
+	lang/qt/src/qgpgmedecryptverifyjob.cpp,
+	lang/qt/src/qgpgmedeletejob.cpp,
+	lang/qt/src/qgpgmedownloadjob.cpp,
+	lang/qt/src/qgpgmeencryptjob.cpp,
+	lang/qt/src/qgpgmeexportjob.cpp,
+	lang/qt/src/qgpgmeimportfromkeyserverjob.cpp,
+	lang/qt/src/qgpgmeimportjob.cpp,
+	lang/qt/src/qgpgmekeyformailboxjob.cpp,
+	lang/qt/src/qgpgmekeygenerationjob.cpp,
+	lang/qt/src/qgpgmekeylistjob.cpp,
+	lang/qt/src/qgpgmelistallkeysjob.cpp,
+	lang/qt/src/qgpgmenewcryptoconfig.cpp,
+	lang/qt/src/qgpgmerefreshkeysjob.cpp,
+	lang/qt/src/qgpgmesecretkeyexportjob.cpp,
+	lang/qt/src/qgpgmesignencryptjob.cpp,
+	lang/qt/src/qgpgmesignjob.cpp,
+	lang/qt/src/qgpgmesignkeyjob.cpp,
+	lang/qt/src/qgpgmetofupolicyjob.cpp,
+	lang/qt/src/qgpgmeverifydetachedjob.cpp,
+	lang/qt/src/qgpgmeverifyopaquejob.cpp,
+	lang/qt/src/qgpgmewkspublishjob.cpp,
+	lang/qt/src/threadedjobmixin.cpp,
+	lang/qt/tests/run-keyformailboxjob.cpp,
+	lang/qt/tests/t-encrypt.cpp,
+	lang/qt/tests/t-keylist.cpp,
+	lang/qt/tests/t-keylocate.cpp,
+	lang/qt/tests/t-ownertrust.cpp,
+	lang/qt/tests/t-support.cpp,
+	lang/qt/tests/t-tofuinfo.cpp,
+	lang/qt/tests/t-wkspublish.cpp: Include config.h
+
+2016-09-20  Werner Koch  <wk@gnupg.org>
+
+	tests: Improve portability.
+	+ commit 65ca6937b8fac41a318501ebb2c12a4830a21be4
+	* lang/qt/tests/Makefile.am (clean-local): Avoid non-portable "--"
+	* lang/python/Makefile.am (copystamp): Use well defined cp -R instead
+	of cp -r.
+
+2016-09-19  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Improve README.
+	+ commit 1537e81e1a6bb9efa9f7218254af0b6da1a5178e
+	* lang/qt/README: Add more content. Clearly note license difference.
+
+	qt: Add debug output for testTofuPolicy.
+	+ commit 1dbd8b61f10d2708f5e05444b2806463f48e2e72
+	* lang/qt/tests/t-tofuinfo.cpp (testTofuPolicy): Add
+	debug output.
+
+2016-09-16  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Add test for setting tofu policy.
+	+ commit b0feed3b5e3d39e03a4d7cf66f33cec03894a169
+	* lang/qt/tests/t-tofuinfo.cpp (testTofuPolicy): New.
+
+	qt: Add job for tofupolicy.
+	+ commit fda92d326f2de1cd791478708dcdd283596175ce
+	* lang/qt/src/job.cpp, lang/qt/src/protocol.h,
+	lang/qt/src/protocol_p.h: Register job.
+	* lang/qt/src/qgpgmetofupolicyjob.cpp,
+	lang/qt/src/qgpgmetofupolicyjob.h,
+	lang/qt/src/tofupolicyjob.h: New.
+	* lang/qt/src/Makefile.am: Update accordingly.
+
+2016-09-12  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Fix some includes.
+	+ commit da5cd3941d1f407beadd4269bd410d59703cd1de
+	* lang/qt/src/qgpgmekeyformailboxjob.cpp: Explicitly include
+	QStringList.
+	* lang/qt/tests/t-support.h, lang/qt/tests/t-support.cpp: Move
+	includes into impl. Explicitly include QDir.
+
+2016-09-12  Justus Winter  <justus@g10code.com>
+
+	qt: Fix tofu test.
+	+ commit a7a000d6bab3dcfec4a4aa9f00281f4c6b8a5cd6
+	* lang/qt/tests/t-tofuinfo.cpp: Adjust member names.
+
+2016-09-05  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Clarify comment and strings in tofuinfo test.
+	+ commit 17aa75a5086de3dcf7eb72c4fb77cf758e5aa860
+	* lang/qt/tests/t-tofuinfo.cpp (testTofuSignCount)
+	(testTofuKeyList): Ensure distinct messages. Clarify comment.
+
+	qt: Enable signcount checks in tofuinfo test.
+	+ commit 1e1e9e7b59df9b78d87cb21c10c6530ba907675a
+	* lang/qt/tests/t-tofuinfo.cpp: Enable checks for signcount.
+
+	qt: Add missing header redirection.
+	+ commit 556faf26b660a5a9f79c325eaeff8e602e74d017
+	* lang/qt/src/keyformailboxjob.h,
+	lang/qt/src/qgpgmekeyformailboxjob.h: Fix includes.
+
+	qt: Include cpp before core directory.
+	+ commit e6c70b1cb03c05e2881ce49901b11e6b1f137e30
+	* lang/qt/src/Makefile.am (AM_CPPFLAGS): Include cpp before core.
+
+2016-08-25  Andre Heinecke  <aheinecke@intevation.de>
+
+	qt: Fix 2.1 t-support copy.
+	+ commit 17d6adfbe3dcbb45368a8809f871eb74884e8535
+	* lang/qt/src/t-support.cpp (copyKeyring): Fix seckey copy.
+
+	qt: Fix and extend TofuInfo test.
+	+ commit c9fd9b6a12dd7f3a305dbc94df29676fe1d6f1c1
+	* lang/qt/tests/t-tofuinfo.cpp: Delete executed jobs.
+	(testTofuKeyList): New.
+	(testSupported): Activate for 2.1.16
+	(signAndVerify): Disable sigcount tests.
+
+	qt: Fix keyring copy in tests.
+	+ commit 030837bb69d76296c5deb539dd8821af316c3982
+	* lang/qt/test/t-encrypt.cpp,
+	lang/qt/test/t-tofuinfo.cpp: Assert on copy failure.
+	* lang/qt/test/t-support.cpp (copyKeyrings): Fix path.
+
+	qt: Add generic flag support for keylistjobs.
+	+ commit d77e1441a59ad7782e7b7740711ddbd025278908
+	* lang/qt/src/keylistjob.h (addMode): New.
+	* lang/qt/src/qgpgmekeylistjob.h (addMode): New.
+	* lang/qt/src/qgpgmekeylistjob.cpp (addMode: New.
+
+	qt: Ensure that current src dir is included first.
+	+ commit 6a50e5ad678e56701444fe71e69a28bed5febe95
+	* lang/qt/src/Makefile.am: Reorder include directives.
+
+	qt: Fix tofuinfo test when gpg is gpg2.
+	+ commit 3d7e4e38bef984395d9e5358fe534ee0b510060e
+	* lang/qt/tests/t-support.cpp (QGpgMETest::copyKeyrings): New helper.
+	* lang/qt/tests/t-support.h: Declare.
+	* lang/qt/tests/t-encrypt.cpp: use it
+	* lang/qt/tests/t-tofuinbo.cpp: ditto.
+
+	qt: Remove unused variable in test.
+	+ commit 8fe4709bcfea7766288c7f46f1bb35a16d1af5a4
+	* t-wkspublish.cpp (testWKSPublishCreate): Remove context.
+
+	qt: Add test for wkspublishjob.
+	+ commit ca3c23cd826693c16201b7e8d6255502a20f17a0
+	* lang/qt/tests/t-wkspublish.cpp: New.
+	* lang/qt/tests/Makefile.am: Update accordingly.
+
+	qt: Add WKSPublishJob.
+	+ commit c964f56aae036c1b525760f3356c05f385b6358f
+	* lang/qt/src/Makefile.am: Add new files.
+	* lang/qt/src/job.cpp: Include moc / subclass stub.
+	* lang/qt/src/protocol.h: Add virtual for new job.
+	* lang/qt/src/protocol_p.h: Add job.
+	* lang/qt/src/wkspublishjob.h: Interface for WKSPublishJob.
+	* lang/qt/src/qgpgmewkspublishjob.cpp,
+	lang/qt/src/qgpgmewkspublishjob.h: New.
+
+2016-08-24  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Adapt (disabled) tofuinfo test to new API.
+	+ commit 659ff67a7db920e57ba7cd50021c9612d9672baf
+	* lang/qt/tests/t-tofuinfo.cpp: Switch to UID based API.
+
+2016-08-23  Andre Heinecke  <aheinecke@intevation.de>
+
+	Cpp: Move tofuinfo from signature to userid.
+	+ commit 85c201a0207d7eea8fb8e0809f731068aaa72a12
+	* lang/cpp/src/key.cpp (UserID::tofuInfo): New.
+	* lang/cpp/src/key.h: Update accordingly.
+	* lang/cpp/src/tofuinfo.cpp: Remove dropped fields.
+	* lang/cpp/src/tofuinfo.h: Update accordingly.
+	* lang/cpp/src/verificationresult.cpp,
+	lang/cpp/src/verificationresult.h: Remove tofu info.
+	* lang/qt/tests/t-tofuinfo.cpp: Disable for now.
+
+2016-08-12  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Add test for progress signal of encryptjob.
+	+ commit 4544b06d3bc548083e9f533aec479e30c9d0acfd
+	* lang/qt/tests/t-encrypt.cpp (testProgress): New.
+
+	Qt: Fix defaultkeygenerationjob build.
+	+ commit f2cf082a7804bf46a6f2e18ca6e6a977d3916d6e
+	* lang/qt/src/defaultkeygenerationjob.cpp: Include moc.
+
+2016-08-11  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Add DefaultKeyGenerationJob.
+	+ commit b3ea736e51bc07bf646ef8f310bf07d65ce2ceaf
+	* lang/qt/src/defaultkeygenerationjob.cpp,
+	lang/qt/src/defaultkeygenerationjob.h: New.
+	* lang/qt/src/Makefile.am: Update accordingly.
+
+	Qt: Ensure all public classes are exported.
+	+ commit 5ac36c4e4b6802023e45211ae3df19ade3d32db3
+	* src/abstractimportjob.h,
+	src/cryptoconfig.h,
+	src/deletejob.h,
+	src/exportjob.h,
+	src/importfromkeyserverjob.h,
+	src/importjob.h,
+	src/keygenerationjob.h,
+	src/keylistjob.h,
+	src/listallkeysjob.h,
+	src/refreshkeysjob.h,
+	src/signencryptjob.h,
+	src/specialjob.h,
+	src/verifydetachedjob.h: Export classes.
+
+	Qt: Add KeyForMailboxJob.
+	+ commit 483673be5df46aaec17342e11a9301881695164a
+	* lang/qt/src/job.cpp: Include moc and make subclass.
+	* lang/qt/src/keyformailboxjob.h,
+	lang/qt/src/qgpgmekeyformailboxjob.cpp,
+	lang/qt/src/qgpgmekeyformailboxjob.h: New.
+	* lang/qt/tests/run-keyformailboxjob.cpp: New manual test.
+	* lang/qt/tests/Makefile.am: Add run-keyformailboxjob.
+	* lang/qt/src/Makefile.am: Update accordingly.
+	* lang/qt/src/protocol.h, lang/qt/src/protocol_p.h: Add
+	keyformailboxjob.
+
+2016-08-10  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Remove unused variable.
+	+ commit 3f31044668a32c8ccbd4cb23ab11894e6cc35e2a
+	* lang/qt/src/qgpgmerefreshkeysjob.cpp (slotStatus): Remove
+	unused variable typ.
+
+	Qt: Create TestPassphraseProvider on stack.
+	+ commit 12ce04502560a78ab7127ecc0c569fc8ec0be6a7
+	* lang/qt/tests/t-encrypt.cpp, lang/qt/tests/t-tofuinfo.cpp: Create
+	TestPassphraseProvider on stack.
+
+	Qt: Fix t-keylist moc include.
+	+ commit 25c33750c6da176f14f4fcf4642e0f65fe9dbf91
+	* lang/qt/tests/t-keylist.cpp: Don't include t-support.moc
+
+2016-08-09  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Clean up debug output in tests.
+	+ commit c48d18e8a14becb88d94c6f4e9bbe0d907523043
+	* lang/qt/tests/t-support.cpp: Remove accidentally commited
+	debug output.
+
+	Qt: Add encryption test and refactor testsuite.
+	+ commit fb10cf7f0024af88d09755bcf3470dbc59c8217e
+	* lang/qt/tests/Makefile.am: Add t-encrypt and t-support.
+	* lang/qt/tests/t-support.cpp, lang/qt/tests/t-support.c (QGpgMETest):
+	New. Class to handle common cleanup / init.
+	* lang/qt/tests/t-keylist.cpp,
+	lang/qt/tests/t-keylocate.cpp,
+	lang/qt/tests/t-ownertrust.cpp,
+	lang/qt/tests/t-tofuinfo.cpp: Inherit QGpgMETest.
+	* lang/qt/tests/t-encrypt.cpp: New. Test Symetric and Asymectric
+	encryption. Mixed encryption test is disabled.
+
+	Qt: Add support for EncryptJobs with generic flags.
+	+ commit af6f37eb13eedf1c21bada4607af1d7f84a51da0
+	* lang/qt/src/encryptjob.h, lang/qt/src/signencryptjob.h,
+	lang/qt/src/qgpgmeencryptjob.h, lang/qt/src/qgpgmeencryptjob.cpp,
+	lang/qt/src/qgpgmesignencryptjob.cpp,
+	lang/qt/src/qgpgmeencryptjob.cpp: Add start and exec overloads
+	that accept generic EncryptFlags.
+
+2016-07-14  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Disable keylocate test for gnupg < 2.0.10.
+	+ commit 3d1b0318286efc3497b26eab33f8353bdf688f8d
+	* lang/qt/tests/t-keylocate.cpp: Disable test for gnupg < 2.0.10
+
+	Qt: Fix usage of ignore-invalid-option in tests.
+	+ commit 4cbaa23b18c2655099263a1e375c8e599a95eecf
+	* Makefile.am (pubring-stamp): Fix config.
+
+	Qt: Fix tests if gpg2 is gpg.
+	+ commit 41825f1927bed4b153d92fe6d6f21276b84d43fe
+	* lang/qt/tests/Makefile.am (pubring-stamp): Loopback and provide
+	passphrase on command line when importing.
+
+2016-07-12  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Install CamelCase forward includes.
+	+ commit b8bebc025d406eb5952fdaf5181b26a6ff71fdbb
+	* lang/qt/src/Makefile.am (camelcase_headers): New. Create and install
+	CamelCase headers.
+
+	Qt: Export VerifyDetachedJob.
+	+ commit dad096d07046402ee02aee4ca81bcacffcd71c4c
+	* lang/qt/src/verifydetachedjob.h (VerifyDetachedJob): Export it.
+
+	Qt/Cpp: Add version headers.
+	+ commit 6497f884cd3fb912c869df884585c4d2adf9cabd
+	* lang/cpp/src/gpgmepp_version.h.in,
+	lang/qt/src/qgpgme_version.h.in: New. Version information.
+	* lang/qt/src/Makefile.am, lang/cpp/src/Makefile.am: Add them.
+	* configure.ac: Configure them.
+
+	Qt/Cpp: Add license blurb to export headers.
+	+ commit e84245ccb7dc88baf1e3813f0e4d276671d24072
+	* lang/cpp/src/gpgmepp_export.h,
+	lang/qt/src/qgpgme_export.h: Add license blurb.
+
+2016-07-11  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Fix memleaks in tests.
+	+ commit d2c35d56664bd21c18e0d2218f2d0ef06cdb3dc0
+	* lang/qt/tests/t-keylist.cpp(cleanupTestCase): Ensure that
+	posted events are handled for autodeletion.
+	(testSingleKeylistSync): delete job.
+	* lang/qt/tests/t-ownertrust.cpp(cleanupTestCase): Ditto
+	* lang/qt/tests/t-ownertrust.cpp(testChangeOwnerTrust): Delete
+	keylistjobs.
+	* lang/qt/tests/t-keylocate.cpp(cleanupTestCase): Ditto
+
+	Qt: Add some general Protocol documentation.
+	+ commit 3d432ba2807dc5c82140d544f1947b1512c27c2f
+	* lang/qt/src/protocol.h (Protocol): Add doc.
+
+	Qt: Disable t-tofuinfo tests.
+	+ commit a99ca7fe9759913c4cb59af38681d8f69b2cdc67
+	* lang/qt/tests/t-tofuinfo.cpp: Disable tests.
+
+2016-07-07  Justus Winter  <justus@g10code.com>
+
+	qt: Fix distcheck.
+	+ commit c63694dd602e747305527a0d3b0035a8a4123fa8
+	* lang/qt/src/Makefile.am (qgpgme_headers): Add missing file.
+	(CLEANFILES): Add generated file.
+	* lang/qt/tests/Makefile.am (clean-local): Remove private keys.
+
+2016-07-06  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Add test for publicKeyAlgorithmAsString.
+	+ commit b938e0bbe720e2e741a90ccc4b7bd9fa044fed7c
+	* lang/qt/tests/t-keylist.cpp (testPubkeyAlgoAsString): New.
+
+	Qt: Add check for pubkeyAlgo in t-keylist.
+	+ commit 5bcee809e6dae7711a3cc308bf96b760d657e87c
+	* lang/qt/tests/t-keylist.cpp (testSingleKeyListSync): Check
+	pubkeyAlgo.
+
+	Qt: Fix include order when buildin test.
+	+ commit da869a924feffaf2ea3d3b116a7413b23c99ae9a
+	* lang/qt/tests/Makefile.am (AM_CPPFLAGS): Include cpp before
+	gpgme src directory.
+
+	Revert "Qt: More robust lookup of Cpp's context.h"
+	+ commit 77861ce917a1fe66bcea7c3702356ac6243a26bf
+	* lang/qt/src/threadedjobmixin.h: Revert using full path
+	for context.h
+
+2016-07-05  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Fix test build with Qt < 5.4.0.
+	+ commit eeea59286a99abbd17dc211c6afdd49242a95ed2
+	* lang/qt/tests/t-keylist.cpp,
+	lang/qt/tests/t-keylocate.cpp,
+	lang/qt/tests/t-ownertrust.cpp: Use old style SIGNAl syntax for
+	QSignalSpy
+
+	Qt: More robust lookup of Cpp's context.h.
+	+ commit e496dd6ba3829d1770350a3be1ecae2868bcb118
+	* lang/qt/src/threadedjobmixin.h: When building qgpgme look for
+	context.h in the full cpp subdirectory.
+
+2016-07-04  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Add testTofuSignCount.
+	+ commit b30c4c214e7ef550a4be5570228429df8921273d
+	* src/lang/qt/tests/t-tofuinfo.cpp(testTofuSignCount): New.
+	(initTestCase): Set gpg-agent loopback pinentry config.
+	(signAndVerify): Helper for tofuTestSignCount.
+
+	Qt: Add test passphrase provider.
+	+ commit dd1c759bd45ff2a3c076f84d1108b2d93e42cab8
+	* lang/qt/tests/t-support.h (TestPassphraseProvider): New.
+	* lang/qt/tests/Makefile.am (t_tofuinfo_SOURCES): Add t-support.h
+
+2016-07-01  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Add test for TofuInfo.
+	+ commit 96d6b1a2435aac70f4bfb6ec5eb89c71a342eabe
+	* lang/qt/tests/t-tofuinfo.cpp: New.
+	* lang/qt/tests/Makefile.am: Update accordingly.
+
+2016-06-01  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Fix debug output in t-ownertrust.
+	+ commit 024a89211e1448fe1952f755ce96993ea4f6991e
+	* lang/qt/tests/t-ownertrust.cpp (testChangeOwnerTrust): Remove
+	general debug of trust level. Add debug output for error.
+
+2016-05-24  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Fix test build with clang.
+	+ commit 92893b2ec440c6eee206059bcc9fd0910249e4a3
+	* lang/qt/tests/Makefile.am (LDADD): Explicitly add -lstdc++
+
+2016-05-20  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Add test for changeownertrust.
+	+ commit 46d11fb0610030131bbe2b946584a6fe59444228
+	* lang/qt/tests/t-ownertrust.cpp: New test.
+	* lang/qt/tests/Makefile.am: Add test.
+
+2016-05-19  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Check for graphviz and set HAVE_DOT correctly.
+	+ commit 3038231ce229a3acbcb360147eeee6a5bb26ef5a
+	* configure.ac: Check for graphviz and define HAVE_DOT.
+	* lang/qt/doc/Doxyfile.in (HAVE_DOT): Use variable.
+
+	Qt: Fix compilation of unit tests.
+	+ commit a06186f6941ecd41dd9d824898b08c397067d0bb
+	* lang/qt/tests/Makefile.am (AM_CPPFLAGS): Add -DBUILDING_QGPGME.
+
+2016-05-17  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt / Cpp: Port auto_ptr to unique_ptr.
+	+ commit 315d623aca3a3d6cc1d5e482d73bf272cf324e46
+	* lang/cpp/src/context.cpp,
+	lang/cpp/src/context.h,
+	lang/cpp/src/context_p.h (Context::createForEngine),
+	(Context::edit, Context::startEditing),
+	(Context::takeLastEditInteractor, Context::cardEdit),
+	(Context::startCardEditing, Context::takeLastCardEditInteractor),
+	(Context::assuanTransact, Context::startAssuanTransaction),
+	(Context::takeLastAssuanTransaction): Port to unique_ptr.
+	* lang/qt/src/qgpgmeadduseridjob.cpp,
+	lang/qt/src/qgpgmechangeexpiryjob.cpp,
+	lang/qt/src/qgpgmechangeownertrustjob.cpp,
+	lang/qt/src/qgpgmechangepasswdjob.cpp,
+	lang/qt/src/qgpgmesignkeyjob.cpp: Update accordingly.
+
+2016-05-13  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Add keyLocateJob and test for it.
+	+ commit 6d9878e3113e7d11ecd06239fcf18a1c021b2804
+	* configure.ac (LIBQGPGME_LT_REVISION): Bump.
+	* lang/qt/src/protocol.h (locateKeysJob): Add Job.
+	* lang/qt/src/protocol_p.h (locateKeysJob): Implement.
+	* lang/qt/tests/Makefile.am: Add t-keylocate.
+	* lang/qt/tests/t-keylocate.cpp: New.
+
+	Qt: Add missing copyright header in test.
+	+ commit 9d54a9bb86eea123f970447fe760f53a7dbf88a0
+	* lang/qt/tests/t-keylist.cpp: Add copyright header.
+
+2016-05-10  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt / Cpp: Fix make dist.
+	+ commit 2858798938e8a48a82d69bae620d4b83efeca7a4
+	* lang/cpp/src/Makefile.am (EXTRA_DIST): Fix typo.
+	(private_gpgmepp_headers): New. Private headers.
+	(libgpgmepp_la_SOURCES): Add private headers.
+	* lang/qt/src/Makefile.am (t_keylist_SOURCES): Remove non existent
+	header.
+
+	Qt: Make Protocol class public API.
+	+ commit 6f20b0872bacab47b5f46992926b53a8aa60a5e9
+	* lang/qt/src/Makefile.am (qgpgme_headers): Add protocol.h
+	(private_qgpgme_headers): Add protocol_p.h
+	* lang/qt/src/protocol.h: New. From QGpgMEBackend.
+	* lang/qt/src/protocol_p.h: New. From QGpgMEBackend.
+	* lang/qt/src/qgpgmebackend.h,
+	lang/qt/src/qgpgmebackend.cpp (Protocol): Removed.
+
+	Qt: Make doxygen quieter.
+	+ commit a0332d6abae82f27dd687a012946c62db2f11b61
+	* lang/qt/doc/Doxyfile.in: Quiet and no undocumented warnings.
+
+	Qt: Only install public headers.
+	+ commit d64ddcd698e4cf38fe41c8f1962fe36ab8676495
+	* lang/qt/src/Makefile.am: Do not install all headers.
+
+	Qt: Add test for async keylisting.
+	+ commit 3fb917b81f0d818a52aed430112ce36e7d19395b
+	* src/lang/qt/tests/t-keylist.cpp(KeyListTest::testKeyListAsync): New.
+
+2016-05-06  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt: Fix license mentioned in README.
+	+ commit fc4d7af105a74468ba32720e19d460e1042c123b
+	* lang/qt/README: License is GPLv2+ and not LGPL.
+
+2016-04-11  Andre Heinecke  <aheinecke@intevation.de>
+
+	Qt / Cpp: Mention coding style in READMES.
+	+ commit bb4bf9e9b15c14f2c0c172ffceaddfbc913c4d84
+	* src/lang/cpp/README, src/lang/qt/README: Add hacking note.
+
+	Qt: Add doc generation with doxygen.
+	+ commit 3b1e12b15dd7393349b0ff7046a92fc9a2a72e73
+	* configure.ac: Look for doxygen if qt is built.
+	 Configure new files.
+	* lang/qt/doc/Doxyfile.in: New.
+	* lang/qt/doc/Makefile.am: New.
+	* lang/qt/README: Update.
+
+	Qt: Fix unit test by adding initial.test dep.
+	+ commit f61d175a7375ad9ef839cec4c0bc465fe9c86053
+	* lang/qt/tests/t-keylist.cpp: Verify that GNUPGHOME is set.
+	* lang/qt/tests/initial.test: New dummy test.
+	* lang/qt/tests/Makefile.am: Add dependency to initial.test
+
+	Qt: Remove remaining boost usage.
+	+ commit 1f77ecbcd90d6acaa05217c1c9499599b38cfe3b
+	* lang/qt/src/dataprovider.h,
+	 lang/qt/src/decryptjob.h,
+	 lang/qt/src/decryptverifyjob.h,
+	 lang/qt/src/encryptjob.h,
+	 lang/qt/src/qgpgmeadduseridjob.cpp,
+	 lang/qt/src/qgpgmechangeexpiryjob.cpp,
+	 lang/qt/src/qgpgmechangeownertrustjob.cpp,
+	 lang/qt/src/qgpgmechangepasswdjob.cpp,
+	 lang/qt/src/qgpgmedecryptjob.cpp,
+	 lang/qt/src/qgpgmedecryptverifyjob.cpp,
+	 lang/qt/src/qgpgmedeletejob.cpp,
+	 lang/qt/src/qgpgmedownloadjob.cpp,
+	 lang/qt/src/qgpgmeencryptjob.cpp,
+	 lang/qt/src/qgpgmeexportjob.cpp,
+	 lang/qt/src/qgpgmeimportfromkeyserverjob.cpp,
+	 lang/qt/src/qgpgmeimportjob.cpp,
+	 lang/qt/src/qgpgmekeygenerationjob.cpp,
+	 lang/qt/src/qgpgmekeylistjob.cpp,
+	 lang/qt/src/qgpgmenewcryptoconfig.cpp,
+	 lang/qt/src/qgpgmenewcryptoconfig.h,
+	 lang/qt/src/qgpgmesignencryptjob.cpp,
+	 lang/qt/src/qgpgmesignjob.cpp,
+	 lang/qt/src/qgpgmesignkeyjob.cpp,
+	 lang/qt/src/qgpgmeverifydetachedjob.cpp,
+	 lang/qt/src/qgpgmeverifyopaquejob.cpp,
+	 lang/qt/src/signencryptjob.h,
+	 lang/qt/src/signjob.h,
+	 lang/qt/src/threadedjobmixin.cpp,
+	 lang/qt/src/threadedjobmixin.h,
+	 lang/qt/src/verifydetachedjob.h,
+	 lang/qt/src/verifyopaquejob.h: Remove boost usage.
+
+	Qt: Remove predicates.h and stl_util.h.
+	+ commit f25bf20b1f7d63e3ea57ead71fbf6e2cb26045f4
+	* src/lang/qt/predicates.h, src/lang/qt/stl_util.h: Removed.
+
+	Qt: Remove usage of stl_util.h and predicates.h.
+	+ commit 38bf5ef61d74f76c6877141985c319b751075ed2
+	* src/lang/qt/qgpgmelistallkeysjob.cpp: Use comperators from
+	  gpgmepp instead of detail. Remove boost usage.
+
+2016-04-03  Andre Heinecke  <aheinecke@intevation.de>
+
+	Cpp / Qt: Reduce boost usage (memory and tuple)
+	+ commit 733a559177a5d7da5bfaf90c21ddfe3ce3e4d56c
+	* cpp/src/assuanresult.h,
+	 cpp/src/configuration.cpp,
+	 cpp/src/configuration.h,
+	 cpp/src/data.h,
+	 cpp/src/decryptionresult.h,
+	 cpp/src/defaultassuantransaction.cpp,
+	 cpp/src/encryptionresult.cpp,
+	 cpp/src/encryptionresult.h,
+	 cpp/src/engineinfo.h,
+	 cpp/src/gpgagentgetinfoassuantransaction.cpp,
+	 cpp/src/gpgsignkeyeditinteractor.cpp,
+	 cpp/src/importresult.cpp,
+	 cpp/src/importresult.h,
+	 cpp/src/key.h,
+	 cpp/src/keygenerationresult.h,
+	 cpp/src/keylistresult.h,
+	 cpp/src/notation.h,
+	 cpp/src/signingresult.cpp,
+	 cpp/src/signingresult.h,
+	 cpp/src/verificationresult.cpp,
+	 cpp/src/verificationresult.h,
+	 cpp/src/vfsmountresult.h,
+	 qt/src/dataprovider.cpp,
+	 qt/src/dataprovider.h,
+	 qt/src/decryptjob.h,
+	 qt/src/decryptverifyjob.h,
+	 qt/src/downloadjob.h,
+	 qt/src/encryptjob.h,
+	 qt/src/qgpgmeadduseridjob.cpp,
+	 qt/src/qgpgmechangeexpiryjob.cpp,
+	 qt/src/qgpgmechangeownertrustjob.cpp,
+	 qt/src/qgpgmechangepasswdjob.cpp,
+	 qt/src/qgpgmedecryptjob.cpp,
+	 qt/src/qgpgmedecryptjob.h,
+	 qt/src/qgpgmedecryptverifyjob.cpp,
+	 qt/src/qgpgmedecryptverifyjob.h,
+	 qt/src/qgpgmedeletejob.cpp,
+	 qt/src/qgpgmedownloadjob.cpp,
+	 qt/src/qgpgmedownloadjob.h,
+	 qt/src/qgpgmeencryptjob.cpp,
+	 qt/src/qgpgmeencryptjob.h,
+	 qt/src/qgpgmeexportjob.cpp,
+	 qt/src/qgpgmeexportjob.h,
+	 qt/src/qgpgmeimportfromkeyserverjob.cpp,
+	 qt/src/qgpgmeimportfromkeyserverjob.h,
+	 qt/src/qgpgmeimportjob.cpp,
+	 qt/src/qgpgmeimportjob.h,
+	 qt/src/qgpgmekeygenerationjob.cpp,
+	 qt/src/qgpgmekeygenerationjob.h,
+	 qt/src/qgpgmekeylistjob.cpp,
+	 qt/src/qgpgmekeylistjob.h,
+	 qt/src/qgpgmelistallkeysjob.cpp,
+	 qt/src/qgpgmelistallkeysjob.h,
+	 qt/src/qgpgmenewcryptoconfig.cpp,
+	 qt/src/qgpgmenewcryptoconfig.h,
+	 qt/src/qgpgmesignencryptjob.cpp,
+	 qt/src/qgpgmesignencryptjob.h,
+	 qt/src/qgpgmesignjob.cpp,
+	 qt/src/qgpgmesignjob.h,
+	 qt/src/qgpgmesignkeyjob.cpp,
+	 qt/src/qgpgmeverifydetachedjob.cpp,
+	 qt/src/qgpgmeverifydetachedjob.h,
+	 qt/src/qgpgmeverifyopaquejob.cpp,
+	 qt/src/qgpgmeverifyopaquejob.h,
+	 qt/src/signencryptjob.h,
+	 qt/src/signjob.h,
+	 qt/src/threadedjobmixin.h,
+	 qt/src/verifydetachedjob.h,
+	 qt/src/verifyopaquejob.h: Reduce boost usage.
+
+	Qt: Add static factor methods for protocol.
+	+ commit b5997fba43db3b01190ac55ca268ec4a22bcb7b1
+	* lang/qt/src/qgpgmebackend.cpp (QGpgME::openpgp, QGpgME::smime): New.
+	* lang/qt/src/qgpgmebackend.h: Declare.
+	* lang/qt/tests/t-keylist.cpp (KeyListTest::testSingleKeyListSync):
+	  Use new functions.
+
+	Qt: Add a unit test for qgpgme.
+	+ commit 09a3be50179873d493348a265e1f00d8cd8bc972
+	* configure.ac: Configure test Makefile.
+	* m4/qt.m4: Look up Qt5Test flags.
+	* lang/qt/tests/t-keylist.cpp: New. Simple keylist check.
+	* lang/qt/tests/Makefile.am: New. General test framework.
+
+	Qt: Add missing MOC includes.
+	+ commit 0589480e686d1e5c07befd0ca2eaeb35cf83e136
+	* qgpgmeadduseridjob.cpp,
+	 qgpgmechangeexpiryjob.cpp,
+	 qgpgmechangeownertrustjob.cpp,
+	 qgpgmechangepasswdjob.cpp,
+	 qgpgmedecryptjob.cpp,
+	 qgpgmedecryptverifyjob.cpp,
+	 qgpgmedeletejob.cpp,
+	 qgpgmedownloadjob.cpp,
+	 qgpgmeencryptjob.cpp,
+	 qgpgmeexportjob.cpp,
+	 qgpgmeimportfromkeyserverjob.cpp,
+	 qgpgmeimportjob.cpp,
+	 qgpgmekeygenerationjob.cpp,
+	 qgpgmekeylistjob.cpp,
+	 qgpgmelistallkeysjob.cpp,
+	 qgpgmerefreshkeysjob.cpp,
+	 qgpgmesecretkeyexportjob.cpp,
+	 qgpgmesignencryptjob.cpp,
+	 qgpgmesignjob.cpp,
+	 qgpgmesignkeyjob.cpp,
+	 qgpgmeverifydetachedjob.cpp,
+	 qgpgmeverifyopaquejob.cpp: Add missing MOC includes.
+
+	Qt: Declare pure virtuals as such.
+	+ commit 83cb494297fc2f5f6bcf83c37e44aa6bcb1a6ab0
+	* lang/qt/src/qgpgmebackend.h (Protocol): Make all functions
+	 pure virtual.
+
+	Qt: Don't declare showErrorDialog anymore.
+	+ commit 41b2f4c60cd201245f46a73f39cdfc01270fad9d
+	* cpp/qt/src/job.h: Remove showErrorDialog.
+
+	Qt: Only use GpgME based config class.
+	+ commit 2c067f05d6a3ec5e045f8dc0f991433f6d558d20
+	* lang/qt/src/qgpgmecryptoconfig.cpp,
+	 lang/qt/src/qgpgmecryptoconfig.h: Removed.
+	* lang/qt/src/qgpgmebackend.cpp: Return newcryptoconfig.
+
+2016-04-02  Andre Heinecke  <aheinecke@intevation.de>
+
+	Add additional include path in config files.
+	+ commit a51eb8fc545adff6b0a70c2c7b997a47be0e9b8c
+	* lang/cpp/src/GpgmeppConfig.cmake.in.in
+	 lang/qt/src/QGpgmeConfig.cmake.in.in: Include directory above headers.
+
+	Qt: Fix library name in nodist variable.
+	+ commit a464befa3fe7a6547a3bdb74a333c4ed2a14d066
+	* lang/qt/Makefile.am (nodist_qgpgme_SOURCES): Change to real name.
+
+	Add missing files to QGpgME.
+	+ commit 46abe92df701da43ed8ec335c536d4e12d442b8f
+	* lang/qt/src/gpgme_backend_debug.cpp,
+	 lang/qt/src/gpgme_backend_debug.h,
+	 lang/qt/src/predicates.h,
+	 lang/qt/src/stl_util.h: New.
+
+	Add QGpgME code from libkleo.
+	+ commit bcf2994c9b3c14a3a38ed811be81a7abb15d3844
+	* lang/qt/src/Makefile.am,
+	lang/qt/src/abstractimportjob.h,
+	lang/qt/src/adduseridjob.h,
+	lang/qt/src/changeexpiryjob.h,
+	lang/qt/src/changeownertrustjob.h,
+	lang/qt/src/changepasswdjob.h,
+	lang/qt/src/cryptoconfig.h,
+	lang/qt/src/decryptjob.h,
+	lang/qt/src/decryptverifyjob.h,
+	lang/qt/src/deletejob.h,
+	lang/qt/src/downloadjob.h,
+	lang/qt/src/encryptjob.h,
+	lang/qt/src/exportjob.h,
+	lang/qt/src/hierarchicalkeylistjob.h,
+	lang/qt/src/importfromkeyserverjob.h,
+	lang/qt/src/importjob.h,
+	lang/qt/src/job.cpp,
+	lang/qt/src/job.h,
+	lang/qt/src/keygenerationjob.h,
+	lang/qt/src/keylistjob.h,
+	lang/qt/src/listallkeysjob.h,
+	lang/qt/src/multideletejob.h,
+	lang/qt/src/qgpgmeadduseridjob.cpp,
+	lang/qt/src/qgpgmeadduseridjob.h,
+	lang/qt/src/qgpgmebackend.cpp,
+	lang/qt/src/qgpgmebackend.h,
+	lang/qt/src/qgpgmechangeexpiryjob.cpp,
+	lang/qt/src/qgpgmechangeexpiryjob.h,
+	lang/qt/src/qgpgmechangeownertrustjob.cpp,
+	lang/qt/src/qgpgmechangeownertrustjob.h,
+	lang/qt/src/qgpgmechangepasswdjob.cpp,
+	lang/qt/src/qgpgmechangepasswdjob.h,
+	lang/qt/src/qgpgmecryptoconfig.cpp,
+	lang/qt/src/qgpgmecryptoconfig.h,
+	lang/qt/src/qgpgmedecryptjob.cpp,
+	lang/qt/src/qgpgmedecryptjob.h,
+	lang/qt/src/qgpgmedecryptverifyjob.cpp,
+	lang/qt/src/qgpgmedecryptverifyjob.h,
+	lang/qt/src/qgpgmedeletejob.cpp,
+	lang/qt/src/qgpgmedeletejob.h,
+	lang/qt/src/qgpgmedownloadjob.cpp,
+	lang/qt/src/qgpgmedownloadjob.h,
+	lang/qt/src/qgpgmeencryptjob.cpp,
+	lang/qt/src/qgpgmeencryptjob.h,
+	lang/qt/src/qgpgmeexportjob.cpp,
+	lang/qt/src/qgpgmeexportjob.h,
+	lang/qt/src/qgpgmeimportfromkeyserverjob.cpp,
+	lang/qt/src/qgpgmeimportfromkeyserverjob.h,
+	lang/qt/src/qgpgmeimportjob.cpp,
+	lang/qt/src/qgpgmeimportjob.h,
+	lang/qt/src/qgpgmekeygenerationjob.cpp,
+	lang/qt/src/qgpgmekeygenerationjob.h,
+	lang/qt/src/qgpgmekeylistjob.cpp,
+	lang/qt/src/qgpgmekeylistjob.h,
+	lang/qt/src/qgpgmelistallkeysjob.cpp,
+	lang/qt/src/qgpgmelistallkeysjob.h,
+	lang/qt/src/qgpgmenewcryptoconfig.cpp,
+	lang/qt/src/qgpgmenewcryptoconfig.h,
+	lang/qt/src/qgpgmerefreshkeysjob.cpp,
+	lang/qt/src/qgpgmerefreshkeysjob.h,
+	lang/qt/src/qgpgmesecretkeyexportjob.cpp,
+	lang/qt/src/qgpgmesecretkeyexportjob.h,
+	lang/qt/src/qgpgmesignencryptjob.cpp,
+	lang/qt/src/qgpgmesignencryptjob.h,
+	lang/qt/src/qgpgmesignjob.cpp,
+	lang/qt/src/qgpgmesignjob.h,
+	lang/qt/src/qgpgmesignkeyjob.cpp,
+	lang/qt/src/qgpgmesignkeyjob.h,
+	lang/qt/src/qgpgmeverifydetachedjob.cpp,
+	lang/qt/src/qgpgmeverifydetachedjob.h,
+	lang/qt/src/qgpgmeverifyopaquejob.cpp,
+	lang/qt/src/qgpgmeverifyopaquejob.h,
+	lang/qt/src/refreshkeysjob.h,
+	lang/qt/src/signencryptjob.h,
+	lang/qt/src/signjob.h,
+	lang/qt/src/signkeyjob.h,
+	lang/qt/src/specialjob.h,
+	lang/qt/src/threadedjobmixin.cpp,
+	lang/qt/src/threadedjobmixin.h,
+	lang/qt/src/verifydetachedjob.h,
+	lang/qt/src/verifyopaquejob.h: New.
+	* lang/qt/src/Makefile.am:
+
+2024-12-05  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Merge history of QGpgME classes from kdepim repo.
+	+ commit 12ddba0035e472bce197e0a2afedac05b127d336
+
+
+2016-03-08  Andre Heinecke  <aheinecke@intevation.de>
+
+	Add qgpgme as qt language binding.
+	+ commit 8a6b7c0c8f67d5ed91a289edc4a41068a787092c
+	* configure.ac: Add version defines. Check for qt if neccessary.
+	* lang/README: Mention qt
+	* lang/cpp/src/GpgmeppConfig.cmake.in.in: Remove comment. Find qgpgme.
+	* lang/qt/src/Makefile.am: New. Build qgpgme.
+	* lang/qt/README,
+	 lang/qt/src/Makefile.am,
+	 lang/qt/src/QGpgmeConfig.cmake.in.in,
+	 lang/qt/src/QGpgmeConfigVersion.cmake.in,
+	 lang/qt/src/dataprovider.cpp,
+	 lang/qt/src/dataprovider.h,
+	 lang/qt/src/qgpgme_export.h,
+	 m4/qt.m4: New.
+	* lang/cpp/src/GpgmeppConfig.cmake.in.in,
+	 lang/cpp/src/Makefile.am: Fix generated config file.
+
+2016-03-08  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	NB: Changes done before the import of the sources from KDE's kdepim
+	repository and KDE's kdepimlibs repository into g10 Code's gpgme
+	repository can be found in the history of g10 Code's gpgmeqt
+	repository.  Changes done on the aegypten_branch before 2004-02-09
+	are "lost" in KDE's svn repository backups.
+
+        -----
+        Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
+                      2010, 2011, 2012, 2013 g10 Code GmbH
+
+	Copying and distribution of this file and/or the original GIT
+	commit log messages, with or without modification, are
+	permitted provided the copyright notice and this notice are
+	preserved.

@@ -1,0 +1,60 @@
+#!/bin/sh
+#
+# Copyright 2025 g10 Code GmbH
+# Software engineering by Ingo Klöcker <dev@ingo-kloecker.de>
+#
+# This file is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This file is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <https://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+set -e
+
+test $(pwd | sed 's,.*/,,') = dist || cd dist
+x=$(grep '^RELEASE_ARCHIVE=' $HOME/.gnupg-autogen.rc|cut -d= -f2)
+if [ -z "$x" ]; then
+    echo "error: RELEASE_ARCHIVE missing in ~/.gnupg-autogen.rc">&2
+    exit 2
+fi
+myarchive="$x/@release_archive_suffix@"
+x=$(grep '^RELEASE_SIGNKEY=' $HOME/.gnupg-autogen.rc|cut -d= -f2)
+if [ -z "$x" ]; then
+    echo "error: RELEASE_SIGNKEY missing in ~/.gnupg-autogen.rc">&2
+    exit 2
+fi
+mysignkey="$x"
+files1=
+suffix=
+for suf in xz bz2 gz; do
+    if [ -f "@release_name@.tar.$suf" ]; then
+       files1="@release_name@.tar.$suf"
+       files2="@release_name@.tar.$suf.sig"
+       suffix=$suf
+       break
+    fi
+done
+files2="$files2
+        @release_name@.swdb
+	@release_name@.buildlog"
+echo "/* Signing the source tarball ..."
+gpg -sbu $mysignkey @release_name@.tar.$suffix
+cat @release_name@.swdb >swdb.snippet
+echo >>swdb.snippet
+sha1sum ${files1} >>swdb.snippet
+cat "../@release_name@.buildlog" swdb.snippet \
+    | gzip >@release_name@.buildlog
+echo "Copying to local archive ..."
+scp -p ${files1} ${files2} $myarchive/ || true
+echo '/*'
+echo ' * All done; for checksums see dist/swdb.snippet'
+echo ' */'
