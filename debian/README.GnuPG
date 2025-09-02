@@ -1,0 +1,28 @@
+GnuPG upstream packages
+=======================
+
+This software was built and packaged by the
+[GnuPG project](https://www.gnupg.org). We provide packages of our software
+through our [package repositories](https://repos.gnupg.org/deb/gnupg/).
+
+These packages are intended for users who want (or need) to use the latest
+upstream versions of our projects. This includes stable releases as well as
+beta versions for testing, depending on the repository you pick. We keep
+these packages as close to the upstream releases as possible. This means that
+in addition to bleeding edge versions, these packages also do not contain
+patches that would make the software behave differently from what we intended.
+
+Therefore, you will get all new features and the default behavior of GnuPG.
+Some distributions only provide patched packages that are missing some new
+features or behave rather differently compared to our original upstream
+releases.
+
+Should you run into technical issues or bugs related to our packages, please
+do not hesitate to contact us. A good place to look for help is our
+[forum](https://forum.gnupg.org) or the
+[GnuPG users mailing list](https://lists.gnupg.org/mailman/listinfo/gnupg-users).
+
+You may also want to read the information on
+[how to file bug reports](https://www.gnupg.org/documentation/bts.html).
+Please do not use the bug tracker of your distribution for issues with
+packages that you installed from our repositories, but get in touch with us.

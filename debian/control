@@ -1,0 +1,128 @@
+Source: qgpgme
+Priority: optional
+Section: libs
+Maintainer: GnuPG Maintainers <package-maintainers@gnupg.org>
+Uploaders:
+ Daniel Kahn Gillmor <dkg@fifthhorseman.net>,
+ Andreas Metzler <ametzler@debian.org>,
+Build-Depends:
+ debhelper-compat (= 13),
+ cmake,
+ gpg,
+ gpg-agent,
+ libgpg-error-dev (>= 1.47),
+ libgpgme-dev (>= 2.0.0),
+ libgpgmepp-dev (>= 2.0.0),
+ pkgconf,
+ qt6-base-dev (>= 6.5.0),
+ qtbase5-dev,
+# see 1006230
+ qtbase5-private-dev,
+Build-Depends-Indep:
+ doxygen,
+ graphviz,
+Standards-Version: 4.7.2
+Homepage: https://gnupg.org/software/gpgme/
+Vcs-Git: https://github.com/gpgdeb/qgpgme.git -b gnupg/stable
+Vcs-Browser: https://github.com/gpgdeb/qgpgme
+Rules-Requires-Root: no
+
+Package: libqgpgme15t64
+Provides:
+ ${t64:Provides},
+Replaces:
+ libqgpgme15,
+Breaks:
+ libqgpgme15 (<< ${source:Version}),
+Architecture: any
+Multi-Arch: same
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+Description: library for GPGME integration with Qt
+ QGpgME is a library that provides GPGME integration with QEventLoop
+ and some Qt datatypes (e.g. QByteArray).
+ .
+ This is the official upstream Qt binding for GPGME.
+
+Package: libqgpgmeqt6-15
+Architecture: any
+Multi-Arch: same
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+Description: library for GPGME integration with Qt 6
+ QGpgME is a library that provides GPGME integration with QEventLoop
+ and some Qt datatypes (e.g. QByteArray).
+ .
+ This is the official upstream Qt 6 binding for GPGME.
+
+Package: libqgpgme-dev
+Section: libdevel
+Architecture: any
+Depends:
+ libgpgmepp-dev (>= 2.0.0),
+ libqgpgme15t64 (= ${binary:Version}),
+ qtbase5-dev,
+ ${misc:Depends},
+Conflicts:
+ libqgpgmeqt6-dev,
+Breaks:
+ kdepimlibs5-dev,
+ libgpgmepp-dev (<< 1.23.2-1),
+Replaces:
+ kdepimlibs5-dev,
+ libgpgmepp-dev (<< 1.23.2-1),
+ libqgpgmeqt6-dev,
+Recommends:
+ libgpgmepp-doc (= ${binary:Version}),
+Description: Qt bindings for GPGME (development files)
+ GpgME++ (aka GpgMEpp) is a C++ wrapper (or C++ bindings) for the
+ GnuPG project's GPGME (GnuPG Made Easy) library.
+ .
+ QGpgME is a library that provides GPGME integration with QEventLoop
+ and some Qt datatypes (e.g. QByteArray).
+ .
+ This package contains the headers and other files needed to compile
+ against this library.
+
+Package: libqgpgmeqt6-dev
+Section: libdevel
+Architecture: any
+Conflicts:
+ libqgpgme-dev,
+Replaces:
+ libqgpgme-dev,
+Depends:
+ libgpgmepp-dev (>= 2.0.0),
+ libqgpgmeqt6-15 (= ${binary:Version}),
+ ${misc:Depends},
+Recommends:
+ libgpgmepp-doc (= ${binary:Version}),
+Description: Qt 6 bindings for GPGME (development files)
+ GpgME++ (aka GpgMEpp) is a C++ wrapper (or C++ bindings) for the
+ GnuPG project's GPGME (GnuPG Made Easy) library.
+ .
+ QGpgME is a library that provides GPGME integration with QEventLoop
+ and some Qt datatypes (e.g. QByteArray).
+ .
+ This package contains the headers and other files needed to compile
+ against this library with Qt6.
+
+Package: libgpgmepp-doc
+Section: doc
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+Suggests:
+ libgpgmepp-dev,
+Description: C++ and Qt bindings for GPGME (documentation for developers)
+ GpgME++ (aka GpgMEpp) is a C++ wrapper (or C++ bindings) for the
+ GnuPG project's GPGME (GnuPG Made Easy) library.
+ .
+ QGpgME is a library that provides GPGME integration with QEventLoop
+ and some Qt datatypes (e.g. QByteArray).
+ .
+ This package contains documentation for developers describing how to
+ use these packages.

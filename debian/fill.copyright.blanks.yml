@@ -1,0 +1,15 @@
+AUTHORS:
+  'override-license': FSFULLRWD
+INSTALL.md:
+  'override-license': FSFULLRWD
+NEWS:
+  'override-license': FSFULLRWD
+debian/*:
+  'override-license': LGPL-2.1+
+  'override-copyright': |
+    2004-2025, Debian GnuPG maintainers
+    Daniel Kahn Gillmor 2014-2024
+    Andreas Metzler 2022-2025
+    Jose Carlos Garcia Sogo 2001-2009
+    Roger Shimizu 2019
+

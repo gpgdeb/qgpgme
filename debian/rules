@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export QT_SELECT := qt5
+
+include /usr/share/dpkg/architecture.mk
+
+%:
+	dh $@ --builddirectory=build
+
+override_dh_auto_configure:
+	dh_auto_configure --builddirectory=build -- \
+		-DBUILD_WITH_QT5=ON -DBUILD_WITH_QT6=ON
+
+override_dh_makeshlibs:
+	dh_makeshlibs -V
