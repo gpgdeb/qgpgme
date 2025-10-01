@@ -1,14 +1,16 @@
 # HACKING                                                       -*- org -*-
-#+TITLE: Hacking notes for QGPGME
+#+TITLE: Hacking notes for GPGME
 #+STARTUP: showall
 
 * How to contribute
 ** No more ChangeLog files
 
-  Do not modify any of the ChangeLog files in QGPGME.  We put change
-  information only in the GIT commit log, and generate a top-level
-  ChangeLog file from logs at "make dist" time.  As such, there are
-  strict requirements on the form of the commit log messages.
+  Do not modify any of the ChangeLog files in GPGME.  Starting
+  on December 1st, 2011 we put change information only in the GIT
+  commit log, and generate a top-level ChangeLog file from logs at
+  "make dist" time.  As such, there are strict requirements on the
+  form of the commit log messages.  The old ChangeLog files have all
+  be renamed to ChangeLog-2011
 
 
 ** Commit log requirements
@@ -51,14 +53,14 @@
 
 ** License policy
 
-  QGPGME is currently licensed under the GPLv2+ with some tests being
-  under the GPLv2(only).  We may eventually update to a newer
+  GPGME is currently licensed under the LGPLv2.1+ with tools and the
+  manual being under the GPLv3+.  We may eventually update to a newer
   version of the licenses or a combination of them.  It is thus
   important, that all contributed code allows for an update of the
-  license; for example we can't accept code under the GPLv2(only).
+  license; for example we can't accept code under the LGPLv2(only).
 
-  If you want to contribute code or documentation to QGPGME you are
-  asked to assert that the contribution is in accordance to the "QGPGME
+  If you want to contribute code or documentation to GPGME you are
+  asked to assert that the contribution is in accordance to the "GPGME
   Developer's Certificate of Origin" as found in the file "DCO".
   Except for a slight wording change, this DCO is identical to the one
   used by the Linux kernel.  Please take these simple steps:
@@ -89,11 +91,16 @@
 
 ** Coding standards
 
-  Please follow the KDE Coding styles. See:
-  https://community.kde.org/Policies/Frameworks_Coding_Style
-  If you are in doubt consult the existing code as an example.  Do no
-  re-indent code without a need.  If you really need to do it, use a
-  separate commit for such a change.
+  Please follow the GNU coding standards.  If you are in doubt consult
+  the existing code as an example.  Do no re-indent code without a
+  need.  If you really need to do it, use a separate commit for such a
+  change.
+
+  - C99 syntax should not be used; stick to C90.
+  - Please do not use C++ =//= style comments.
+  - Try to fit lines into 80 columns.
+  - Ignore signed/unsigned pointer mismatches
+  - No arithmetic on void pointers; cast to char* first.
 
 ** Commit log keywords
 
@@ -103,7 +110,7 @@
   - CVE-id :: CVE id number pertaining to this commit.
   - Regression-due-to :: Commit id of the regression fixed by this commit.
   - Fixes-commit :: Commit id this commit fixes.
-  - Reported-by :: Value is a name or mail address of a bug reporter.
+  - Reported-by :: Value is a name or mail address of a bug reporte.
   - Suggested-by :: Value is a name or mail address of someone how
                     suggested this change.
   - Co-authored-by :: Name or mail address of a co-author
@@ -114,7 +121,6 @@
 
 * Debug hints
 
-  - Debug output can be enabled with QT_LOGGING_RULES="gpg.qgpgme.debug=true";
-    see qgpgme_debug.* for additional logging categories.
-  - The envvar GPGME_DEBUG enables debugging of gpgme; see gpgme's
-    debug.[ch] for details.
+  - Use gpgme-tool for manual tests.
+  - The envvar GPGME_DEBUG enables debugging; see debug.[ch] for
+    details.

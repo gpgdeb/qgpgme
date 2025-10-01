@@ -1,130 +1,116 @@
-Qt API bindings/wrapper for GPGME
----------------------------------
-Based on KF5gpgmepp QGpgME and libkleo/backends/qgpgme
+                       GPGME - GnuPG Made Easy
+                     ---------------------------
 
-Please note that QGpgME has a different license (GPL only)
-then GPGME itself. See the License section in this
-document for more information.
+Copyright 2001-2025 g10 Code GmbH
 
-Overview
---------
-QGpgme provides a very high level Qt API around GpgMEpp.
-As such it depends on GpgMEpp additionally to GpgME.
+This file is free software; as a special exception the author gives
+unlimited permission to copy and/or distribute it, with or without
+modifications, as long as this notice is preserved.
 
-There are two general concepts in QGpgME. Data abstraction
-through GpgMEpp's Dataprovider interface and the Job pattern.
+This file is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.
 
-Data can be provided with QByteArrayDataProvider or
-QIODeviceDataProvider which can be constructed from their
-respective types. This means you can pass a QFile, QProcess,
-QString, etc.. directly to GPGME.
 
-To provide a stable API / ABI and because of historic reasons
-in libkleo (Where QGpgME was originally developed as an abstract
-crypto backend) QGpgME only provides abstract interfaces as
-public API while the actual implementation happens in the
-private QGpgME prefixed classes.
+Introduction
+--------------
 
-Usage
------
+GnuPG Made Easy (GPGME) is a C language library that allows to add
+support for cryptography to a program.  It is designed to make access
+to public key crypto engines like GnuPG or GpgSM easier for
+applications.  GPGME provides a high-level crypto API for encryption,
+decryption, signing, signature verification and key management.
 
-To use QGpgME first you need to obtain a Protocol class
-either for CMS (S/MIME) or OpenPGP. This Protocol class
-can then be used to create a Job.
+GPGME comes with language bindings for Common Lisp. Language bindings
+for C++, Qt, and Python are available in separate repositories.
 
-Each Job can be started asynchronously and emits a result
-signal when done. The jobs are deleted automatically
-with QObject::deleteLater so they can be started without
-result handlers.
+GPGME uses GnuPG as its backend to support OpenPGP and the
+Cryptographic Message Syntax (CMS).
 
-The result signal provides a tuple of objects with the
-appropriate result information for this job. For historic
-reasons each result signal also includes an AuditLog
-and an AuditLog Error. These are only useful for
-S/MIME signature validation but are part of other jobs
-for API stability reasons.
+See the files COPYING, COPYING.LESSER, and each file for copyright and
+warranty information.  The file AUTHORS has a list of authors and
+useful web and mail addresses.
 
-Some jobs like the verification or decryption jobs have
-dedicated result classes. Each result class at least
-has the member function error() that can be used
-to check if a job failed. Additionally errors are emitted
-in the result signal.
 
-Jobs also provide progress signal whenever GnuPG emits
-a progress status line.
+Installation
+--------------
 
-Most jobs also provide a way synchronously execute them.
-Please not that synchronous use does not cause the autodeletion
-to take place so you have to manually delete them.
+See the file INSTALL for generic installation instructions.
 
-Async usage:
+Check that you have unmodified sources.  See below on how to do this.
+Don't skip it - this is an important step!
 
-    /* Create a job */
-    EncryptJob *job = openpgp()->encryptJob(/*ASCII Armor */false, /* Textmode */ false);
-    /* Connect something to the result signal */
-    connect(job, &EncryptJob::result, this, [] (const GpgME::EncryptionResult &result,
-                                                const QByteArray &cipherText,
-                                                const QString,
-                                                const GpgME::Error) {
-        /* Handle the result / do something with the ciphertext */
-     });
-    /* Start the job */
-    job->start(keys, inptr, outptr, Context::AlwaysTrust);
-    /* Do not delete the job as it is autodeleted. */
+To build GPGME, you need to install libgpg-error (>= 1.36) and
+Libassuan (>= 2.4.2).
 
-Synchronous usage:
+For support of the OpenPGP and the CMS protocols, you should use at
+least GnuPG version 2.2.41 or 2.4.3, available at:
+https://gnupg.org/ftp/gcrypt/gnupg/.
 
-    /* Create a job */
-    KeyListJob *listjob = openpgp()->keyListJob(false, false, false);
-    /* Prepare result vector */
-    std::vector<Key> keys;
-    /* Execute it synchronusly */
-    KeyListResult result = listjob->exec(QStringList() << QStringLiteral("alfa@example.net"),
-                                         false, keys);
-    /* Delete the job */
-    delete listjob;
-    /* Work with the result */
+For building the Git version of GPGME please see the file README.GIT
+for more information.
 
-See the generated documentation for more info on the classes
-in QGpgME. (Subdir doc)
 
-Examples / Tests
-----------------
+How to Verify the Source
+--------------------------
 
-The tests in the tests subdir can be used to get a better
-idea of QGpgME's usage. They also serve to test the C++
-API. Kleopatra and KMails Messagelib also make extensive
-use of QGpgME and can be used as further examples.
+In order to check that the version of GPGME which you are going to
+install is an original and unmodified one, you can do it in one of the
+following ways:
 
-Hacking
--------
-QGpgME comes from a KDE background. As such it does not use
-GNU Coding styles but KDE Coding styles. See:
-https://community.kde.org/Policies/Frameworks_Coding_Style
+a) If you have a trusted Version of GnuPG installed, you can simply check
+   the supplied signature:
 
-License
--------
-QGpgME is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the
-License, or (at your option) any later version.
+	$ gpg --verify gpgme-x.y.z.tar.gz.sig gpgme-x.y.z.tar.gz
 
-QGpgME is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-General Public License for more details.
+   This checks that the detached signature gpgme-x.y.z.tar.gz.sig is
+   indeed a a signature of gpgme-x.y.z.tar.gz.  The key used to create
+   this signature is at least one of:
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+     rsa2048 2011-01-12 [expires: 2019-12-31]
+     Key fingerprint = D869 2123 C406 5DEA 5E0F  3AB5 249B 39D2 4F25 E3B6
+     Werner Koch (dist sig)
 
-In addition, as a special exception, the copyright holders give
-permission to link the code of this program with any edition of
-the Qt library by Trolltech AS, Norway (or with modified versions
-of Qt that use the same license as Qt), and distribute linked
-combinations including the two.  You must obey the GNU General
-Public License in all respects for all of the code used other than
-Qt.  If you modify this file, you may extend this exception to
-your version of the file, but you are not obligated to do so.  If
-you do not wish to do so, delete this exception statement from
-your version.
+     rsa2048 2014-10-29 [expires: 2019-12-31]
+     Key fingerprint = 46CC 7308 65BB 5C78 EBAB  ADCF 0437 6F3E E085 6959
+     David Shaw (GnuPG Release Signing Key) <dshaw 'at' jabberwocky.com>
+
+     rsa2048 2014-10-29 [expires: 2020-10-30]
+     Key fingerprint = 031E C253 6E58 0D8E A286  A9F2 2071 B08A 33BD 3F06
+     NIIBE Yutaka (GnuPG Release Key) <gniibe 'at' fsij.org>
+
+     rsa3072 2017-03-17 [expires: 2027-03-15]
+     Key fingerprint = 5B80 C575 4298 F0CB 55D8  ED6A BCEF 7E29 4B09 2E28
+     Andre Heinecke (Release Signing Key)
+
+   The keys are available at <https://gnupg.org/signature_key.html>
+   and in released GnuPG tarballs in the file g10/distsigkey.gpg .
+   You have to make sure that these are really the desired keys and
+   not faked one.  You should do this by comparing the fingerprints
+   with the fingerprints published elsewhere.
+
+b) If you don't have any of the above programs, you have to verify
+   the SHA1 checksum:
+
+	$ sha1sum gpgme-x.y.z.tar.gz
+
+   This should yield an output _similar_ to this:
+
+   fd9351b26b3189c1d577f0970f9dcadc3412def1  gpgme-x.y.z.tar.gz
+
+   Now check that this checksum is _exactly_ the same as the one
+   published via the announcement list and probably via Usenet.
+
+
+Documentation
+---------------
+
+For information how to use the library you can read the info manual,
+which is also a reference book, in the doc/ directory.  The programs
+in the tests/ directory may also prove useful.
+
+Please subscribe to the gnupg-devel@gnupg.org mailing list if you want
+to do serious work.
+
+For hacking on GPGME, please have a look at doc/HACKING.
