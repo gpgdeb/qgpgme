@@ -1,0 +1,9 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource>
+        <file>fixture/gpg-agent.conf</file>
+        <file>fixture/gpg.conf</file>
+        <file>fixture/pubdemo.asc</file>
+        <file>fixture/secdemo.asc</file>
+    </qresource>
+</RCC>

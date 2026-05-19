@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# Copyright 2025 g10 Code GmbH
+# Software engineering by Ingo Klöcker <dev@ingo-kloecker.de>
+#
+# This file is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This file is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <https://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+set -e
+
+tarball_name="@g10_dist_archive_name@"
+tarball_format="@g10_dist_archive_format@"
+tarball_filename="${tarball_name}.${tarball_format}"
+
+if ! git --version >/dev/null 2>&1; then
+    echo "Error: Could not find git." >&2
+    exit 1
+fi
+if [ ! -e "@CMAKE_SOURCE_DIR@/.git" ]; then
+    echo "Error: Source folder @CMAKE_SOURCE_DIR@ is not a git repository." >&2
+    exit 1
+fi
+
+cd "@CMAKE_SOURCE_DIR@"
+
+# check if the requested archive format is supported by git
+if ! ( git archive -l | grep -q "^${tarball_format}$" ); then
+    echo "Warning: git archive doesn't seem to support the format ${tarball_format}."
+    echo "         You can tell git how to create an archive of this format with something like this:"
+    echo "         git config --global tar.${tarball_format}.command 'fooz -c'"
+fi
+
+git archive --format "${tarball_format}" \
+            --prefix "${tarball_name}/" \
+            --output "@CMAKE_BINARY_DIR@/${tarball_filename}" \
+            @g10_dist_git_archive_extra_arguments@ \
+            HEAD

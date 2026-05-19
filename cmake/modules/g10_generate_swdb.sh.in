@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# Copyright 2025 g10 Code GmbH
+# Software engineering by Ingo Klöcker <dev@ingo-kloecker.de>
+#
+# This file is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This file is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <https://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+set -e
+
+archive_filename="@release_name@.@archive_format@"
+
+if [ ! -e "${archive_filename}" ]; then
+    echo "Error: '${archive_filename}' does not exist." >&2
+    exit 1
+fi
+
+(
+    pref="#+macro: @swdb_prefix@_"
+    reldate="$(date -u +%Y-%m-%d)"
+    echo "${pref}ver  @version@"
+    echo "${pref}date ${reldate}"
+    echo "${pref}size $(wc -c <"${archive_filename}" | awk '{print int($1/1024)}')k"
+    echo "${pref}sha1 $(sha1sum <"${archive_filename}" | cut -d' ' -f1)"
+    echo "${pref}sha2 $(sha256sum <"${archive_filename}" | cut -d' ' -f1)"
+) | tee @release_name@.swdb

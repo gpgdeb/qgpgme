@@ -1,0 +1,93 @@
+#!/bin/sh
+#
+# Copyright 2025 g10 Code GmbH
+# Software engineering by Ingo Klöcker <dev@ingo-kloecker.de>
+#
+# This file is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This file is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <https://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+set -e
+
+tarball_name="@g10_distcheck_archive_name@"
+tarball_format="@g10_distcheck_archive_format@"
+tarball_filename="${tarball_name}.${tarball_format}"
+
+cd "@CMAKE_BINARY_DIR@"
+
+# extract the tarball replacing an already existing folder
+if [ -d "${tarball_name}" ]; then
+    find "${tarball_name}" -type d ! -perm -700 -exec chmod u+rwx {} ';'
+    rm -rf "${tarball_name}"
+fi
+case "${tarball_format}" in
+tar.gz)
+    gzip -dc "${tarball_filename}" | tar xf -
+    ;;
+tar.bz2)
+    bzip2 -dc "${tarball_filename}" | tar xf -
+    ;;
+tar.xz)
+    xz -dc "${tarball_filename}" | tar xf -
+    ;;
+*)
+    echo "Error: Only tar.gz, tar.bz2, and tar.xz are supported." >&2
+    exit 1
+    ;;
+esac
+
+# make the sources read-only
+chmod -R a-w "${tarball_name}"
+# create subfolders for building and installing
+chmod u+w "${tarball_name}"
+mkdir "${tarball_name}/_build" "${tarball_name}/_build/sub" "${tarball_name}/_inst"
+chmod a-w "${tarball_name}"
+
+dc_install_base=`cd "${tarball_name}/_inst" && pwd`
+dc_destdir=`mktemp -d --tmpdir "distcheck-${tarball_name}.XXXXXXXXXX"`
+# TODO: support distcheck-hook
+dc_cwd=`pwd`
+
+cd "${tarball_name}/_build/sub"
+@CMAKE_COMMAND@ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="${dc_install_base}" ../..
+@CMAKE_COMMAND@ --build .
+@CMAKE_CTEST_COMMAND@ --output-on-failure
+@CMAKE_COMMAND@ --install .
+# TODO: installcheck
+@CMAKE_COMMAND@ --build . -t uninstall
+# TODO: distuninstallcheck
+chmod -R a-w "${dc_install_base}"
+( \
+    { \
+        DESTDIR="${dc_destdir}" @CMAKE_COMMAND@ --install . \
+        && DESTDIR="${dc_destdir}" @CMAKE_COMMAND@ --build . -t uninstall; \
+    } || { \
+        rm -rf "${dc_destdir}"; \
+        exit 1; \
+    } \
+)
+rm -rf "${dc_destdir}"
+
+cd "${dc_cwd}"
+
+if [ -d "${tarball_name}" ]; then
+    find "${tarball_name}" -type d ! -perm -700 -exec chmod u+rwx {} ';'
+    rm -rf "${tarball_name}"
+fi
+
+# print tarballs within "===..." separator lines
+( \
+    echo "${tarball_name} archives ready for distribution: "; \
+    echo "${tarball_filename}" \
+) | sed -e 1h -e 1s/./=/g -e 1p -e 1x -e '$p' -e '$x'

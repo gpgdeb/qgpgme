@@ -1,0 +1,10 @@
+# GnuPG exclusions
+/aclocal.m4
+/autom4te.cache
+/config.h.in
+/configure
+/VERSION
+Makefile.in
+
+# Hidden files
+*~
