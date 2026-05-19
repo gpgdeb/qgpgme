@@ -44,11 +44,13 @@
 namespace QGpgME
 {
 
+class QGpgMEExportJobPrivate;
+
 class QGpgMEExportJob
 #ifdef Q_MOC_RUN
     : public ExportJob
 #else
-    : public _detail::ThreadedJobMixin<ExportJob, void, std::tuple<GpgME::Error, QByteArray, QString, GpgME::Error> >
+    : public _detail::ThreadedJobMixin<ExportJob, QGpgMEExportJobPrivate, std::tuple<GpgME::Error, QByteArray, QString, GpgME::Error> >
 #endif
 {
     Q_OBJECT
@@ -74,6 +76,9 @@ public:
 private:
     unsigned int m_exportMode;
     unsigned int m_additionalExportModeFlags;
+
+private:
+    Q_DECLARE_PRIVATE(QGpgMEExportJob)
 };
 
 }

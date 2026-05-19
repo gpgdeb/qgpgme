@@ -61,12 +61,16 @@ public:
     /**
       Starts the operation. \a key is the key to add the subkey \a subkey to.
 
-      The job deletes itself after it has completed the operation.
+      \note Subkeys with combined algorithms (e.g. Kyber+curve) are not supported.
+
+      \note The job deletes itself after it has completed the operation.
     */
     virtual GpgME::Error start(const GpgME::Key &key, const GpgME::Subkey &subkey) = 0;
 
     /**
       Runs the operation. \a key is the key to add the subkey \a subkey to.
+
+      \note Subkeys with combined algorithms (e.g. Kyber+curve) are not supported.
     */
     virtual GpgME::Error exec(const GpgME::Key &key, const GpgME::Subkey &subkey) = 0;
 

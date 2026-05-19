@@ -49,6 +49,8 @@ class Error;
 namespace QGpgME
 {
 
+class ExportJobPrivate;
+
 /**
    @short An abstract base class for asynchronous exporters
 
@@ -66,9 +68,12 @@ class QGPGME_EXPORT ExportJob : public Job
 {
     Q_OBJECT
 protected:
-    explicit ExportJob(QObject *parent);
+    explicit ExportJob(std::unique_ptr<ExportJobPrivate>, QObject *parent);
 public:
     ~ExportJob();
+
+    void setExportFilter(const QString &filter);
+    QString exportFilter() const;
 
     /**
        Starts the export operation. \a patterns is a list of patterns
@@ -88,6 +93,9 @@ public:
 
 Q_SIGNALS:
     void result(const GpgME::Error &result, const QByteArray &keyData, const QString &auditLogAsHtml = QString(), const GpgME::Error &auditLogError = GpgME::Error());
+
+private:
+    Q_DECLARE_PRIVATE(ExportJob)
 };
 
 }

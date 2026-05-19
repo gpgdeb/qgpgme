@@ -1,3 +1,104 @@
+2026-05-18  Werner Koch  <wk@gnupg.org>
+
+	Release 2.1.0.
+	+ commit 02184c928f555efc6b18b6ec08379e15ddd68894
+
+
+2026-02-02  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Remove superfluous helper function.
+	+ commit c1eab9cce485f3f73f6e51e583ac3c4748deec50
+	* src/threadedjobmixin.cpp (single): Remove.
+	(_detail::PatternConverter::PatternConverter): Use initializer-list to
+	initialize list from single element.
+
+2026-01-14  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Allow specifying an export filter when exporting keys.
+	+ commit 86566cac0bb3fa8446de6bb7a6b4dc3c010ea23b
+	* src/CMakeLists.txt (qgpgme_PRIVATE_HEADERS): Add new private header
+	file.
+	* src/exportjob.cpp, src/exportjob.h (class ExportJob): Add private
+	class as argument to protected constructor. Add member functions
+	setExportFilter and exportFilter.
+	* src/exportjob_p.h: New.
+	* src/qgpgmeexportjob.cpp (QGpgMEExportJobPrivate): New.
+	(export_qba): Add arg exportFilter and adjust the callers. Set
+	export-filter context flag.
+	* src/qgpgmeexportjob.h (QGpgMEExportJob): Specify private class as
+	template argument of ThreadedJobMixin.
+
+	* tests/run-exportjob.cpp: Add option --export-filter.
+
+	Move definition of ExportJob methods.
+	+ commit bb62785286d919b3957410c377f86751bd0da70c
+	* src/qgpgmeexportjob.cpp (ExportJob::setExportFlags, ExportJob::exec):
+	Move to...
+	* src/exportjob.cpp: ...here.
+
+2025-12-10  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Deprecate API that doesn't use DeletionFlags.
+	+ commit 9a126a468d63af89f861c40a41134769ffe80e05
+	* src/deletejob.h (DeleteJob::start): Mark overload taking a bool as
+	deprecated.
+	* src/multideletejob.h (MultiDeleteJob::start): Ditto.
+
+	Adapt to changed definition of DeletionFlag(s)
+	+ commit bf510ab5a6aa089aca53d1df64509f4068bd0b5b
+	* src/multideletejob.cpp (MultiDeleteJob::start): Adapt to changes.
+	* src/qgpgmedeletejob.cpp (QGpgMEDeleteJob::start): Ditto.
+
+2025-11-20  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Move definition of c'tor/d'tor of all Job classes to its own cpp file.
+	+ commit fbbb7a19bef469e59abf32fbc06de29768d67747
+
+
+2025-11-20  Tobias Fella  <tobias.fella@gnupg.com>
+
+	Allow passing flags to DeleteJob.
+	+ commit fb68b4d730138e0051506a456b6952bb0e674b34
+	GnuPG-Bug-ID: 7538
+
+2025-11-11  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	build: Fix installation of camel-case headers.
+	+ commit c77dca93af83247ee11454839fa829ebe852f2d6
+	* src/CMakeLists.txt: Install generated camel-case headers instead of
+	entire QGpgME folder.
+
+2025-10-29  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Make AddExistingSubkeyJob reject subkeys with combined algorithms.
+	+ commit 50d1d9c03d6bb92a624d8fb2413d639f9c2d7324
+	* src/qgpgmeaddexistingsubkeyjob.cpp (add_subkey): Return error if
+	subkey has more than one keygrip.
+
+2025-07-14  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Improve the fix for the DN parser.
+	+ commit 86d58c452e0028ea3b59a6ceac7060ece99b4fd2
+	* src/dn.cpp (parse_dn_part): Set end of hex string to size of string if
+	no non-hex characters were found. Remove special-casing of remove_prefix
+	call.
+
+2025-07-12  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Fix parsing DNs that end with a hex string.
+	+ commit 150b23c105f3ea7034e6f106e60686aea4e4a13e
+	* src/dn.cpp (parse_dn_part): Handle case that stringv ends with hex
+	string.
+	* tests/t-dn.cpp (TestDistinguishedNameParser::testParser_data): Add
+	test with DN ending with hex string.
+
+2025-06-03  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	build: Fix logic for CONFIGURE_FOR_DISTRIBUTION.
+	+ commit 71f68de65b902cd9e9d7cf051f1be3f307b1a713
+	* CMakeLists.txt: Set Qt5/Qt6 as required if CONFIGURE_FOR_DISTRIBUTION
+	is not set. Also set Qt5Core, Qt6Core, and Qt6CoreTools as required.
+
 2025-06-03  Werner Koch  <wk@gnupg.org>
 
 	Release 2.0.0.

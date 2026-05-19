@@ -1,10 +1,9 @@
 /*
-    qgpgmedeletejob.h
+    exportjob.cpp
 
     This file is part of qgpgme, the Qt API binding for gpgme
-    Copyright (c) 2004,2008 Klarälvdalens Datakonsult AB
-    Copyright (c) 2016 by Bundesamt für Sicherheit in der Informationstechnik
-    Software engineering by Intevation GmbH
+    Copyright (c) 2025 g10 Code GmbH
+    Software engineering by Ingo Klöcker <dev@ingo-kloecker.de>
 
     QGpgME is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License as
@@ -32,46 +31,39 @@
     your version.
 */
 
-#ifndef __QGPGME_QGPGMEDELETEJOB_H__
-#define __QGPGME_QGPGMEDELETEJOB_H__
+#include "exportjob.h"
+#include "exportjob_p.h"
 
-#include "deletejob.h"
+using namespace QGpgME;
 
-#include "threadedjobmixin.h"
-
-namespace GpgME
+ExportJob::ExportJob(std::unique_ptr<ExportJobPrivate> dd, QObject *parent)
+    : Job{std::move(dd), parent}
 {
-class Key;
 }
 
+ExportJob::~ExportJob() = default;
 
-namespace QGpgME
+void ExportJob::setExportFilter(const QString &filter)
 {
-class QGpgMEDeleteJobPrivate;
-
-class QGpgMEDeleteJob
-#ifdef Q_MOC_RUN
-    : public DeleteJob
-#else
-    : public _detail::ThreadedJobMixin<DeleteJob, QGpgME::QGpgMEDeleteJobPrivate>
-#endif
-{
-    Q_OBJECT
-#ifdef Q_MOC_RUN
-public Q_SLOTS:
-    void slotFinished();
-#endif
-public:
-    explicit QGpgMEDeleteJob(GpgME::Context *context);
-    ~QGpgMEDeleteJob();
-
-    /* from DeleteJob */
-    GpgME::Error start(const GpgME::Key &key, bool allowSecretKeyDeletion) override;
-
-private:
-    Q_DECLARE_PRIVATE(QGpgMEDeleteJob)
-};
-
+    Q_D(ExportJob);
+    d->m_exportFilter = filter;
 }
 
-#endif // __QGPGME_QGPGMEDELETEJOB_H__
+QString ExportJob::exportFilter() const
+{
+    Q_D(const ExportJob);
+    return d->m_exportFilter;
+}
+
+void ExportJob::setExportFlags(unsigned int)
+{
+    // empty dummy implementation
+}
+
+GpgME::Error ExportJob::exec(const QStringList &, QByteArray &)
+{
+    // empty dummy implementation
+    return {};
+}
+
+#include "moc_exportjob.cpp"

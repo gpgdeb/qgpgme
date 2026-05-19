@@ -34,21 +34,33 @@ add_library(${targetname} SHARED)
 
 target_sources(${targetname} PRIVATE
     abstractimportjob.cpp
+    addexistingsubkeyjob.cpp
+    adduseridjob.cpp
     changeexpiryjob.cpp
+    changeownertrustjob.cpp
+    changepasswdjob.cpp
     cleaner.cpp
     cryptoconfig.cpp
     dataprovider.cpp
     debug.cpp
+    decryptjob.cpp
     decryptverifyarchivejob.cpp
     decryptverifyjob.cpp
     defaultkeygenerationjob.cpp
+    deletejob.cpp
     dn.cpp
+    downloadjob.cpp
     encryptarchivejob.cpp
     encryptjob.cpp
+    exportjob.cpp
     filelistdataprovider.cpp
+    gpgcardjob.cpp
     importfromkeyserverjob.cpp
     importjob.cpp
     job.cpp
+    keyformailboxjob.cpp
+    keygenerationjob.cpp
+    keylistjob.cpp
     listallkeysjob.cpp
     multideletejob.cpp
     qgpgme_debug.cpp
@@ -92,16 +104,24 @@ target_sources(${targetname} PRIVATE
     qgpgmewkspublishjob.cpp
     quickjob.cpp
     receivekeysjob.cpp
+    refreshkeysjob.cpp
+    revokekeyjob.cpp
+    setprimaryuseridjob.cpp
     signarchivejob.cpp
     signencryptarchivejob.cpp
     signencryptjob.cpp
     signjob.cpp
+    signkeyjob.cpp
+    specialjob.cpp
     threadedjobmixin.cpp
+    tofupolicyjob.cpp
     util.cpp
     verifydetachedjob.cpp
     verifyopaquejob.cpp
+    wkdlookupjob.cpp
     wkdlookupresult.cpp
     wkdrefreshjob.cpp
+    wkspublishjob.cpp
 )
 
 set(qgpgme_PRIVATE_HEADERS
@@ -110,8 +130,10 @@ set(qgpgme_PRIVATE_HEADERS
     cleaner.h
     decryptverifyarchivejob_p.h
     decryptverifyjob_p.h
+    deletejob_p.h
     encryptarchivejob_p.h
     encryptjob_p.h
+    exportjob_p.h
     importjob_p.h
     job_p.h
     listallkeysjob_p.h
@@ -170,7 +192,8 @@ if (${QT_MAJOR_VERSION} EQUAL "5")
 endif()
 
 # the public headers
-set(qgpgme_CAMELCASE_HEADERS
+ecm_generate_headers(qgpgme_CAMELCASE_HEADERS
+    HEADER_NAMES
     AbstractImportJob
     AddExistingSubkeyJob
     AddUserIDJob
@@ -220,11 +243,6 @@ set(qgpgme_CAMELCASE_HEADERS
     WKDLookupResult
     WKDRefreshJob
     WKSPublishJob
-)
-
-ecm_generate_headers(dummy
-    HEADER_NAMES
-    ${qgpgme_CAMELCASE_HEADERS}
     REQUIRED_HEADERS qgpgme_HEADERS
     PREFIX QGpgME
 )
@@ -279,8 +297,8 @@ install(FILES ${qgpgme_HEADERS}
               ${CMAKE_CURRENT_BINARY_DIR}/qgpgme_version.h
               ${CMAKE_CURRENT_BINARY_DIR}/qgpgme_export.h
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qgpgme-qt${QT_MAJOR_VERSION}/qgpgme)
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/QGpgME
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qgpgme-qt${QT_MAJOR_VERSION})
+install(FILES ${qgpgme_CAMELCASE_HEADERS}
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qgpgme-qt${QT_MAJOR_VERSION}/QGpgME)
 
 set(CMAKECONFIG_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/QGpgme${config_suffix})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/QGpgme${config_suffix}ConfigVersion.cmake

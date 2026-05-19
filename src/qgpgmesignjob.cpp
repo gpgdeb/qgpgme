@@ -97,7 +97,7 @@ static QGpgMESignJob::result_type sign(Context *ctx, QThread *thread,
                                        const std::weak_ptr<QIODevice> &plainText_,
                                        const std::weak_ptr<QIODevice> &signature_,
                                        SignatureMode mode,
-                                       bool outputIsBsse64Encoded)
+                                       bool outputIsBase64Encoded)
 {
 
     const std::shared_ptr<QIODevice> plainText = plainText_.lock();
@@ -125,7 +125,7 @@ static QGpgMESignJob::result_type sign(Context *ctx, QThread *thread,
         QGpgME::QByteArrayDataProvider out;
         Data outdata(&out);
 
-        if (outputIsBsse64Encoded) {
+        if (outputIsBase64Encoded) {
             outdata.setEncoding(Data::Base64Encoding);
         }
 
@@ -137,7 +137,7 @@ static QGpgMESignJob::result_type sign(Context *ctx, QThread *thread,
         QGpgME::QIODeviceDataProvider out(signature);
         Data outdata(&out);
 
-        if (outputIsBsse64Encoded) {
+        if (outputIsBase64Encoded) {
             outdata.setEncoding(Data::Base64Encoding);
         }
 
@@ -153,14 +153,14 @@ static QGpgMESignJob::result_type sign_qba(Context *ctx,
         const std::vector<Key> &signers,
         const QByteArray &plainText,
         SignatureMode mode,
-        bool outputIsBsse64Encoded)
+        bool outputIsBase64Encoded)
 {
     const std::shared_ptr<QBuffer> buffer(new QBuffer);
     buffer->setData(plainText);
     if (!buffer->open(QIODevice::ReadOnly)) {
         assert(!"This should never happen: QBuffer::open() failed");
     }
-    return sign(ctx, nullptr, signers, buffer, std::shared_ptr<QIODevice>(), mode, outputIsBsse64Encoded);
+    return sign(ctx, nullptr, signers, buffer, std::shared_ptr<QIODevice>(), mode, outputIsBase64Encoded);
 }
 
 static QGpgMESignJob::result_type sign_to_filename(Context *ctx,

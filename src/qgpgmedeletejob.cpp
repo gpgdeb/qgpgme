@@ -37,6 +37,7 @@
 #endif
 
 #include "qgpgmedeletejob.h"
+#include "deletejob_p.h"
 
 #include <gpgme++/context.h>
 #include <gpgme++/key.h>
@@ -46,6 +47,30 @@
 using namespace QGpgME;
 using namespace GpgME;
 
+class QGpgME::QGpgMEDeleteJobPrivate : public DeleteJobPrivate
+{
+public:
+    Q_DECLARE_PUBLIC(QGpgMEDeleteJob)
+    Error start(const Key &key, DeletionFlags flags) override;
+    QGpgMEDeleteJobPrivate() = default;
+
+private:
+    void startNow() override;
+    Error startIt() override;
+};
+
+void QGpgME::QGpgMEDeleteJobPrivate::startNow()
+{
+    Q_Q(QGpgMEDeleteJob);
+    q->run();
+}
+
+Error QGpgME::QGpgMEDeleteJobPrivate::startIt()
+{
+    return Error();
+}
+
+
 QGpgMEDeleteJob::QGpgMEDeleteJob(Context *context)
     : mixin_type(context)
 {
@@ -54,17 +79,25 @@ QGpgMEDeleteJob::QGpgMEDeleteJob(Context *context)
 
 QGpgMEDeleteJob::~QGpgMEDeleteJob() {}
 
-static QGpgMEDeleteJob::result_type delete_key(Context *ctx, const Key &key, bool allowSecretKeyDeletion)
+static QGpgMEDeleteJob::result_type delete_key(Context *ctx, const Key &key, DeletionFlags flags)
 {
-    const Error err = ctx->deleteKey(key, allowSecretKeyDeletion);
+    const Error err = ctx->deleteKey(key, flags);
     Error ae;
     const QString log = _detail::audit_log_as_html(ctx, ae);
     return std::make_tuple(err, log, ae);
 }
 
-Error QGpgMEDeleteJob::start(const Key &key, bool allowSecretKeyDeletion)
+Error QGpgMEDeleteJobPrivate::start(const Key &key, DeletionFlags flags)
 {
-    run(std::bind(&delete_key, std::placeholders::_1, key, allowSecretKeyDeletion));
+    Q_Q(QGpgMEDeleteJob);
+    q->run(std::bind(&delete_key, std::placeholders::_1, key, flags));
     return Error();
 }
+
+Error QGpgMEDeleteJob::start(const Key &key, bool allowSecretKeyDeletion)
+{
+    Q_D(QGpgMEDeleteJob);
+    return d->start(key, allowSecretKeyDeletion ? DeletionFlags{DeletionFlag::AllowSecret} : DeletionFlags{});
+}
+
 #include "moc_qgpgmedeletejob.cpp"

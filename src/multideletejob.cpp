@@ -37,6 +37,7 @@
 #include "multideletejob.h"
 #include "protocol.h"
 #include "deletejob.h"
+#include "job_p.h"
 
 #include <gpgme++/key.h>
 #include <gpgme++/context.h>
@@ -46,8 +47,18 @@
 
 #include <assert.h>
 
+class QGpgME::MultiDeleteJobPrivate : public QGpgME::JobPrivate
+{
+public:
+    GpgME::DeletionFlags flags;
+    GpgME::Error startIt() override {
+        return GpgME::Error();
+    }
+    void startNow() override {}
+};
+
 QGpgME::MultiDeleteJob::MultiDeleteJob(const Protocol *protocol)
-    : Job(nullptr),
+    : Job(std::make_unique<MultiDeleteJobPrivate>(), nullptr),
       mProtocol(protocol),
       mJob(nullptr)
 {
@@ -61,8 +72,14 @@ QGpgME::MultiDeleteJob::~MultiDeleteJob()
 
 GpgME::Error QGpgME::MultiDeleteJob::start(const std::vector<GpgME::Key> &keys, bool allowSecretKeyDeletion)
 {
+    return start(keys, allowSecretKeyDeletion ? GpgME::DeletionFlags{GpgME::DeletionFlag::AllowSecret} : GpgME::DeletionFlags{});
+}
+
+GpgME::Error QGpgME::MultiDeleteJob::start(const std::vector<GpgME::Key> &keys, GpgME::DeletionFlags flags)
+{
+    Q_D(MultiDeleteJob);
+    d->flags = flags;
     mKeys = keys;
-    mAllowSecretKeyDeletion = allowSecretKeyDeletion;
     mIt = mKeys.begin();
 
     const GpgME::Error err = startAJob();
@@ -108,6 +125,7 @@ void QGpgME::MultiDeleteJob::slotResult(const GpgME::Error &err)
 
 GpgME::Error QGpgME::MultiDeleteJob::startAJob()
 {
+    Q_D(MultiDeleteJob);
     if (mIt == mKeys.end()) {
         return GpgME::Error(0);
     }
@@ -117,7 +135,7 @@ GpgME::Error QGpgME::MultiDeleteJob::startAJob()
 
     connect(mJob.data(), &DeleteJob::result, this, &MultiDeleteJob::slotResult);
 
-    return mJob->start(*mIt, mAllowSecretKeyDeletion);
+    return mJob->start(*mIt, d->flags);
 }
 
 #include "moc_multideletejob.cpp"

@@ -41,27 +41,6 @@
 #include "job.h"
 #include "job_p.h"
 
-#include "addexistingsubkeyjob.h"
-#include "adduseridjob.h"
-#include "changeownertrustjob.h"
-#include "changepasswdjob.h"
-#include "decryptjob.h"
-#include "deletejob.h"
-#include "downloadjob.h"
-#include "exportjob.h"
-#include "gpgcardjob.h"
-#include "keyformailboxjob.h"
-#include "keygenerationjob.h"
-#include "keylistjob.h"
-#include "refreshkeysjob.h"
-#include "revokekeyjob.h"
-#include "setprimaryuseridjob.h"
-#include "signkeyjob.h"
-#include "specialjob.h"
-#include "tofupolicyjob.h"
-#include "wkdlookupjob.h"
-#include "wkspublishjob.h"
-
 #include <QCoreApplication>
 #include <QDebug>
 
@@ -126,52 +105,4 @@ void QGpgME::Job::startNow()
     d->startNow();
 }
 
-#define make_job_subclass(x)                       \
-    QGpgME::x::x(QObject *parent) : Job{parent} {} \
-    QGpgME::x::~x() {}
-
-make_job_subclass(AddExistingSubkeyJob)
-make_job_subclass(AddUserIDJob)
-make_job_subclass(ChangeOwnerTrustJob)
-make_job_subclass(ChangePasswdJob)
-make_job_subclass(DecryptJob)
-make_job_subclass(DeleteJob)
-make_job_subclass(DownloadJob)
-make_job_subclass(ExportJob)
-make_job_subclass(GpgCardJob)
-make_job_subclass(KeyForMailboxJob)
-make_job_subclass(KeyGenerationJob)
-make_job_subclass(KeyListJob)
-make_job_subclass(RefreshKeysJob)
-make_job_subclass(RevokeKeyJob)
-make_job_subclass(SetPrimaryUserIDJob)
-make_job_subclass(SignKeyJob)
-make_job_subclass(SpecialJob)
-make_job_subclass(TofuPolicyJob)
-make_job_subclass(WKDLookupJob)
-make_job_subclass(WKSPublishJob)
-
-#undef make_job_subclass
-
 #include "moc_job.cpp"
-
-#include "moc_addexistingsubkeyjob.cpp"
-#include "moc_adduseridjob.cpp"
-#include "moc_changeownertrustjob.cpp"
-#include "moc_changepasswdjob.cpp"
-#include "moc_decryptjob.cpp"
-#include "moc_deletejob.cpp"
-#include "moc_downloadjob.cpp"
-#include "moc_exportjob.cpp"
-#include "moc_gpgcardjob.cpp"
-#include "moc_keyformailboxjob.cpp"
-#include "moc_keygenerationjob.cpp"
-#include "moc_keylistjob.cpp"
-#include "moc_refreshkeysjob.cpp"
-#include "moc_revokekeyjob.cpp"
-#include "moc_setprimaryuseridjob.cpp"
-#include "moc_signkeyjob.cpp"
-#include "moc_specialjob.cpp"
-#include "moc_tofupolicyjob.cpp"
-#include "moc_wkdlookupjob.cpp"
-#include "moc_wkspublishjob.cpp"

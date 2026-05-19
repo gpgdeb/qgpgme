@@ -1,10 +1,8 @@
 /*
-    qgpgmedeletejob.h
+    deletejob_p.h
 
     This file is part of qgpgme, the Qt API binding for gpgme
-    Copyright (c) 2004,2008 Klarälvdalens Datakonsult AB
-    Copyright (c) 2016 by Bundesamt für Sicherheit in der Informationstechnik
-    Software engineering by Intevation GmbH
+    Copyright (c) 2025 g10 Code GmbH
 
     QGpgME is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License as
@@ -32,46 +30,23 @@
     your version.
 */
 
-#ifndef __QGPGME_QGPGMEDELETEJOB_H__
-#define __QGPGME_QGPGMEDELETEJOB_H__
+#ifndef __QGPGME_DELETEJOB_P_H__
+#define __QGPGME_DELETEJOB_P_H__
 
+#include "job_p.h"
+
+#include <gpgme++/key.h>
 #include "deletejob.h"
-
-#include "threadedjobmixin.h"
-
-namespace GpgME
-{
-class Key;
-}
-
 
 namespace QGpgME
 {
-class QGpgMEDeleteJobPrivate;
 
-class QGpgMEDeleteJob
-#ifdef Q_MOC_RUN
-    : public DeleteJob
-#else
-    : public _detail::ThreadedJobMixin<DeleteJob, QGpgME::QGpgMEDeleteJobPrivate>
-#endif
+class DeleteJobPrivate : public JobPrivate
 {
-    Q_OBJECT
-#ifdef Q_MOC_RUN
-public Q_SLOTS:
-    void slotFinished();
-#endif
 public:
-    explicit QGpgMEDeleteJob(GpgME::Context *context);
-    ~QGpgMEDeleteJob();
-
-    /* from DeleteJob */
-    GpgME::Error start(const GpgME::Key &key, bool allowSecretKeyDeletion) override;
-
-private:
-    Q_DECLARE_PRIVATE(QGpgMEDeleteJob)
+    virtual GpgME::Error start(const GpgME::Key &key, GpgME::DeletionFlags flags) = 0;
 };
 
 }
 
-#endif // __QGPGME_QGPGMEDELETEJOB_H__
+#endif // __QGPGME_DELETEJOB_P_H__

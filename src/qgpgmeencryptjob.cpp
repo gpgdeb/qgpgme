@@ -99,7 +99,7 @@ static QGpgMEEncryptJob::result_type encrypt(Context *ctx, QThread *thread,
         const std::weak_ptr<QIODevice> &plainText_,
         const std::weak_ptr<QIODevice> &cipherText_,
         const Context::EncryptionFlags eflags,
-        bool outputIsBsse64Encoded,
+        bool outputIsBase64Encoded,
         Data::Encoding inputEncoding,
         const QString &fileName)
 {
@@ -127,7 +127,7 @@ static QGpgMEEncryptJob::result_type encrypt(Context *ctx, QThread *thread,
         QGpgME::QByteArrayDataProvider out;
         Data outdata(&out);
 
-        if (outputIsBsse64Encoded) {
+        if (outputIsBase64Encoded) {
             outdata.setEncoding(Data::Base64Encoding);
         }
 
@@ -139,7 +139,7 @@ static QGpgMEEncryptJob::result_type encrypt(Context *ctx, QThread *thread,
         QGpgME::QIODeviceDataProvider out(cipherText);
         Data outdata(&out);
 
-        if (outputIsBsse64Encoded) {
+        if (outputIsBase64Encoded) {
             outdata.setEncoding(Data::Base64Encoding);
         }
 
@@ -151,14 +151,14 @@ static QGpgMEEncryptJob::result_type encrypt(Context *ctx, QThread *thread,
 
 }
 
-static QGpgMEEncryptJob::result_type encrypt_qba(Context *ctx, const std::vector<Key> &recipients, const QByteArray &plainText, const Context::EncryptionFlags eflags, bool outputIsBsse64Encoded, Data::Encoding inputEncoding, const QString &fileName)
+static QGpgMEEncryptJob::result_type encrypt_qba(Context *ctx, const std::vector<Key> &recipients, const QByteArray &plainText, const Context::EncryptionFlags eflags, bool outputIsBase64Encoded, Data::Encoding inputEncoding, const QString &fileName)
 {
     const std::shared_ptr<QBuffer> buffer(new QBuffer);
     buffer->setData(plainText);
     if (!buffer->open(QIODevice::ReadOnly)) {
         assert(!"This should never happen: QBuffer::open() failed");
     }
-    return encrypt(ctx, nullptr, recipients, buffer, std::shared_ptr<QIODevice>(), eflags, outputIsBsse64Encoded, inputEncoding, fileName);
+    return encrypt(ctx, nullptr, recipients, buffer, std::shared_ptr<QIODevice>(), eflags, outputIsBase64Encoded, inputEncoding, fileName);
 }
 
 static QGpgMEEncryptJob::result_type encrypt_to_filename(Context *ctx,

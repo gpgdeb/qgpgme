@@ -41,6 +41,7 @@
 #include "qgpgmeexportjob.h"
 
 #include "dataprovider.h"
+#include "exportjob_p.h"
 
 #include <gpgme++/context.h>
 #include <gpgme++/data.h>
@@ -52,6 +53,33 @@
 
 using namespace QGpgME;
 using namespace GpgME;
+
+namespace QGpgME
+{
+
+class QGpgMEExportJobPrivate : public ExportJobPrivate
+{
+public:
+    Q_DECLARE_PUBLIC(QGpgMEExportJob)
+
+    QGpgMEExportJobPrivate() = default;
+
+    ~QGpgMEExportJobPrivate() override = default;
+
+private:
+    GpgME::Error startIt() override
+    {
+        return Error::fromCode(GPG_ERR_NOT_IMPLEMENTED);
+    }
+
+    void startNow() override
+    {
+        Q_Q(QGpgMEExportJob);
+        q->run();
+    }
+};
+
+}
 
 QGpgMEExportJob::QGpgMEExportJob(Context *context)
     : QGpgMEExportJob{context, 0}
@@ -68,8 +96,12 @@ QGpgMEExportJob::QGpgMEExportJob(Context *context, unsigned int forcedMode)
 
 QGpgMEExportJob::~QGpgMEExportJob() = default;
 
-static QGpgMEExportJob::result_type export_qba(Context *ctx, const QStringList &patterns, unsigned int mode)
+static QGpgMEExportJob::result_type export_qba(Context *ctx, const QStringList &patterns, unsigned int mode, const QString &exportFilter)
 {
+    if (!exportFilter.isEmpty()) {
+        ctx->setFlag("export-filter", exportFilter.toStdString().c_str());
+    }
+
     const _detail::PatternConverter pc(patterns);
 
     QGpgME::QByteArrayDataProvider dp;
@@ -84,14 +116,14 @@ static QGpgMEExportJob::result_type export_qba(Context *ctx, const QStringList &
 Error QGpgMEExportJob::start(const QStringList &patterns)
 {
     auto mode = m_exportMode | m_additionalExportModeFlags;
-    run(std::bind(&export_qba, std::placeholders::_1, patterns, mode));
+    run(std::bind(&export_qba, std::placeholders::_1, patterns, mode, exportFilter()));
     return Error();
 }
 
 Error QGpgMEExportJob::exec(const QStringList &patterns, QByteArray &data)
 {
     auto mode = m_exportMode | m_additionalExportModeFlags;
-    const result_type r = export_qba(context(), patterns, mode);
+    const result_type r = export_qba(context(), patterns, mode, exportFilter());
     data = std::get<1>(r);
     return std::get<0>(r);
 }
@@ -99,17 +131,6 @@ Error QGpgMEExportJob::exec(const QStringList &patterns, QByteArray &data)
 void QGpgMEExportJob::setExportFlags(unsigned int flags)
 {
     m_additionalExportModeFlags = flags;
-}
-
-/* For ABI compat not pure virtual. */
-void ExportJob::setExportFlags(unsigned int)
-{
-}
-
-/* For ABI compat not pure virtual. */
-GpgME::Error ExportJob::exec(const QStringList &, QByteArray &)
-{
-    return Error();
 }
 
 #include "moc_qgpgmeexportjob.cpp"

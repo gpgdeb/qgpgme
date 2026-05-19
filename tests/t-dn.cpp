@@ -108,6 +108,7 @@ void TestDistinguishedNameParser::testParser_data()
     QTest::newRow("frompdf2") << u"2.5.4.5=#34,CN=Koch\\, Werner,2.5.4.42=#5765726E6572,2.5.4.4=#4B6F6368,C=DE"_s << QGpgME::DN::AttributeList {QGpgME::DN::Attribute{u"SerialNumber"_s, u"4"_s}, QGpgME::DN::Attribute{u"CN"_s, u"Koch, Werner"_s}, QGpgME::DN::Attribute{u"GN"_s, u"Werner"_s}, QGpgME::DN::Attribute{u"SN"_s, u"Koch"_s}, QGpgME::DN::Attribute{u"C"_s, u"DE"_s}};
     QTest::newRow("frompdf2a") << u"2.5.4.5=#34,CN=Koch\\, Werner,oid.2.5.4.42=#5765726E6572,OID.2.5.4.4=#4B6F6368,C=DE"_s
                                << QGpgME::DN::AttributeList {QGpgME::DN::Attribute{u"SerialNumber"_s, u"4"_s}, QGpgME::DN::Attribute{u"CN"_s, u"Koch, Werner"_s}, QGpgME::DN::Attribute{u"GN"_s, u"Werner"_s}, QGpgME::DN::Attribute{u"SN"_s, u"Koch"_s}, QGpgME::DN::Attribute{u"C"_s, u"DE"_s}};
+    QTest::newRow("ends with hex string") << u"2.5.4.5=#34"_s << QGpgME::DN::AttributeList {QGpgME::DN::Attribute{u"SerialNumber"_s, u"4"_s}};
 
     // weird spacing
     QTest::newRow("CN =Simple") << u"CN =Simple"_s << QGpgME::DN::AttributeList {QGpgME::DN::Attribute{u"CN"_s, u"Simple"_s}};

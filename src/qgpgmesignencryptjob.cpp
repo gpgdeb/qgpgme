@@ -97,7 +97,7 @@ void QGpgMESignEncryptJob::setOutputIsBase64Encoded(bool on)
 
 static QGpgMESignEncryptJob::result_type sign_encrypt(Context *ctx, QThread *thread, const std::vector<Key> &signers,
                                                       const std::vector<Key> &recipients, const std::weak_ptr<QIODevice> &plainText_,
-                                                      const std::weak_ptr<QIODevice> &cipherText_, const Context::EncryptionFlags eflags, bool outputIsBsse64Encoded, const QString &fileName)
+                                                      const std::weak_ptr<QIODevice> &cipherText_, const Context::EncryptionFlags eflags, bool outputIsBase64Encoded, const QString &fileName)
 {
     const std::shared_ptr<QIODevice> &plainText = plainText_.lock();
     const std::shared_ptr<QIODevice> &cipherText = cipherText_.lock();
@@ -129,7 +129,7 @@ static QGpgMESignEncryptJob::result_type sign_encrypt(Context *ctx, QThread *thr
         QGpgME::QByteArrayDataProvider out;
         Data outdata(&out);
 
-        if (outputIsBsse64Encoded) {
+        if (outputIsBase64Encoded) {
             outdata.setEncoding(Data::Base64Encoding);
         }
 
@@ -141,7 +141,7 @@ static QGpgMESignEncryptJob::result_type sign_encrypt(Context *ctx, QThread *thr
         QGpgME::QIODeviceDataProvider out(cipherText);
         Data outdata(&out);
 
-        if (outputIsBsse64Encoded) {
+        if (outputIsBase64Encoded) {
             outdata.setEncoding(Data::Base64Encoding);
         }
 
@@ -154,14 +154,14 @@ static QGpgMESignEncryptJob::result_type sign_encrypt(Context *ctx, QThread *thr
 }
 
 static QGpgMESignEncryptJob::result_type sign_encrypt_qba(Context *ctx, const std::vector<Key> &signers,
-                                                          const std::vector<Key> &recipients, const QByteArray &plainText, const Context::EncryptionFlags eflags, bool outputIsBsse64Encoded, const QString &fileName)
+                                                          const std::vector<Key> &recipients, const QByteArray &plainText, const Context::EncryptionFlags eflags, bool outputIsBase64Encoded, const QString &fileName)
 {
     const std::shared_ptr<QBuffer> buffer(new QBuffer);
     buffer->setData(plainText);
     if (!buffer->open(QIODevice::ReadOnly)) {
         assert(!"This should never happen: QBuffer::open() failed");
     }
-    return sign_encrypt(ctx, nullptr, signers, recipients, buffer, std::shared_ptr<QIODevice>(), eflags, outputIsBsse64Encoded, fileName);
+    return sign_encrypt(ctx, nullptr, signers, recipients, buffer, std::shared_ptr<QIODevice>(), eflags, outputIsBase64Encoded, fileName);
 }
 
 static QGpgMESignEncryptJob::result_type sign_encrypt_to_filename(Context *ctx,

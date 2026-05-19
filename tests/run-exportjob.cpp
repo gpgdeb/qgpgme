@@ -53,7 +53,8 @@ static void showUsageAndExitWithCode(int exitCode)
     cerr << "Usage: run-exportjob [OPTION]... [PATTERN]...\n"
          "Options:\n"
          "  --secret         export secret keys instead of public keys\n"
-         "  --secret-subkey  export secret subkeys instead of public keys\n";
+         "  --secret-subkey  export secret subkeys instead of public keys\n"
+         "  --export-filter  use the specified export filter\n";
 
     exit(exitCode);
 }
@@ -75,6 +76,7 @@ int main(int argc, char *argv[])
     QCoreApplication app{argc, argv};
 
     unsigned int exportMode = 0;
+    QString exportFilter;
 
     auto arguments = app.arguments();
     if (!arguments.isEmpty()) {
@@ -97,6 +99,10 @@ int main(int argc, char *argv[])
         } else if (arg == QLatin1String{"--secret-subkey"}) {
             exportMode = Context::ExportSecretSubkey;
             arguments.pop_front();
+        } else if (arg == QLatin1String{"--export-filter"}) {
+            arguments.pop_front();
+            exportFilter = arguments.front();
+            arguments.pop_front();
         } else {
             cerr << "Error: Invalid option " << arg.toStdString() << std::endl;
             showUsageAndExitWithCode(1);
@@ -104,6 +110,9 @@ int main(int argc, char *argv[])
     }
 
     auto job = createExportJob(exportMode);
+    if (!exportFilter.isEmpty()) {
+        job->setExportFilter(exportFilter);
+    }
     QObject::connect(job, &QGpgME::ExportJob::result,
                      &app, [&app] (const GpgME::Error &err, const QByteArray &keyData, const QString &, const GpgME::Error &) {
                          if (err) {

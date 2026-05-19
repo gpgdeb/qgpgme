@@ -64,6 +64,10 @@ QGpgMEAddExistingSubkeyJob::~QGpgMEAddExistingSubkeyJob() = default;
 
 static QGpgMEAddExistingSubkeyJob::result_type add_subkey(Context *ctx, const Key &key, const Subkey &subkey)
 {
+    const std::vector<std::string_view> keyGrips = subkey.keyGrips();
+    if (keyGrips.size() > 1) {
+        return {Error::fromCode(GPG_ERR_NOT_SUPPORTED), QString{}, Error{}};
+    }
     std::unique_ptr<GpgAddExistingSubkeyEditInteractor> interactor{new GpgAddExistingSubkeyEditInteractor{subkey.keyGrip()}};
 
     if (!subkey.neverExpires()) {

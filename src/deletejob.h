@@ -37,6 +37,7 @@
 
 #include "qgpgme_export.h"
 #include "job.h"
+#include <gpgme++/global.h>
 
 namespace GpgME
 {
@@ -46,6 +47,7 @@ class Key;
 
 namespace QGpgME
 {
+class DeleteJobPrivate;
 
 /**
    @short An abstract base class for asynchronous deleters
@@ -64,7 +66,7 @@ class QGPGME_EXPORT DeleteJob : public Job
 {
     Q_OBJECT
 protected:
-    explicit DeleteJob(QObject *parent);
+    DeleteJob(std::unique_ptr<DeleteJobPrivate>, QObject *parent);
 public:
     ~DeleteJob();
 
@@ -73,10 +75,14 @@ public:
        delete, \a allowSecretKeyDeletion specifies if a key may also
        be deleted if the secret key part is available, too.
     */
-    virtual GpgME::Error start(const GpgME::Key &key, bool allowSecretKeyDeletion = false) = 0;
+    QGPGME_DEPRECATED virtual GpgME::Error start(const GpgME::Key &key, bool allowSecretKeyDeletion = false) = 0;
+    GpgME::Error start(const GpgME::Key &key, GpgME::DeletionFlags flags);
 
 Q_SIGNALS:
     void result(const GpgME::Error &result, const QString &auditLogAsHtml = QString(), const GpgME::Error &auditLogError = GpgME::Error());
+
+private:
+    Q_DECLARE_PRIVATE(DeleteJob);
 };
 
 }
