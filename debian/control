@@ -7,15 +7,15 @@ Uploaders:
  Andreas Metzler <ametzler@debian.org>,
 Build-Depends:
  debhelper-compat (= 13),
- cmake,
+ cmake (>= 3.16),
  gpg,
  gpg-agent,
  libgpg-error-dev (>= 1.47),
- libgpgme-dev (>= 2.0.0),
- libgpgmepp-dev (>= 2.0.0),
+ libgpgme-dev (>= 2.1.0),
+ libgpgmepp-dev (>= 2.1.0),
  pkgconf,
  qt6-base-dev (>= 6.5.0),
- qtbase5-dev,
+ qtbase5-dev (>= 5.15.0),
 # see 1006230
  qtbase5-private-dev,
 Build-Depends-Indep:
@@ -61,9 +61,9 @@ Package: libqgpgme-dev
 Section: libdevel
 Architecture: any
 Depends:
- libgpgmepp-dev (>= 2.0.0),
+ libgpgmepp-dev (>= 2.1.0),
  libqgpgme15t64 (= ${binary:Version}),
- qtbase5-dev,
+ qtbase5-dev (>= 5.15.0),
  ${misc:Depends},
 Conflicts:
  libqgpgmeqt6-dev,
@@ -94,7 +94,7 @@ Conflicts:
 Replaces:
  libqgpgme-dev,
 Depends:
- libgpgmepp-dev (>= 2.0.0),
+ libgpgmepp-dev (>= 2.1.0),
  libqgpgmeqt6-15 (= ${binary:Version}),
  ${misc:Depends},
 Recommends:
