@@ -1,3 +1,9 @@
+qgpgme (2.2.0-1) unstable; urgency=medium
+
+  * new upstream release
+
+ -- meik michalke <meik.michalke@gnupg.com>  Wed, 22 Jul 2026 13:25:30 +0200
+
 qgpgme (2.1.0-1) unstable; urgency=medium
 
   * new upstream release
