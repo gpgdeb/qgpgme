@@ -1,8 +1,8 @@
 /*
-    qt6compat_p.h
+    adqueryjob.cpp
 
     This file is part of qgpgme, the Qt API binding for gpgme
-    Copyright (c) 2025 g10 Code GmbH
+    Copyright (c) 2026 g10 Code GmbH
     Software engineering by Ingo Klöcker <dev@ingo-kloecker.de>
 
     QGpgME is free software; you can redistribute it and/or
@@ -31,38 +31,40 @@
     your version.
 */
 
-#pragma once
-
-#include <QtGlobal>
-
-#include <QDebug>
-#include <QString>
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-
-namespace Qt
-{
-inline namespace Literals
-{
-inline namespace StringLiterals
-{
-inline QString operator""_s(const char16_t *str, size_t size) noexcept
-{
-    return QString::fromUtf16(const_cast<char16_t *>(str), int(size));
-}
-constexpr inline QLatin1String operator""_L1(const char *str, size_t size) noexcept
-{
-    return QLatin1String{str, int(size)};
-}
-} // StringLiterals
-} // Literals
-} // Qt
-
+#ifdef HAVE_CONFIG_H
+ #include "config.h"
 #endif
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
-inline QDebug operator<<(QDebug s, const std::string &string)
+#include "adqueryjob.h"
+
+#include "adqueryjob_p.h"
+#include "adqueryresult.h"
+
+using namespace QGpgME;
+
+ADQueryJob::ADQueryJob(std::unique_ptr<ADQueryJobPrivate> dd, QObject *parent)
+    : Job{std::move(dd), parent}
 {
-    return s << QString::fromStdString(string);
 }
-#endif
+
+ADQueryJob::~ADQueryJob() = default;
+
+GpgME::Error ADQueryJob::start(const QString &filter, const QStringList &attributes, ADQueryOptions options)
+{
+    Q_D(ADQueryJob);
+    d->m_filter = filter;
+    d->m_attributes = attributes;
+    d->m_options = options;
+    return d->startIt();
+}
+
+ADQueryResult ADQueryJob::exec(const QString &filter, const QStringList &attributes, ADQueryOptions options)
+{
+    Q_D(ADQueryJob);
+    d->m_filter = filter;
+    d->m_attributes = attributes;
+    d->m_options = options;
+    return d->execIt();
+}
+
+#include "moc_adqueryjob.cpp"

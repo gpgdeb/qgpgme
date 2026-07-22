@@ -1,8 +1,8 @@
 /*
-    qt6compat_p.h
+    adqueryjob.h
 
     This file is part of qgpgme, the Qt API binding for gpgme
-    Copyright (c) 2025 g10 Code GmbH
+    Copyright (c) 2026 g10 Code GmbH
     Software engineering by Ingo Klöcker <dev@ingo-kloecker.de>
 
     QGpgME is free software; you can redistribute it and/or
@@ -31,38 +31,60 @@
     your version.
 */
 
-#pragma once
+#ifndef __QGPGME_ADQUERYJOB_H__
+#define __QGPGME_ADQUERYJOB_H__
 
-#include <QtGlobal>
+#include "job.h"
 
-#include <QDebug>
-#include <QString>
+#include "qgpgme_export.h"
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+class QString;
 
-namespace Qt
+namespace GpgME
 {
-inline namespace Literals
-{
-inline namespace StringLiterals
-{
-inline QString operator""_s(const char16_t *str, size_t size) noexcept
-{
-    return QString::fromUtf16(const_cast<char16_t *>(str), int(size));
+class Error;
 }
-constexpr inline QLatin1String operator""_L1(const char *str, size_t size) noexcept
-{
-    return QLatin1String{str, int(size)};
-}
-} // StringLiterals
-} // Literals
-} // Qt
 
-#endif
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
-inline QDebug operator<<(QDebug s, const std::string &string)
+namespace QGpgME
 {
-    return s << QString::fromStdString(string);
+
+enum class ADQueryOption {
+    Default = 0x00,
+    RootDSE = 0x01,
+    SubstituteVariables = 0x02,
+};
+Q_DECLARE_FLAGS(ADQueryOptions, ADQueryOption);
+
+class ADQueryResult;
+
+class ADQueryJobPrivate;
+
+class QGPGME_EXPORT ADQueryJob : public Job
+{
+    Q_OBJECT
+protected:
+    ADQueryJob(std::unique_ptr<ADQueryJobPrivate>, QObject *parent);
+
+public:
+    ~ADQueryJob() override;
+
+    /**
+     * Starts an AD query with filter \a filter asking for the attributes \a attributes.
+     */
+    GpgME::Error start(const QString &filter, const QStringList &attributes, ADQueryOptions options = ADQueryOption::Default);
+
+    /**
+     * Runs an AD query with filter \a filter asking for the attributes \a attributes.
+     */
+    ADQueryResult exec(const QString &filter, const QStringList &attributes, ADQueryOptions options = ADQueryOption::Default);
+
+Q_SIGNALS:
+    void result(const ADQueryResult &result, const QString &auditLogAsHtml = {}, const GpgME::Error &auditLogError = {});
+
+private:
+    Q_DECLARE_PRIVATE(ADQueryJob)
+};
+
 }
-#endif
+
+#endif // __QGPGME_ADQUERYJOB_H__

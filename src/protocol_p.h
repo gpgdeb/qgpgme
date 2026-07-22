@@ -37,6 +37,7 @@
 #define __QGPGME_PROTOCOL_P_H__
 #include "qgpgmenewcryptoconfig.h"
 
+#include "qgpgmeadqueryjob.h"
 #include "qgpgmekeygenerationjob.h"
 #include "qgpgmekeylistjob.h"
 #include "qgpgmelistallkeysjob.h"
@@ -563,6 +564,14 @@ public:
         }
         if (auto context = GpgME::Context::createForProtocol(mProtocol)) {
             return new QGpgME::QGpgMEWKDRefreshJob{context};
+        }
+        return nullptr;
+    }
+
+    QGpgME::ADQueryJob *adQueryJob() const override
+    {
+        if (auto context = GpgME::Context::createForEngine(GpgME::AssuanEngine)) {
+            return new QGpgME::QGpgMEADQueryJob{context.release()};
         }
         return nullptr;
     }

@@ -40,6 +40,7 @@
 
 #include <gpgme.h>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -60,6 +61,27 @@ static inline QString errorAsString(const GpgME::Error &error)
 #else
     return QString::fromLocal8Bit(error.asStdString().c_str());
 #endif
+}
+
+namespace _qgpgme
+{
+
+static inline std::vector<std::string_view> split(const std::string_view s, char delimiter)
+{
+    std::vector<std::string_view> result;
+    std::string_view::size_type start = 0;
+    std::string_view::size_type end;
+    do {
+        end = s.find(delimiter, start);
+        if (end == s.npos) {
+            end = s.size();
+        }
+        result.emplace_back(std::addressof(s[start]), end - start);
+        start = end + 1;
+    } while (end != s.size());
+    return result;
+}
+
 }
 
 std::vector<std::string> toStrings(const QStringList &l);

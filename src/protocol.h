@@ -41,6 +41,7 @@
 
 namespace QGpgME {
 class AddExistingSubkeyJob;
+class ADQueryJob;
 class CryptoConfig;
 class KeyListJob;
 class ListAllKeysJob;
@@ -201,6 +202,8 @@ public:
     virtual DecryptVerifyArchiveJob *decryptVerifyArchiveJob() const = 0;
 
     virtual WKDRefreshJob *wkdRefreshJob() const = 0;
+
+    virtual ADQueryJob *adQueryJob() const = 0;
 };
 
 /** Obtain a reference to the OpenPGP Protocol.

@@ -1,3 +1,21 @@
+Noteworthy changes in version 2.2.0 (2026-07-20)  [C24/A9/R0]
+------------------------------------------------
+
+ * Add job for querying Active Directory. [T6094]
+
+ * Don't start dirmngr for WKD lookup if it is disabled for gpg. [T8304]
+
+ * Interface changes relative to the 2.1.0 release:
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ADQueryJob                    NEW.
+ ADQueryOption                 NEW.
+ ADQueryOptions                NEW.
+ ADQueryResult                 NEW.
+ Protocol::adQueryJob          NEW.
+
+ Release-info: https://dev.gnupg.org/T8360
+
+
 Noteworthy changes in version 2.1.0 (2026-05-18)  [C23/A8/R0]
 ------------------------------------------------
 

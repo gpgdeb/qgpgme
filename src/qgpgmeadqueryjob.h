@@ -1,8 +1,8 @@
 /*
-    qt6compat_p.h
+    qgpgmeadqueryjob.h
 
     This file is part of qgpgme, the Qt API binding for gpgme
-    Copyright (c) 2025 g10 Code GmbH
+    Copyright (c) 2026 g10 Code GmbH
     Software engineering by Ingo Klöcker <dev@ingo-kloecker.de>
 
     QGpgME is free software; you can redistribute it and/or
@@ -31,38 +31,39 @@
     your version.
 */
 
-#pragma once
+#ifndef __QGPGME_QGPGMEADQUERYJOB_H__
+#define __QGPGME_QGPGMEADQUERYJOB_H__
 
-#include <QtGlobal>
+#include "adqueryjob.h"
 
-#include <QDebug>
-#include <QString>
+#include "adqueryresult.h"
+#include "threadedjobmixin.h"
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+namespace QGpgME
+{
 
-namespace Qt
-{
-inline namespace Literals
-{
-inline namespace StringLiterals
-{
-inline QString operator""_s(const char16_t *str, size_t size) noexcept
-{
-    return QString::fromUtf16(const_cast<char16_t *>(str), int(size));
-}
-constexpr inline QLatin1String operator""_L1(const char *str, size_t size) noexcept
-{
-    return QLatin1String{str, int(size)};
-}
-} // StringLiterals
-} // Literals
-} // Qt
+class QGpgMEADQueryJobPrivate;
 
+class QGpgMEADQueryJob
+#ifdef Q_MOC_RUN
+    : public ADQueryJob
+#else
+    : public _detail::ThreadedJobMixin<ADQueryJob, QGpgMEADQueryJobPrivate, std::tuple<ADQueryResult, QString, GpgME::Error> >
 #endif
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
-inline QDebug operator<<(QDebug s, const std::string &string)
 {
-    return s << QString::fromStdString(string);
-}
+    Q_OBJECT
+#ifdef Q_MOC_RUN
+public Q_SLOTS:
+    void slotFinished();
 #endif
+public:
+    explicit QGpgMEADQueryJob(GpgME::Context *context);
+    ~QGpgMEADQueryJob() override;
+
+private:
+    Q_DECLARE_PRIVATE(QGpgMEADQueryJob)
+};
+
+}
+
+#endif // __QGPGME_QGPGMEADQUERYJOB_H__

@@ -1,3 +1,45 @@
+2026-07-20  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Release 2.2.0.
+	+ commit 447c4a7665c9b3467b489d8b3e73513fb1eff4a4
+
+
+2026-06-24  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Don't start dirmngr for WKD lookup if it is disabled for gpg.
+	+ commit d764c5c57973fb452726024d1ef8634e1856e5a0
+	* src/qgpgmewkdlookupjob.cpp (startDirmngr): Check disable-dirmngr
+	option of gpg.
+
+	Don't start dirmngr for AD query if it is disabled for gpg and gpgsm.
+	+ commit 82ad47a35d0f4e47a7a9f958a519b0230d21524e
+	* src/qgpgmeadqueryjob.cpp (startDirmngr): Check disable-dirmngr
+	option of gpg and gpgsm.
+
+2026-06-17  Ingo Klöcker  <dev@ingo-kloecker.de>
+
+	Add job for querying Active Directory.
+	+ commit 905e3851170d362261f1f6b6c04767aa23332baa
+	* src/CMakeLists.txt: Add new files.
+	* src/adqueryjob.cpp, src/adqueryjob.h, src/adqueryjob_p.h,
+	src/adqueryresult.cpp, src/adqueryresult.h, src/qgpgmeadqueryjob.cpp,
+	src/qgpgmeadqueryjob.h: New.
+	* src/protocol.h (class Protocol): Add pure virtual member function
+	adQueryJob
+	* src/protocol_p.h (Protocol::adQueryJob): ... and implement it.
+	* src/qt6compat_p.h (operator<<): Add QDebug stream operator for
+	std::string for Qt 5 and older Qt 6.
+
+	* tests/CMakeLists.txt: Add new test runner run-adqueryjob.
+	* tests/run-adqueryjob.cpp: New.
+
+	Add helper for splitting a std::string_view.
+	+ commit 47af4f6a344ea8ee1fb69ef447979894b58fb0f6
+	* src/util.h (_qgpgme::split): New.
+
+	* tests/CMakeLists.txt: Add new test.
+	* tests/t-util.cpp: New.
+
 2026-05-18  Werner Koch  <wk@gnupg.org>
 
 	Release 2.1.0.
