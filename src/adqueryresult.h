@@ -1,8 +1,8 @@
 /*
-    qt6compat_p.h
+    adqueryresult.h - wraps the result of a ADQueryJob
 
     This file is part of qgpgme, the Qt API binding for gpgme
-    Copyright (c) 2025 g10 Code GmbH
+    Copyright (c) 2026 g10 Code GmbH
     Software engineering by Ingo Klöcker <dev@ingo-kloecker.de>
 
     QGpgME is free software; you can redistribute it and/or
@@ -31,38 +31,69 @@
     your version.
 */
 
-#pragma once
+#ifndef __QGPGME_ADQUERYRESULT_H__
+#define __QGPGME_ADQUERYRESULT_H__
 
-#include <QtGlobal>
+#include "qgpgme_export.h"
 
-#include <QDebug>
+#include <QList>
 #include <QString>
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#include <gpgme++/result.h>
 
-namespace Qt
-{
-inline namespace Literals
-{
-inline namespace StringLiterals
-{
-inline QString operator""_s(const char16_t *str, size_t size) noexcept
-{
-    return QString::fromUtf16(const_cast<char16_t *>(str), int(size));
-}
-constexpr inline QLatin1String operator""_L1(const char *str, size_t size) noexcept
-{
-    return QLatin1String{str, int(size)};
-}
-} // StringLiterals
-} // Literals
-} // Qt
+#include <memory>
 
-#endif
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
-inline QDebug operator<<(QDebug s, const std::string &string)
+namespace GpgME
 {
-    return s << QString::fromStdString(string);
+class Error;
 }
-#endif
+
+namespace QGpgME
+{
+
+class QGPGME_EXPORT ADQueryResult : public GpgME::Result
+{
+public:
+    struct Attribute {
+        QString name;
+        QString value;
+
+        Attribute(QString _name, QString _value)
+            : name(std::move(_name))
+            , value(std::move(_value))
+        {
+        }
+    };
+
+    ADQueryResult();
+    ~ADQueryResult();
+
+    explicit ADQueryResult(const GpgME::Error &err);
+    explicit ADQueryResult(const QList<Attribute> &attributes, const QString &source, const GpgME::Error &err);
+
+    ADQueryResult(const ADQueryResult &other);
+    ADQueryResult &operator=(const ADQueryResult &other);
+
+    ADQueryResult(ADQueryResult &&other);
+    ADQueryResult &operator=(ADQueryResult &&other);
+
+    void swap(ADQueryResult &other) noexcept;
+
+    bool isNull() const;
+
+    QList<Attribute> attributes() const;
+    QString source() const;
+
+private:
+    class Private;
+    std::unique_ptr<Private> d;
+};
+
+QGPGME_EXPORT void swap(ADQueryResult &a, ADQueryResult &b);
+
+QGPGME_EXPORT std::ostream &operator<<(std::ostream &os, const ADQueryResult &result);
+QGPGME_EXPORT std::ostream &operator<<(std::ostream &os, const ADQueryResult::Attribute &result);
+
+}
+
+#endif // __QGPGME_ADQUERYRESULT_H__

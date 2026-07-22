@@ -36,6 +36,8 @@ target_sources(${targetname} PRIVATE
     abstractimportjob.cpp
     addexistingsubkeyjob.cpp
     adduseridjob.cpp
+    adqueryjob.cpp
+    adqueryresult.cpp
     changeexpiryjob.cpp
     changeownertrustjob.cpp
     changepasswdjob.cpp
@@ -66,6 +68,7 @@ target_sources(${targetname} PRIVATE
     qgpgme_debug.cpp
     qgpgmeaddexistingsubkeyjob.cpp
     qgpgmeadduseridjob.cpp
+    qgpgmeadqueryjob.cpp
     qgpgmebackend.cpp
     qgpgmechangeexpiryjob.cpp
     qgpgmechangeownertrustjob.cpp
@@ -140,6 +143,7 @@ set(qgpgme_PRIVATE_HEADERS
     protocol_p.h
     qgpgmeaddexistingsubkeyjob.h
     qgpgmeadduseridjob.h
+    qgpgmeadqueryjob.h
     qgpgmebackend.h
     qgpgmechangeexpiryjob.h
     qgpgmechangeownertrustjob.h
@@ -197,6 +201,8 @@ ecm_generate_headers(qgpgme_CAMELCASE_HEADERS
     AbstractImportJob
     AddExistingSubkeyJob
     AddUserIDJob
+    ADQueryJob
+    ADQueryResult
     ChangeExpiryJob
     ChangeOwnerTrustJob
     ChangePasswdJob

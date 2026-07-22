@@ -37,7 +37,9 @@
 
 #include "qgpgmewkdlookupjob.h"
 
+#include "cryptoconfig.h"
 #include "debug.h"
+#include "protocol.h"
 #include "qgpgme_debug.h"
 
 #include <gpgme++/context.h>
@@ -59,8 +61,12 @@ QGpgMEWKDLookupJob::~QGpgMEWKDLookupJob() = default;
 
 static GpgME::Error startDirmngr(Context *assuanCtx)
 {
-    Error err;
+    // don't start dirmngr if it is disabled for gpg
+    if (QGpgME::cryptoConfig()->entry("gpg", "disable-dirmngr")->boolValue()) {
+        return Error::fromCode(GPG_ERR_NO_DIRMNGR);
+    }
 
+    Error err;
     auto spawnCtx = std::unique_ptr<Context>{Context::createForEngine(SpawnEngine, &err)};
     if (err) {
         qCDebug(QGPGME_LOG) << "Error: Failed to get context for spawn engine (" << err << ")";
